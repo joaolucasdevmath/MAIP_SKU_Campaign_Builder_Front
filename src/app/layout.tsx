@@ -1,4 +1,5 @@
 import 'src/global.css';
+import Head from 'next/head';
 
 // ----------------------------------------------------------------------
 
@@ -41,6 +42,12 @@ export default async function RootLayout({ children }: Props) {
 
   return (
     <html lang={lang ?? 'en'} suppressHydrationWarning>
+      <Head>
+        <link rel="icon" href="/assets/illustrations/yduqs.png" type="image/png" />
+        <meta name="theme-color" content={primary.main} />
+        <meta name="description" content="AI Camping Builder" />
+        <meta property="og:image" content="/assets/illustrations/yduqs.png" />
+      </Head>
       <body>
         {getInitColorSchemeScript}
 

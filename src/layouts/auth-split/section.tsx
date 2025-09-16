@@ -32,9 +32,9 @@ export function Section({
   method,
   layoutQuery,
   methods,
-  title = 'Manage the job',
-  imgUrl = `${CONFIG.site.basePath}/assets/illustrations/illustration-dashboard.webp`,
-  subtitle = 'More effectively with optimized workflows.',
+  title = 'MATH',
+  imgUrl = `${CONFIG.site.basePath}/assets/illustrations/yduqs.png`,
+  subtitle = 'AI CAMPING BUILDER',
   ...other
 }: SectionProps) {
   const theme = useTheme();
@@ -65,12 +65,27 @@ export function Section({
       {...other}
     >
       <div>
-        <Typography variant="h3" sx={{ textAlign: 'center' }}>
+        <Typography 
+          variant="h1" 
+          sx={{ 
+            textAlign: 'center', 
+            color: theme.palette.common.black, 
+            fontWeight: 700, 
+            letterSpacing: 2, 
+            mb: 1 
+          }}>
           {title}
         </Typography>
 
         {subtitle && (
-          <Typography sx={{ color: 'text.secondary', textAlign: 'center', mt: 2 }}>
+          <Typography 
+            sx={{ 
+              color: theme.palette.grey[500], 
+              textAlign: 'center', 
+              fontStyle: 'italic', 
+              fontSize: 22, 
+              mt: 1 
+            }}>
             {subtitle}
           </Typography>
         )}
@@ -80,7 +95,7 @@ export function Section({
         component="img"
         alt="Dashboard illustration"
         src={imgUrl}
-        sx={{ width: 1, aspectRatio: '4/3', objectFit: 'cover' }}
+        sx={{ width: 260, height: 200, objectFit: 'contain', mx: 'auto', mb: 2 }}
       />
 
       {!!methods?.length && method && (
