@@ -11,6 +11,7 @@ import { RouterLink } from 'src/routes/components';
 
 import { CONFIG } from 'src/config-global';
 import { varAlpha, bgGradient } from 'src/theme/styles';
+import { Stack } from '@mui/material';
 
 // ----------------------------------------------------------------------
 
@@ -42,13 +43,11 @@ export function Section({
   return (
     <Box
       sx={{
-        ...bgGradient({
-          color: `0deg, ${varAlpha(theme.vars.palette.background.defaultChannel, 0.92)}, ${varAlpha(theme.vars.palette.background.defaultChannel, 0.92)}`,
-          imgUrl: `${CONFIG.site.basePath}/assets/background/background-3-blur.webp`,
-        }),
-        px: 3,
-        pb: 3,
-        width: 1,
+        color: theme.palette.grey[300],
+
+        ml: 18,
+        pb: 6,
+
         maxWidth: 480,
         display: 'none',
         position: 'relative',
@@ -64,77 +63,156 @@ export function Section({
       }}
       {...other}
     >
+      <Box
+        sx={{
+          position: 'relative',
+          width: 64,
+          height: 64,
+          bgcolor: '#000',
+          borderRadius: '50%',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          boxShadow: 3,
+        }}
+      >
+        <svg
+          width={32}
+          height={32}
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="white"
+          strokeWidth={2}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <path d="M12 3v.01M12 21v.01M3 12h.01M21 12h.01M5.64 5.64l.01.01M18.36 18.36l.01.01M5.64 18.36l.01-.01M18.36 5.64l.01-.01M12 12l2.35 2.35M9.65 9.65L12 12m0 0l2.35-2.35M9.65 14.35L12 12M12 6l1.06-1.06M10.94 10.94L12 12m0 0l1.06 1.06M12 18l-1.06 1.06M12 12l-1.06-1.06M14.35 9.65L12 12m0 0l-1.06 1.06M12 12l1.06-1.06" />
+        </svg>
+      </Box>
       <div>
-        <Typography 
-          variant="h1" 
-          sx={{ 
-            textAlign: 'center', 
-            color: theme.palette.common.black, 
-            fontWeight: 700, 
-            letterSpacing: 2, 
-            mb: 1 
-          }}>
+        <Typography
+          variant="h1"
+          sx={{
+            textAlign: 'center',
+            color: theme.palette.common.black,
+            fontWeight: 800,
+            letterSpacing: 2,
+            mb: 1,
+          }}
+        >
           {title}
         </Typography>
 
         {subtitle && (
-          <Typography 
-            sx={{ 
-              color: theme.palette.grey[500], 
-              textAlign: 'center', 
-              fontStyle: 'italic', 
-              fontSize: 22, 
-              mt: 1 
-            }}>
+          <Typography
+            sx={{
+              color: theme.palette.common.black,
+              textAlign: 'center',
+              fontStyle: 'Roboto',
+              fontWeight: 500,
+              fontSize: 18,
+              mt: 1,
+            }}
+          >
             {subtitle}
           </Typography>
         )}
       </div>
-
-      <Box
-        component="img"
-        alt="Dashboard illustration"
-        src={imgUrl}
-        sx={{ width: 260, height: 200, objectFit: 'contain', mx: 'auto', mb: 2 }}
-      />
-
-      {!!methods?.length && method && (
-        <Box component="ul" gap={2} display="flex">
-          {methods.map((option) => {
-            const selected = method === option.label.toLowerCase();
-
-            return (
-              <Box
-                key={option.label}
-                component="li"
-                sx={{
-                  ...(!selected && {
-                    cursor: 'not-allowed',
-                    filter: 'grayscale(1)',
-                  }),
-                }}
+      <Typography variant="body1" color="text.secondary" mb={4} sx={{ mt: -8 }}>
+        Geração de Briefings para Marketing
+      </Typography>
+      <Box sx={{ display: { xs: 'none', md: 'block' } }}>
+        <Stack spacing={2}>
+          <Stack direction="row" alignItems="center" spacing={2}>
+            <Box
+              sx={{
+                width: 40,
+                height: 40,
+                borderRadius: '50%',
+                background: 'rgba(0,0,0,0.07)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <svg
+                width={20}
+                height={20}
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="black"
+                strokeWidth={2}
+                strokeLinecap="round"
+                strokeLinejoin="round"
               >
-                <Tooltip title={option.label} placement="top">
-                  <Link
-                    component={RouterLink}
-                    href={option.path}
-                    sx={{
-                      ...(!selected && { pointerEvents: 'none' }),
-                    }}
-                  >
-                    <Box
-                      component="img"
-                      alt={option.label}
-                      src={option.icon}
-                      sx={{ width: 32, height: 32 }}
-                    />
-                  </Link>
-                </Tooltip>
-              </Box>
-            );
-          })}
-        </Box>
-      )}
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                <polyline points="22 4 12 14.01 9 11.01" />
+              </svg>
+            </Box>
+            <Typography color="text.primary">Gere briefings para campanhas em segundos</Typography>
+          </Stack>
+          <Stack direction="row" alignItems="center" spacing={2}>
+            <Box
+              sx={{
+                width: 40,
+                height: 40,
+                borderRadius: '50%',
+                background: 'rgba(0,0,0,0.07)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <svg
+                width={20}
+                height={20}
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="black"
+                strokeWidth={2}
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
+              </svg>
+            </Box>
+            <Typography color="text.primary">
+              Automatize segmentações e públicos de campanhas
+            </Typography>
+          </Stack>
+          <Stack direction="row" alignItems="center" spacing={2}>
+            <Box
+              sx={{
+                width: 40,
+                height: 40,
+                borderRadius: '50%',
+                background: 'rgba(0,0,0,0.07)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <svg
+                width={20}
+                height={20}
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="black"
+                strokeWidth={2}
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <line x1="12" y1="20" x2="12" y2="10" />
+                <line x1="18" y1="20" x2="18" y2="4" />
+                <line x1="6" y1="20" x2="6" y2="16" />
+              </svg>
+            </Box>
+            <Typography color="text.primary">
+              Padronize a criação dos briefings no seu negócio
+            </Typography>
+          </Stack>
+        </Stack>
+      </Box>
     </Box>
   );
 }
