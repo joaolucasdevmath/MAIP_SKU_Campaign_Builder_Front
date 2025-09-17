@@ -2,6 +2,12 @@ const ROOTS = {
   AUTH: '/auth',
   AUTH_DEMO: '/auth-demo',
   DASHBOARD: '/dashboard',
+  BASIC_INFO: '/basic-info',
+  AUDIENCE_DEFINITION: '/audience-definition',
+  ADVANCED_FILTER: '/advanced-filter',
+  REVIEW_GENERATION: '/review-generation',
+  AUDIENCE: '/audience',
+  INSIGHTS: '/insights',
 };
 
 // ----------------------------------------------------------------------
@@ -33,4 +39,15 @@ export const paths = {
       edit: (id: string) => `${ROOTS.DASHBOARD}/user/${id}/edit`,
     },
   },
+
+  // BRIEFING FLOW
+  briefing: {
+    basicInfo: ROOTS.BASIC_INFO,
+    audienceDefinition: ROOTS.AUDIENCE_DEFINITION,
+    advancedFilter: ROOTS.ADVANCED_FILTER,
+    reviewGeneration: ROOTS.REVIEW_GENERATION,
+  },
+
+  audience: ROOTS.AUDIENCE,
+  insights: ROOTS.INSIGHTS,
 };

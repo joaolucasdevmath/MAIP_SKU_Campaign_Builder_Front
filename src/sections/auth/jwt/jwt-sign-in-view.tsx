@@ -8,10 +8,12 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import Link from '@mui/material/Link';
 import Alert from '@mui/material/Alert';
 import Stack from '@mui/material/Stack';
+import { Box, Typography } from '@mui/material';
 import IconButton from '@mui/material/IconButton';
 import LoadingButton from '@mui/lab/LoadingButton';
 import InputAdornment from '@mui/material/InputAdornment';
 
+import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hooks';
 import { RouterLink } from 'src/routes/components';
 
@@ -22,7 +24,6 @@ import { Form, Field } from 'src/components/hook-form';
 
 import { useAuthContext } from 'src/auth/hooks';
 import { signInWithPassword } from 'src/auth/context/jwt';
-import { Box, Typography } from '@mui/material';
 
 // ----------------------------------------------------------------------
 
@@ -74,9 +75,8 @@ export function JwtSignInView() {
 
   const onSubmit = handleSubmit(async (data) => {
     try {
-      await signInWithPassword({ email: data.email, password: data.password });
-      // await checkUserSession?.(); // Comentado para evitar erro de autenticação
-      // router.refresh();
+  await signInWithPassword({ email: data.email, password: data.password });
+  router.push(paths.briefing.basicInfo);
     } catch (error) {
       console.error(error);
       setErrorMsg(error instanceof Error ? error.message : error);
