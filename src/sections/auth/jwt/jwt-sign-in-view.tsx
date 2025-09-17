@@ -22,6 +22,7 @@ import { Form, Field } from 'src/components/hook-form';
 
 import { useAuthContext } from 'src/auth/hooks';
 import { signInWithPassword } from 'src/auth/context/jwt';
+import { Box, Typography } from '@mui/material';
 
 // ----------------------------------------------------------------------
 
@@ -41,6 +42,13 @@ export const SignInSchema = zod.object({
 // ----------------------------------------------------------------------
 
 export function JwtSignInView() {
+  const [loading, setLoading] = useState(false);
+
+  function handleMicrosoftLogin() {
+    setLoading(true);
+    console.log('Login Microsoft');
+    setTimeout(() => setLoading(false), 1200);
+  }
   const router = useRouter();
 
   const { checkUserSession } = useAuthContext();
@@ -66,9 +74,9 @@ export function JwtSignInView() {
 
   const onSubmit = handleSubmit(async (data) => {
     try {
-  await signInWithPassword({ email: data.email, password: data.password });
-  // await checkUserSession?.(); // Comentado para evitar erro de autenticação
-  // router.refresh();
+      await signInWithPassword({ email: data.email, password: data.password });
+      // await checkUserSession?.(); // Comentado para evitar erro de autenticação
+      // router.refresh();
     } catch (error) {
       console.error(error);
       setErrorMsg(error instanceof Error ? error.message : error);
@@ -77,7 +85,13 @@ export function JwtSignInView() {
 
   const renderForm = (
     <Stack spacing={3}>
-      <Field.Text name="email" label="Email address" InputLabelProps={{ shrink: true }} />
+      <Typography variant="h5" fontWeight={600} mb={1} color="text.primary" align="center">
+        Bem-vindo AI Campaign Builder
+      </Typography>
+      <Typography variant="body2" color="text.secondary" align="center" mb={3}>
+        Acesse sua plataforma Campaign Builder
+      </Typography>
+      <Field.Text name="email" label="Email*" InputLabelProps={{ shrink: true }} />
 
       <Stack spacing={1.5}>
         <Link
@@ -87,12 +101,12 @@ export function JwtSignInView() {
           color="inherit"
           sx={{ alignSelf: 'flex-end' }}
         >
-          Forgot password?
+          Esqueceu senha?
         </Link>
 
         <Field.Text
           name="password"
-          label="Password"
+          label="Senha*"
           placeholder="6+ characters"
           type={password.value ? 'text' : 'password'}
           InputLabelProps={{ shrink: true }}
@@ -117,28 +131,61 @@ export function JwtSignInView() {
         loading={isSubmitting}
         loadingIndicator="Sign in..."
       >
-        Sign in
+        Entrar
+      </LoadingButton>
+
+      {/* Separador e botão Microsoft */}
+      <Box sx={{ display: 'flex', alignItems: 'center', my: 2 }}>
+        <Box sx={{ flexGrow: 1, borderTop: '1px solid #e5e7eb' }} />
+        <Typography
+          sx={{
+            px: 2,
+            fontSize: 12,
+            textTransform: 'uppercase',
+            color: '#94a3b8',
+            position: 'relative',
+            zIndex: 1,
+            background: 'transparent',
+          }}
+        >
+          ou continue com
+        </Typography>
+        <Box sx={{ flexGrow: 1, borderTop: '1px solid #e5e7eb' }} />
+      </Box>
+      <LoadingButton
+        type="button"
+        fullWidth
+        size="large"
+        onClick={() => handleMicrosoftLogin()}
+        disabled={loading}
+        sx={{
+          fontWeight: 600,
+          height: 48,
+          borderRadius: 1,
+          background: 'rgba(255,255,255,0.7)',
+          color: '#18181b',
+          boxShadow: 1,
+          border: '1px solid #e5e7eb',
+          textTransform: 'none',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          transition: 'background 0.2s, transform 0.15s',
+          '&:hover': { background: 'rgba(243,244,246,0.9)', transform: 'scale(1.03)' },
+          '&:active': { transform: 'scale(0.97)' },
+          '&:disabled': { opacity: 0.6, cursor: 'not-allowed' },
+        }}
+        loading={loading}
+        loadingIndicator={loading ? 'Entrando...' : undefined}
+      >
+        {loading ? 'Entrando...' : 'Login com Microsoft'}
       </LoadingButton>
     </Stack>
   );
 
   return (
-    <>
-      <Alert severity="info" sx={{ mb: 3 }}>
-        Use <strong>{defaultValues.email}</strong>
-        {' with password '}
-        <strong>{defaultValues.password}</strong>
-      </Alert>
-
-      {!!errorMsg && (
-        <Alert severity="error" sx={{ mb: 3 }}>
-          {errorMsg}
-        </Alert>
-      )}
-
-      <Form methods={methods} onSubmit={onSubmit}>
-        {renderForm}
-      </Form>
-    </>
+    <Form methods={methods} onSubmit={onSubmit}>
+      {renderForm}
+    </Form>
   );
 }
