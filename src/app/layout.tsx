@@ -13,6 +13,7 @@ import { I18nProvider } from 'src/locales/i18n-provider';
 import { ThemeProvider } from 'src/theme/theme-provider';
 import { getInitColorSchemeScript } from 'src/theme/color-scheme-script';
 
+import Navbar from 'src/components/navbar';
 import { Snackbar } from 'src/components/snackbar';
 import { ProgressBar } from 'src/components/progress-bar';
 import { MotionLazy } from 'src/components/animate/motion-lazy';
@@ -37,7 +38,6 @@ type Props = {
 
 export default async function RootLayout({ children }: Props) {
   const lang = CONFIG.isStaticExport ? 'en' : await detectLanguage();
-
   const settings = CONFIG.isStaticExport ? defaultSettings : await detectSettings();
 
   return (
@@ -50,26 +50,28 @@ export default async function RootLayout({ children }: Props) {
       </Head>
       <body>
         {getInitColorSchemeScript}
-
-        <I18nProvider lang={CONFIG.isStaticExport ? undefined : lang}>
-          <LocalizationProvider>
-            <AuthProvider>
-              <SettingsProvider
-                settings={settings}
-                caches={CONFIG.isStaticExport ? 'localStorage' : 'cookie'}
-              >
-                <ThemeProvider>
-                  <MotionLazy>
-                    <Snackbar />
-                    <ProgressBar />
-                    <SettingsDrawer />
-                    {children}
-                  </MotionLazy>
-                </ThemeProvider>
-              </SettingsProvider>
-            </AuthProvider>
-          </LocalizationProvider>
-        </I18nProvider>
+        <Navbar />
+        <div style={{ marginTop: 64 }}>
+          <I18nProvider lang={CONFIG.isStaticExport ? undefined : lang}>
+            <LocalizationProvider>
+              <AuthProvider>
+                <SettingsProvider
+                  settings={settings}
+                  caches={CONFIG.isStaticExport ? 'localStorage' : 'cookie'}
+                >
+                  <ThemeProvider>
+                    <MotionLazy>
+                      <Snackbar />
+                      <ProgressBar />
+                      <SettingsDrawer />
+                      {children}
+                    </MotionLazy>
+                  </ThemeProvider>
+                </SettingsProvider>
+              </AuthProvider>
+            </LocalizationProvider>
+          </I18nProvider>
+        </div>
       </body>
     </html>
   );
