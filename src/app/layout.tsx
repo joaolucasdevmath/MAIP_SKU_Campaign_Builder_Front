@@ -1,4 +1,5 @@
 import 'src/global.css';
+
 import Head from 'next/head';
 
 // ----------------------------------------------------------------------
@@ -13,11 +14,11 @@ import { I18nProvider } from 'src/locales/i18n-provider';
 import { ThemeProvider } from 'src/theme/theme-provider';
 import { getInitColorSchemeScript } from 'src/theme/color-scheme-script';
 
-import Navbar from 'src/components/navbar';
 import { Snackbar } from 'src/components/snackbar';
 import { ProgressBar } from 'src/components/progress-bar';
 import { MotionLazy } from 'src/components/animate/motion-lazy';
 import { detectSettings } from 'src/components/settings/server';
+import NavbarWrapper from 'src/components/NavbarWrapper/NavbarWrapper';
 import { SettingsDrawer, defaultSettings, SettingsProvider } from 'src/components/settings';
 
 import { AuthProvider as JwtAuthProvider } from 'src/auth/context/jwt';
@@ -50,7 +51,8 @@ export default async function RootLayout({ children }: Props) {
       </Head>
       <body>
         {getInitColorSchemeScript}
-        <Navbar />
+        
+        <NavbarWrapper />
         <div style={{ marginTop: 64 }}>
           <I18nProvider lang={CONFIG.isStaticExport ? undefined : lang}>
             <LocalizationProvider>

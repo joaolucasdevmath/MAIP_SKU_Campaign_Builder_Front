@@ -1,3 +1,4 @@
+
 export const metadata = {
   title: 'YDUQS',
   description: 'AI Camping Builder',
@@ -6,8 +7,8 @@ export const metadata = {
 export default function BasicInfoPage() {
   return (
     <main>
-      {/* Conteúdo inicial limpo para a nova rota basic-info */}
       <h1>Informações Básicas</h1>
+      {/* Aqui entra o conteúdo do formulário */}
     </main>
   );
 }
