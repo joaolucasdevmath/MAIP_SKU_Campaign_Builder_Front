@@ -136,7 +136,7 @@ export default function BriefingMainTabs() {
                   fontSize: 18,
                   color: isActive ? '#003768' : '#6c757d',
                   bgcolor: isActive ? '#fff' : 'transparent',
-                  borderRadius: 1,
+                  borderRadius: 2,
                   mx: isActive ? 0 : 1,
                   boxShadow: isActive ? '0 2px 8px 0 rgba(0,0,0,0.04)' : 'none',
                   transition: 'all 0.2s',
