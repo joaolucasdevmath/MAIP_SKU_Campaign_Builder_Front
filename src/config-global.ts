@@ -24,7 +24,7 @@ export type ConfigValue = {
 
 export const CONFIG: ConfigValue = {
   site: {
-    name: 'Minimals',
+    name: 'AI CAMPAIGN BUILDER',
     serverUrl: process.env.NEXT_PUBLIC_SERVER_URL ?? '',
     assetURL: process.env.NEXT_PUBLIC_ASSET_URL ?? '',
     basePath: process.env.NEXT_PUBLIC_BASE_PATH ?? '',

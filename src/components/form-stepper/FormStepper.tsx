@@ -1,18 +1,30 @@
 import React from 'react';
+import { usePathname } from 'next/navigation';
 
 import { Box, Typography } from "@mui/material";
 
+import { WIZARD_STEPS, getStepTitle, getCurrentStep } from 'src/config/wizard-steps';
+
 interface FormStepperProps {
-  currentStep: number;
-  totalSteps: number;
+  // Props opcionais - se não fornecidas, detecta automaticamente da rota
+  currentStep?: number;
+  totalSteps?: number;
   stepTitles?: string[];
 }
 
 export const FormStepper: React.FC<FormStepperProps> = ({
-  currentStep,
-  totalSteps,
-  stepTitles,
-}) => (
+  currentStep: propCurrentStep,
+  totalSteps: propTotalSteps,
+  stepTitles: propStepTitles,
+}) => {
+  const pathname = usePathname();
+  
+  // Usa props se fornecidas, senão detecta automaticamente
+  const currentStep = propCurrentStep ?? getCurrentStep(pathname);
+  const totalSteps = propTotalSteps ?? WIZARD_STEPS.totalSteps;
+  const currentTitle = getStepTitle(pathname);
+
+  return (
   <Box>
     <Box display="flex" alignItems="center" gap={2} justifyContent="center">
       {Array.from({ length: totalSteps }).map((_, idx) => {
@@ -43,12 +55,11 @@ export const FormStepper: React.FC<FormStepperProps> = ({
         );
       })}
     </Box>
-    {stepTitles && stepTitles[currentStep - 1] && (
-      <Typography variant="h6" align="center" mt={2}>
-        {stepTitles[currentStep - 1]}
-      </Typography>
-    )}
+    <Typography variant="h6" align="center" mt={2}>
+      {currentTitle}
+    </Typography>
   </Box>
-);
+  );
+};
 
 export default FormStepper;

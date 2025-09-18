@@ -1,25 +1,103 @@
-import type { BasicInfoFormValues } from 'src/types/basicInfoFormTypes';
+
+import type { DynamicFormValues } from 'src/types/basicInfoFormTypes';
 
 import { useForm } from 'react-hook-form';
+import { useState, useEffect } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 
+import axiosInstance, { endpoints } from 'src/utils/axios';
 import { basicInfoSchema } from 'src/utils/schemas/basicInfoSchema';
 
-export function useBasicInfoForm(state: Partial<BasicInfoFormValues>) {
-  return useForm<BasicInfoFormValues>({
+import { useFormWizard } from 'src/context/FormWizardContext';
+
+interface BackendField {
+  name: string;
+  label: string;
+  type: string;
+  values?: any[];
+  required?: boolean;
+  multiple?: boolean;
+  has_subfield?: boolean;
+  placeholder?: string;
+}
+
+export function useBasicInfoForm(state: Partial<DynamicFormValues>) {
+  const [fields, setFields] = useState<BackendField[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const { updateCampaignData } = useFormWizard();
+
+  const form = useForm<DynamicFormValues>({
     resolver: zodResolver(basicInfoSchema),
     defaultValues: {
-      campaignName: state.campaignName || '',
-      campaignType: state.campaignType || '',
-      campaignObjective: state.campaignObjective || '',
+      // Campos estáticos
+      campaign_name: state.campaign_name || '',
+      start_date: state.start_date || null,
+      end_date: state.end_date || null,
+      is_continuous: state.is_continuous || false,
+      // Campos dinâmicos serão inicializados depois
+      campaign_objective: state.campaign_objective || [],
+      campaign_type: state.campaign_type || [],
+      channel: state.channel || [],
       offer: state.offer || '',
-      campaignCode: state.campaignCode || '',
-      channel: state.channel || null,
-      quantity: state.quantity || '',
-      startDate: state.startDate || null,
-      endDate: state.endDate || null,
-      isContinuous: state.isContinuous || false,
+      campaign_codes: state.campaign_codes || '',
     },
     mode: 'onSubmit',
   });
+
+  
+  useEffect(() => {
+    const loadBackendData = async () => {
+      setLoading(true);
+      setError(null);
+      
+      try {
+        const res = await axiosInstance.get(endpoints.briefing.step1);
+        console.log('Campos recebidos do backend:', res.data);
+        
+        if (res.data.success && Array.isArray(res.data.data)) {
+          setFields(res.data.data);
+        } else {
+          setError(res.data.errorMessage || 'Erro ao carregar campos do backend.');
+        }
+      } catch (err) {
+        console.error('Erro ao carregar dados:', err);
+        setError('Erro ao conectar ao backend.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadBackendData();
+  }, []);
+
+  
+  const onSubmit = (data: DynamicFormValues) => {
+    updateCampaignData(data);
+  };
+
+  // Watch para observar mudanças no campo channel
+  const selectedChannels = form.watch('channel') || [];
+
+  // Buscar campos específicos do backend
+  const campaignObjectiveField = fields.find((f) => f.name === 'campaign_objective');
+  const campaignTypeField = fields.find((f) => f.name === 'campaign_type');
+  const channelField = fields.find((f) => f.name === 'channel');
+  const offerField = fields.find((f) => f.name === 'offer');
+  const campaignCodesField = fields.find((f) => f.name === 'campaign_codes');
+
+  return {
+    ...form,
+    fields,
+    loading,
+    error,
+    onSubmit,
+    selectedChannels,
+    campaignObjectiveField,
+    campaignTypeField,
+    channelField,
+    offerField,
+    campaignCodesField,
+  };
 }
