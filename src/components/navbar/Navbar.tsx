@@ -1,25 +1,31 @@
 "use client";
 
+import { useState } from 'react';
 import { usePathname } from 'next/navigation';
 
 import Box from '@mui/material/Box';
 import Link from '@mui/material/Link';
-import Tooltip from '@mui/material/Tooltip';
+import Drawer from '@mui/material/Drawer';
 import { useTheme } from '@mui/material/styles';
+import MenuIcon from '@mui/icons-material/Menu';
 import Typography from '@mui/material/Typography';
+import IconButton from '@mui/material/IconButton';
 
 import { paths } from 'src/routes/paths';
 
 const steps = [
   { name: 'Briefing', path: paths.briefing.basicInfo },
-  { name: 'Audiência', path: paths.audience},
+  { name: 'Audiência', path: paths.audience },
   { name: 'Insights', path: paths.insights },
 ];
 
 export default function Navbar() {
   const theme = useTheme();
   const pathname = usePathname()?.replace(/\/$/, '') || '';
+  const [drawerOpen, setDrawerOpen] = useState(false);
 
+  const handleDrawerOpen = () => setDrawerOpen(true);
+  const handleDrawerClose = () => setDrawerOpen(false);
 
   return (
     <Box
@@ -39,11 +45,12 @@ export default function Navbar() {
           <Box sx={{ mr: 2 }}>
             <img src="/assets/illustrations/yduqs.png" alt="YDUQS Logo" style={{ height: 30, marginLeft: 4 }} />
           </Box>
-          <Typography variant="h6" sx={{ fontWeight: 600, color: theme.palette.info.darker}}>
+          <Typography variant="h6" sx={{ fontWeight: 600, color: theme.palette.info.darker }}>
             AI Campaign Builder
           </Typography>
         </Box>
-        <Box sx={{ display: 'flex', gap: 4 }}>
+        {/* Desktop links */}
+        <Box sx={{ display: { xs: 'none', md: 'flex' }, gap: 4 }}>
           {steps.map((step) => {
             const isActive = pathname === step.path.replace(/\/$/, '');
             return (
@@ -58,7 +65,6 @@ export default function Navbar() {
                     color: isActive ? '#003768' : theme.palette.grey[500],
                     transition: 'color 0.2s',
                     cursor: 'pointer',
-                     
                   }}
                 >
                   {step.name}
@@ -67,6 +73,37 @@ export default function Navbar() {
             );
           })}
         </Box>
+        {/* Mobile menu icon */}
+        <Box sx={{ display: { xs: 'flex', md: 'none' } }}>
+          <IconButton onClick={handleDrawerOpen} edge="end" color="inherit" aria-label="menu">
+            <MenuIcon fontSize="large" />
+          </IconButton>
+        </Box>
+        <Drawer anchor="right" open={drawerOpen} onClose={handleDrawerClose}>
+          <Box sx={{ width: 220, p: 2 }} role="presentation" onClick={handleDrawerClose}>
+            {steps.map((step) => {
+              const isActive = pathname === step.path.replace(/\/$/, '');
+              return (
+                <Link
+                  key={step.path}
+                  href={step.path}
+                  underline="none"
+                  sx={{
+                    display: 'block',
+                    py: 2,
+                    fontWeight: 600,
+                    fontSize: 18,
+                    color: isActive ? '#003768' : theme.palette.grey[500],
+                    transition: 'color 0.2s',
+                    cursor: 'pointer',
+                  }}
+                >
+                  {step.name}
+                </Link>
+              );
+            })}
+          </Box>
+        </Drawer>
       </Box>
     </Box>
   );

@@ -2,12 +2,14 @@ const ROOTS = {
   AUTH: '/auth',
   AUTH_DEMO: '/auth-demo',
   DASHBOARD: '/dashboard',
-  BASIC_INFO: '/basic-info',
-  AUDIENCE_DEFINITION: '/audience-definition',
-  ADVANCED_FILTER: '/advanced-filter',
-  REVIEW_GENERATION: '/review-generation',
+  BASIC_INFO: '/briefing/basic-info',
+  AUDIENCE_DEFINITION: '/briefing/audience-definition',
+  ADVANCED_FILTER: '/briefing/advanced-filter',
+  REVIEW_GENERATION: '/briefing/review-generation',
   AUDIENCE: '/audience',
   INSIGHTS: '/insights',
+  TEMPLATES: '/briefing/templates-campanha',
+  HISTORY: '/briefing/history', 
 };
 
 // ----------------------------------------------------------------------
@@ -50,4 +52,6 @@ export const paths = {
 
   audience: ROOTS.AUDIENCE,
   insights: ROOTS.INSIGHTS,
+  templates: ROOTS.TEMPLATES,
+  history: ROOTS.HISTORY,
 };
