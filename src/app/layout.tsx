@@ -12,6 +12,7 @@ import { LocalizationProvider } from 'src/locales';
 import { detectLanguage } from 'src/locales/server';
 import { I18nProvider } from 'src/locales/i18n-provider';
 import { ThemeProvider } from 'src/theme/theme-provider';
+import { FormWizardProvider } from 'src/context/FormWizardContext';
 import { getInitColorSchemeScript } from 'src/theme/color-scheme-script';
 
 import { Snackbar } from 'src/components/snackbar';
@@ -63,11 +64,14 @@ export default async function RootLayout({ children }: Props) {
                 >
                   <ThemeProvider>
                     <MotionLazy>
+                      <FormWizardProvider>
                       <Snackbar />
                       <ProgressBar />
                       <SettingsDrawer />
                       {children}
+                      </FormWizardProvider>
                     </MotionLazy>
+
                   </ThemeProvider>
                 </SettingsProvider>
               </AuthProvider>

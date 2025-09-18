@@ -123,15 +123,16 @@ export function RHFMultiSelect({
           <Select
             {...field}
             multiple
-            displayEmpty={!!placeholder}
+            displayEmpty
             label={label}
             renderValue={(selected) => {
+              const selectedArray = Array.isArray(selected) ? selected : [];
               const selectedItems = options.filter((item) =>
-                (selected as string[]).includes(item.value)
+                selectedArray.includes(item.value)
               );
 
-              if (!selectedItems.length && placeholder) {
-                return <Box sx={{ color: 'text.disabled' }}>{placeholder}</Box>;
+              if (!selectedItems.length) {
+                return <Box sx={{ color: 'text.disabled' }}>{placeholder || ''}</Box>;
               }
 
               if (chip) {
@@ -161,7 +162,7 @@ export function RHFMultiSelect({
                   <Checkbox
                     size="small"
                     disableRipple
-                    checked={field.value.includes(option.value)}
+                    checked={Array.isArray(field.value) && field.value.includes(option.value)}
                     {...slotProps?.checkbox}
                   />
                 )}

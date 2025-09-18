@@ -57,4 +57,8 @@ export const endpoints = {
     details: '/api/product/details',
     search: '/api/product/search',
   },
+    briefing: {
+    step1: '/api/briefing/step/1',
+    
+  },
 };
