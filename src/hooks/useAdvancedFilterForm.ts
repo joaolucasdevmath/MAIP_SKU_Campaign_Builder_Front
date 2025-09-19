@@ -100,33 +100,58 @@ export function useAdvancedFilterForm(state: Partial<DynamicAdvancedFilterFormVa
         ? data.status_vestibular.join(',')
         : data.status_vestibular,
 
-      forma_ingresso: data.forma_ingresso,
+      // Campos de forma de ingresso individuais
+      forma_ingresso_enem: data.forma_ingresso_enem,
+      forma_ingresso_transferencia_externa: data.forma_ingresso_transferencia_externa,
+      forma_ingresso_vestibular: data.forma_ingresso_vestibular,
+      forma_ingresso_ingresso_simplificado: data.forma_ingresso_ingresso_simplificado,
       atl_niveldeensino__c: data.atl_niveldeensino__c,
       nom_curso_exclude: data.nom_curso_exclude,
     };
     updateCampaignData(formattedData);
   };
 
+  const transformFormData = (formValues: DynamicAdvancedFilterFormValues) => ({
+    ...formValues,
+    atl_niveldeensino__c: Array.isArray(formValues.atl_niveldeensino__c)
+      ? formValues.atl_niveldeensino__c.map((item: any) => item.value || item)
+      : formValues.atl_niveldeensino__c,
+    modalidade: Array.isArray(formValues.modalidade)
+      ? formValues.modalidade.map((item: any) => item.value || item)
+      : formValues.modalidade,
+    nom_curso: Array.isArray(formValues.nom_curso)
+      ? formValues.nom_curso.map((item: any) => item.value || item)
+      : formValues.nom_curso,
+    nom_curso_exclude: Array.isArray(formValues.nom_curso_exclude)
+      ? formValues.nom_curso_exclude.map((item: any) => item.value || item)
+      : formValues.nom_curso_exclude,
+  });
+
   const handleNext = async (data: DynamicAdvancedFilterFormValues) => {
     try {
+      const transformedData = transformFormData(data);
+
       const formattedData = {
-        nom_grupo_marca: Array.isArray(data.nom_grupo_marca)
-          ? data.nom_grupo_marca.join(',')
-          : data.nom_grupo_marca,
-        modalidade: data.modalidade,
-        nom_curso: data.nom_curso,
-        status_vestibular: Array.isArray(data.status_vestibular)
-          ? data.status_vestibular.join(',')
-          : data.status_vestibular,
-        // Outros campos específicos
-        forma_ingresso: data.forma_ingresso,
-        atl_niveldeensino__c: data.atl_niveldeensino__c,
-        nom_curso_exclude: data.nom_curso_exclude,
-        outras_exclusoes: data.outras_exclusoes,
-        criterios_saida: data.criterios_saida,
-        disponibilizacao_call_center_sim: data.disponibilizacao_call_center_sim,
-        disponibilizacao_call_center_nao: data.disponibilizacao_call_center_nao,
-        informacoes_extras: data.informacoes_extras,
+        nom_grupo_marca: Array.isArray(transformedData.nom_grupo_marca)
+          ? transformedData.nom_grupo_marca.join(',')
+          : transformedData.nom_grupo_marca,
+        modalidade: transformedData.modalidade,
+        nom_curso: transformedData.nom_curso,
+        status_vestibular: Array.isArray(transformedData.status_vestibular)
+          ? transformedData.status_vestibular.join(',')
+          : transformedData.status_vestibular,
+
+        forma_ingresso_enem: transformedData.forma_ingresso_enem,
+        forma_ingresso_transferencia_externa: transformedData.forma_ingresso_transferencia_externa,
+        forma_ingresso_vestibular: transformedData.forma_ingresso_vestibular,
+        forma_ingresso_ingresso_simplificado: transformedData.forma_ingresso_ingresso_simplificado,
+        atl_niveldeensino__c: transformedData.atl_niveldeensino__c,
+        nom_curso_exclude: transformedData.nom_curso_exclude,
+        outras_exclusoes: transformedData.outras_exclusoes,
+        criterios_saida: transformedData.criterios_saida,
+        disponibilizacao_call_center_sim: transformedData.disponibilizacao_call_center_sim,
+        disponibilizacao_call_center_nao: transformedData.disponibilizacao_call_center_nao,
+        informacoes_extras: transformedData.informacoes_extras,
       };
 
       updateCampaignData(formattedData);
@@ -136,8 +161,31 @@ export function useAdvancedFilterForm(state: Partial<DynamicAdvancedFilterFormVa
     }
   };
 
+  const handleSubmitWithValidation = () =>
+    form.handleSubmit(
+      (formValues) => {
+        handleNext(formValues);
+      },
+      (errors) => {
+        console.log('Erros de validação:', errors);
+        scrollToErrors();
+      }
+    );
+
   const handlePrevious = () => {
     router.push('/briefing/audience-definition');
+  };
+
+  const scrollToErrors = () => {
+    setTimeout(() => {
+      const errorElement = document.querySelector('[data-testid="error-container"]');
+      if (errorElement) {
+        errorElement.scrollIntoView({
+          behavior: 'smooth',
+          block: 'start',
+        });
+      }
+    }, 100);
   };
 
   return {
@@ -148,5 +196,7 @@ export function useAdvancedFilterForm(state: Partial<DynamicAdvancedFilterFormVa
     onSubmit,
     handleNext,
     handlePrevious,
+    scrollToErrors,
+    handleSubmitWithValidation,
   };
 }

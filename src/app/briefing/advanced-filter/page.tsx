@@ -30,8 +30,8 @@ export default function AdvancedFilterPage() {
     control,
     handleSubmit,
     onSubmit,
-    handleNext,
     handlePrevious,
+    handleSubmitWithValidation,
     ...methods
   } = useAdvancedFilterForm({});
 
@@ -319,23 +319,34 @@ export default function AdvancedFilterPage() {
   return (
     <Box>
       <FormStepper />
-      
+
       {/* Exibição de Erros de Validação */}
       {Object.keys(methods.formState.errors).length > 0 && (
-        <Box sx={{ mt: 2, p: 2, backgroundColor: '#ffebee', borderRadius: 1, border: '1px solid #f44336' }}>
+        <Box
+          data-testid="error-container"
+          sx={{
+            mt: 2,
+            p: 2,
+            backgroundColor: '#ffebee',
+            borderRadius: 1,
+            border: '1px solid #f44336',
+            scrollMarginTop: '20px', // Adiciona margem para o scroll
+          }}
+        >
           <Typography variant="h6" color="error" gutterBottom>
             Por favor, corrija os seguintes erros:
           </Typography>
           {Object.entries(methods.formState.errors).map(([key, fieldError]) => (
             <Typography key={key} variant="body2" color="error" sx={{ mb: 1 }}>
-              • {typeof fieldError?.message === 'string'
-                  ? fieldError.message
-                  : `Erro no campo ${key}`}
+              •{' '}
+              {typeof fieldError?.message === 'string'
+                ? fieldError.message
+                : `Erro no campo ${key}`}
             </Typography>
           ))}
         </Box>
       )}
-      
+
       <Box sx={{ mt: 4 }}>
         <Form methods={{ control, handleSubmit, ...methods }} onSubmit={handleSubmit(onSubmit)}>
           <Grid container spacing={3}>
@@ -448,30 +459,7 @@ export default function AdvancedFilterPage() {
                   color="primary"
                   type="button"
                   sx={{ backgroundColor: '#093366', '&:hover': { backgroundColor: '#07264d' } }}
-                  onClick={handleSubmit((formValues) => {
-                    console.log('✅ Validação passou! Dados do formulário:', formValues);
-
-                    // Transforma os dados para o formato esperado
-                    const transformedData = {
-                      ...formValues,
-                      atl_niveldeensino__c: Array.isArray(formValues.atl_niveldeensino__c)
-                        ? formValues.atl_niveldeensino__c.map((item: any) => item.value || item)
-                        : formValues.atl_niveldeensino__c,
-                      modalidade: Array.isArray(formValues.modalidade)
-                        ? formValues.modalidade.map((item: any) => item.value || item)
-                        : formValues.modalidade,
-                      nom_curso: Array.isArray(formValues.nom_curso)
-                        ? formValues.nom_curso.map((item: any) => item.value || item)
-                        : formValues.nom_curso,
-                      nom_curso_exclude: Array.isArray(formValues.nom_curso_exclude)
-                        ? formValues.nom_curso_exclude.map((item: any) => item.value || item)
-                        : formValues.nom_curso_exclude,
-                    };
-
-                    handleNext(transformedData);
-                  }, (errors) => {
-                    console.log('❌ Erros de validação:', errors);
-                  })}
+                  onClick={handleSubmitWithValidation()}
                 >
                   Próximo
                 </Button>
