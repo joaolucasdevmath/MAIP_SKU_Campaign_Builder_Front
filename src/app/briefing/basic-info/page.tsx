@@ -12,8 +12,6 @@ import { RHFMultiSelect } from 'src/components/hook-form/rhf-select';
 import { RHFTextField } from 'src/components/hook-form/rhf-text-field';
 import { RHFDatePicker } from 'src/components/hook-form/rhf-date-picker';
 
-
-
 export default function BasicInfoPage() {
   const {
     fields,
@@ -58,7 +56,6 @@ export default function BasicInfoPage() {
     );
   }
 
-
   return (
     <Box>
       <FormStepper />
@@ -89,9 +86,30 @@ export default function BasicInfoPage() {
                       })) || []
                     }
                     chip
-                    checkbox
                     helperText="Tipo principal da campanha."
                     variant="outlined"
+                    slotProps={{
+                      select: {
+                        MenuProps: {
+                          PaperProps: {
+                            sx: {
+                              bgcolor: 'white',
+                              '& .MuiMenuItem-root': {
+                                '&:hover': {
+                                  bgcolor: '#f0f8ff',
+                                },
+                                '&.Mui-selected': {
+                                  bgcolor: '#f0f8ff',
+                                  '&:hover': {
+                                    bgcolor: '#e6f3ff',
+                                  },
+                                },
+                              },
+                            },
+                          },
+                        },
+                      },
+                    }}
                   />
                 </FieldWithLabel>
               )}
@@ -110,9 +128,30 @@ export default function BasicInfoPage() {
                       })) || []
                     }
                     chip
-                    checkbox
                     helperText="Objetivo específico da campanha."
                     variant="outlined"
+                    slotProps={{
+                      select: {
+                        MenuProps: {
+                          PaperProps: {
+                            sx: {
+                              bgcolor: 'white',
+                              '& .MuiMenuItem-root': {
+                                '&:hover': {
+                                  bgcolor: '#f0f8ff',
+                                },
+                                '&.Mui-selected': {
+                                  bgcolor: '#f0f8ff',
+                                  '&:hover': {
+                                    bgcolor: '#e6f3ff',
+                                  },
+                                },
+                              },
+                            },
+                          },
+                        },
+                      },
+                    }}
                   />
                 </FieldWithLabel>
               )}
@@ -157,9 +196,30 @@ export default function BasicInfoPage() {
                       })) || []
                     }
                     chip
-                    checkbox
                     helperText="Selecione os tipos de disparo para esta campanha."
                     variant="outlined"
+                    slotProps={{
+                      select: {
+                        MenuProps: {
+                          PaperProps: {
+                            sx: {
+                              bgcolor: 'white',
+                              '& .MuiMenuItem-root': {
+                                '&:hover': {
+                                  bgcolor: '#f0f8ff',
+                                },
+                                '&.Mui-selected': {
+                                  bgcolor: '#f0f8ff',
+                                  '&:hover': {
+                                    bgcolor: '#e6f3ff',
+                                  },
+                                },
+                              },
+                            },
+                          },
+                        },
+                      },
+                    }}
                   />
                 </FieldWithLabel>
               )}
@@ -199,13 +259,57 @@ export default function BasicInfoPage() {
 
             <Grid item xs={12} md={6}>
               <FieldWithLabel label="Data de Início da Campanha">
-                <RHFDatePicker name="start_date" />
+                <RHFDatePicker 
+                  name="start_date" 
+                  slotProps={{
+                    popper: {
+                      sx: {
+                        '& .MuiPaper-root': {
+                          '& .MuiPickersDay-root': {
+                            '&:hover': {
+                              backgroundColor: '#f0f8ff',
+                            },
+                            '&.Mui-selected': {
+                              backgroundColor: '#f0f8ff',
+                              color: '#093366',
+                              '&:hover': {
+                                backgroundColor: '#e6f3ff',
+                              },
+                            },
+                          },
+                        },
+                      },
+                    },
+                  }}
+                />
               </FieldWithLabel>
             </Grid>
 
             <Grid item xs={12} md={6}>
               <FieldWithLabel label="Data de Fim da Campanha">
-                <RHFDatePicker name="end_date" />
+                <RHFDatePicker 
+                  name="end_date" 
+                  slotProps={{
+                    popper: {
+                      sx: {
+                        '& .MuiPaper-root': {
+                          '& .MuiPickersDay-root': {
+                            '&:hover': {
+                              backgroundColor: '#f0f8ff',
+                            },
+                            '&.Mui-selected': {
+                              backgroundColor: '#f0f8ff',
+                              color: '#093366',
+                              '&:hover': {
+                                backgroundColor: '#e6f3ff',
+                              },
+                            },
+                          },
+                        },
+                      },
+                    },
+                  }}
+                />
               </FieldWithLabel>
             </Grid>
 
@@ -219,7 +323,19 @@ export default function BasicInfoPage() {
 
             <Grid item xs={12}>
               <Box display="flex" justifyContent="space-between" mt={3}>
-                <Button variant="outlined" color="error" type="button">
+                <Button
+                  variant="outlined"
+                  type="button"
+                  sx={{
+                    color: '#093366',
+                    backgroundColor: 'white',
+                    borderColor: '#093366',
+                    '&:hover': {
+                      backgroundColor: '#f8f9fa',
+                      borderColor: '#093366',
+                    },
+                  }}
+                >
                   Limpar
                 </Button>
                 <Button

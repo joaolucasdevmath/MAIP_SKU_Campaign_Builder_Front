@@ -19,6 +19,7 @@ export const FormStepper: React.FC<FormStepperProps> = ({
 }) => {
   const pathname = usePathname();
   
+ 
   // Usa props se fornecidas, senão detecta automaticamente
   const currentStep = propCurrentStep ?? getCurrentStep(pathname);
   const totalSteps = propTotalSteps ?? WIZARD_STEPS.totalSteps;
