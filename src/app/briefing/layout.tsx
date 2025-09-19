@@ -1,9 +1,14 @@
-"use client";
+
 
 import { Box } from '@mui/material';
 
 import Navbar from 'src/components/navbar';
 import { BriefingMainTabs } from 'src/components/briefing';
+
+export const metadata = {
+  title: 'YDUQS',
+  description: 'AI Camping Builder',
+};
 
 export default function BriefingLayout({ children }: { children: React.ReactNode }) {
   return (

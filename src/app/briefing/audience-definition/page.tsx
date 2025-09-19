@@ -1,7 +1,4 @@
-export const metadata = {
-  title: 'YDUQS',
-  description: 'AI Camping Builder',
-};
+
 
 export default function AudienceDefinition() {
   return (

@@ -57,8 +57,11 @@ export const endpoints = {
     details: '/api/product/details',
     search: '/api/product/search',
   },
-    briefing: {
+   briefing: {
     step1: '/api/briefing/step/1',
-    
-  },
+    step2: '/api/briefing/step/2',
+    step2Segment: (source_base_id: string) => `/api/briefing/step/2/${source_base_id}`,
+    step3Segment: (source_base_id: string) => `/api/briefing/step/3/${source_base_id}`,
+    post: '/api/briefing/',
+  }
 };

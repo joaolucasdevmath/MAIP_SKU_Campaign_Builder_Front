@@ -9,14 +9,18 @@ export const canais = [
   { label: "Call Center" },
 ];
 
-// Schema básico dinâmico - aceita qualquer campo string ou array
+
 export const basicInfoSchema = z.object({
-  campaign_objective: z.union([z.string(), z.array(z.string())]).optional(),
-  campaign_type: z.union([z.string(), z.array(z.string())]).optional(),
-  channel: z.union([z.string(), z.array(z.string())]).optional(),
-  offer: z.string().optional(),
+  campaign_name: z.string().min(1, 'Nome da campanha é obrigatório'),
+  campaign_objective: z.union([z.string().min(1, 'Objetivo obrigatório'), z.array(z.string()).min(1, 'Objetivo obrigatório')]),
+  campaign_type: z.union([z.string().min(1, 'Tipo obrigatório'), z.array(z.string()).min(1, 'Tipo obrigatório')]),
+  channel: z.union([z.string().min(1, 'Canal obrigatório'), z.array(z.string()).min(1, 'Canal obrigatório')]),
+  offer: z.string().min(1, 'Oferta obrigatória'),
   campaign_codes: z.string().optional(),
-}).passthrough(); // permite campos adicionais não definidos
+  start_date: z.any(),
+  end_date: z.any(),
+  is_continuous: z.boolean().optional(),
+}).passthrough(); 
 
 // Schema legacy para compatibilidade
 export const legacyBasicInfoSchema = z.object({
