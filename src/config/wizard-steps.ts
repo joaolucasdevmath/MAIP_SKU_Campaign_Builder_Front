@@ -10,12 +10,12 @@ export const WIZARD_STEPS = {
     {
       step: 2,
       route: '/briefing/audience-definition',
-      title: 'Audiência e Segmentação'
+      title: 'Definição do Público'
     },
     {
       step: 3,
       route: '/briefing/advanced-filter',
-      title: 'Configurações e Insights'
+      title: 'Filtros Avançados'
     },
     {
       step: 4,
@@ -28,11 +28,15 @@ export const WIZARD_STEPS = {
 export const getStepTitles = () => WIZARD_STEPS.steps.map(step => step.title);
 
 export const getCurrentStep = (pathname: string) => {
-  const step = WIZARD_STEPS.steps.find(s => s.route === pathname);
+
+  const normalizedPathname = pathname.endsWith('/') ? pathname.slice(0, -1) : pathname;
+  const step = WIZARD_STEPS.steps.find(s => s.route === normalizedPathname);
   return step ? step.step : 1;
 };
 
 export const getStepTitle = (pathname: string) => {
-  const step = WIZARD_STEPS.steps.find(s => s.route === pathname);
+ 
+  const normalizedPathname = pathname.endsWith('/') ? pathname.slice(0, -1) : pathname;
+  const step = WIZARD_STEPS.steps.find(s => s.route === normalizedPathname);
   return step ? step.title : WIZARD_STEPS.steps[0].title;
 };

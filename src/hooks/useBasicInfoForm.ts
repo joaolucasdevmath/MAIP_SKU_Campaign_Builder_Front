@@ -3,6 +3,7 @@ import type { DynamicFormValues } from 'src/types/basicInfoFormTypes';
 
 import { useForm } from 'react-hook-form';
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { zodResolver } from '@hookform/resolvers/zod';
 
 import axiosInstance, { endpoints } from 'src/utils/axios';
@@ -27,6 +28,7 @@ export function useBasicInfoForm(state: Partial<DynamicFormValues>) {
   const [error, setError] = useState<string | null>(null);
 
   const { updateCampaignData } = useFormWizard();
+  const router = useRouter();
 
   const form = useForm<DynamicFormValues>({
     resolver: zodResolver(basicInfoSchema),
@@ -77,6 +79,11 @@ export function useBasicInfoForm(state: Partial<DynamicFormValues>) {
     updateCampaignData(data);
   };
 
+  const handleNext = async (data: DynamicFormValues) => {
+    updateCampaignData(data);
+    router.push('/briefing/audience-definition');
+  };
+
   // Watch para observar mudanças no campo channel
   const selectedChannels = form.watch('channel') || [];
 
@@ -93,6 +100,7 @@ export function useBasicInfoForm(state: Partial<DynamicFormValues>) {
     loading,
     error,
     onSubmit,
+    handleNext,
     selectedChannels,
     campaignObjectiveField,
     campaignTypeField,

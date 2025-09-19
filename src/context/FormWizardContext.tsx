@@ -33,6 +33,7 @@ export function FormWizardProvider({ children }: { children: ReactNode }) {
   const [state, dispatch] = useReducer(reducer, initialCleanCampaignData);
   const isInitialMount = useRef(true);
   const updateCampaignData = (data: Partial<CampaignData>) => {
+    console.log('Salvando no contexto (FormWizard):', data);
     dispatch({ type: "UPDATE", payload: data });
   };
   const resetCampaignData = () => {

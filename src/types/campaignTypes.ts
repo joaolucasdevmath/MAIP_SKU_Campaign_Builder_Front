@@ -48,6 +48,8 @@ export interface CampaignData {
 
   // Etapa 2: Público e segmentação
   baseOrigin?: string[];
+  source_base?: string;
+  source_base_id?: string;
   segmentations?: string[];
   funnelStage?: string[];
   modality?: string[];
