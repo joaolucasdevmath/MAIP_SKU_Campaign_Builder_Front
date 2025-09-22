@@ -1,18 +1,43 @@
 export interface BriefingPayload {
+  // Informações básicas
   campaign_name?: string;
+  campaign_code?: string;
+  journey_name?: string;
   brand?: string;
   sub_brands?: string[];
+  semester?: string;
+  offers?: string;
   campaign_origin?: string;
   campaign_type?: string[];
   campaign_objective?: string[];
+  channel?: string[];
+  offer?: string;
+  start_date?: string;
+  end_date?: string;
+  is_continuous?: boolean;
+  campaign_codes?: string;
+  quantity_Email?: number;
+  // Configurações de segmentação
   funnel_stage?: string[];
   base_origin?: string[];
+  source_base?: string;
+  source_base_id?: string;
+  segmentation?: string[];
+  // Configurações avançadas
   modality?: string[];
   courses?: string[];
+  excluded_courses?: string[];
   course_level?: string[];
+  vestibular_status?: string[];
+  age_range?: number[];
+  last_interaction?: number;
+  remove_from_master_regua?: boolean;
+  main_documentation_sent?: boolean;
   entry_form?: string;
   allowed_entry_forms?: string[];
   excluded_entry_forms?: string[];
+  dispatch_types?: string[];
+  queries?: string[];
   automated_update?: boolean;
   call_center_available?: string;
   call_center_eps?: string;
@@ -26,15 +51,6 @@ export interface BriefingPayload {
   status_vestibular?: string;
   interacao_oportunidade?: number;
   documentation_sent?: boolean;
-  // Campos adicionais do backend
-  source_base?: string;
-  source_base_id?: string;
-  segmentation?: string[];
-  channel?: string[];
-  offer?: string;
-  start_date?: string;
-  end_date?: string;
-  is_continuous?: boolean;
   outras_exclusoes?: string;
   criterios_saida?: string;
   forma_ingresso_enem?: boolean;

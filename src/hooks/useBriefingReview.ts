@@ -12,6 +12,8 @@ import axiosInstance, { endpoints } from 'src/utils/axios';
 
 import { useFormWizard } from 'src/context/FormWizardContext';
 
+import { toast } from 'src/components/snackbar';
+
 export const useBriefingReview = (): BriefingHookReturn => {
   const { state: campaignData } = useFormWizard();
   const router = useRouter();
@@ -44,20 +46,45 @@ export const useBriefingReview = (): BriefingHookReturn => {
 
       // Prepare data for API call seguindo o padrão do backend
       const briefingPayload: BriefingPayload = {
+        // Informações básicas
         campaign_name: campaignData.campaign_name || campaignData.campaignName,
+        campaign_code: campaignData.campaignCode,
+        journey_name: campaignData.journeyName,
         brand: campaignData.brand,
         sub_brands: campaignData.subBrands,
+        semester: campaignData.semester,
+        offers: campaignData.offers,
         campaign_origin: campaignData.campaignOrigin,
         campaign_type: campaignData.campaign_type || campaignData.campaignType,
         campaign_objective: campaignData.campaign_objective || campaignData.campaignObjective,
+        channel: campaignData.channel,
+        offer: campaignData.offer,
+        start_date: campaignData.start_date,
+        end_date: campaignData.end_date,
+        is_continuous: campaignData.is_continuous,
+        campaign_codes: campaignData.campaign_codes,
+        quantity_Email: campaignData.quantity_Email,
+        // Configurações de segmentação
         funnel_stage: campaignData.funnelStage,
         base_origin: campaignData.baseOrigin,
+        source_base: campaignData.source_base,
+        source_base_id: campaignData.source_base_id,
+        segmentation: campaignData.segmentation,
+        // Configurações avançadas
         modality: campaignData.modalidade,
         courses: campaignData.nom_curso,
+        excluded_courses: campaignData.excludedCourses,
         course_level: campaignData.atl_niveldeensino__c,
+        vestibular_status: campaignData.vestibularStatus,
+        age_range: campaignData.ageRange,
+        last_interaction: campaignData.lastInteraction,
+        remove_from_master_regua: campaignData.removeFromMasterRegua,
+        main_documentation_sent: campaignData.mainDocumentationSent,
         entry_form: campaignData.entryForm,
         allowed_entry_forms: campaignData.allowedEntryForms,
         excluded_entry_forms: campaignData.excludedEntryForms,
+        dispatch_types: campaignData.dispatchTypes,
+        queries: campaignData.queries?.map((q) => (typeof q === 'string' ? q : JSON.stringify(q))),
         automated_update: campaignData.automatedUpdate,
         call_center_available: campaignData.disponibilizacao_call_center_sim
           ? 'Sim'
@@ -75,15 +102,6 @@ export const useBriefingReview = (): BriefingHookReturn => {
         status_vestibular: campaignData.status_vestibular,
         interacao_oportunidade: campaignData.interacao_oportunidade,
         documentation_sent: campaignData.documentationSent,
-        // Campos adicionais do backend
-        source_base: campaignData.source_base,
-        source_base_id: campaignData.source_base_id,
-        segmentation: campaignData.segmentation,
-        channel: campaignData.channel,
-        offer: campaignData.offer,
-        start_date: campaignData.start_date,
-        end_date: campaignData.end_date,
-        is_continuous: campaignData.is_continuous,
         outras_exclusoes: campaignData.outras_exclusoes,
         criterios_saida: campaignData.criterios_saida,
         forma_ingresso_enem: campaignData.forma_ingresso_enem,
@@ -101,18 +119,26 @@ export const useBriefingReview = (): BriefingHookReturn => {
 
       const result = response.data;
       setGeneratedBriefing(result.briefing || result.message || 'Briefing gerado com sucesso!');
+
+      // Toast de sucesso
+      toast.success('Briefing gerado com sucesso!');
     } catch (err) {
       console.error('Erro ao gerar briefing:', err);
 
       // Tratamento específico para erro 500 do backend
       if (err instanceof Error && err.message.includes('500')) {
-        setError(
-          'Erro interno do servidor. O briefing foi processado mas houve um problema na resposta da API. Entre em contato com o suporte técnico.'
-        );
+        const errorMessage =
+          'Erro interno do servidor. O briefing foi processado mas houve um problema na resposta da API. Entre em contato com o suporte técnico.';
+        setError(errorMessage);
+        toast.error(errorMessage);
       } else if (err instanceof Error) {
-        setError(`Erro ao gerar briefing: ${err.message}`);
+        const errorMessage = `Erro ao gerar briefing: ${err.message}`;
+        setError(errorMessage);
+        toast.error(errorMessage);
       } else {
-        setError('Erro desconhecido ao gerar briefing');
+        const errorMessage = 'Erro desconhecido ao gerar briefing';
+        setError(errorMessage);
+        toast.error(errorMessage);
       }
     } finally {
       setIsGenerating(false);
@@ -145,8 +171,12 @@ export const useBriefingReview = (): BriefingHookReturn => {
     const labels: Record<string, string> = {
       // Informações Básicas
       campaignName: 'Nome da Campanha',
+      campaignCode: 'Código da Campanha',
+      journeyName: 'Nome da Jornada',
       brand: 'Marca',
       subBrands: 'Sub-marcas',
+      semester: 'Semestre',
+      offers: 'Ofertas',
       campaignOrigin: 'Origem da Campanha',
       campaignType: 'Tipo de Campanha',
       campaignObjective: 'Objetivo da Campanha',
@@ -154,6 +184,9 @@ export const useBriefingReview = (): BriefingHookReturn => {
       offer: 'Oferta',
       startDate: 'Data de Início',
       endDate: 'Data de Fim',
+      isContinuous: 'Campanha Contínua',
+      campaignCodes: 'Códigos da Campanha',
+      quantityEmail: 'Quantidade de Emails',
 
       // Segmentação
       sourceBase: 'Base de Origem',
@@ -161,8 +194,19 @@ export const useBriefingReview = (): BriefingHookReturn => {
       funnelStage: 'Estágio do Funil',
       baseOrigin: 'Origem da Base',
       modalidade: 'Modalidade',
-      nom_curso: 'Cursos',
+      courses: 'Cursos',
+      excludedCourses: 'Cursos Excluídos',
+      courseLevel: 'Nível do Curso',
+      nom_curso: 'Cursos (Nome)',
+      nom_curso_exclude: 'Cursos Excluídos (Nome)',
       atl_niveldeensino_c: 'Nível de Ensino',
+      vestibularStatus: 'Status do Vestibular',
+      ageRange: 'Faixa Etária',
+      lastInteraction: 'Última Interação (dias)',
+      removeFromMasterRegua: 'Remover da Régua Master',
+      mainDocumentationSent: 'Documentação Principal Enviada',
+      dispatchTypes: 'Tipos de Disparo',
+      queries: 'Consultas',
       entryForm: 'Forma de Ingresso',
       allowedEntryForms: 'Formas de Ingresso Permitidas',
       excludedEntryForms: 'Formas de Ingresso Excluídas',
@@ -186,7 +230,6 @@ export const useBriefingReview = (): BriefingHookReturn => {
       documentationSent: 'Documentação Enviada',
       outras_exclusoes: 'Outras Exclusões',
       criterios_saida: 'Critérios de Saída',
-      nom_curso_exclude: 'Cursos Excluídos',
     };
     return labels[key] || key.replace(/([A-Z])/g, ' $1').replace(/^./, (str) => str.toUpperCase());
   };
@@ -198,8 +241,12 @@ export const useBriefingReview = (): BriefingHookReturn => {
       data: {
         // Mapeamento correto dos campos do backend para frontend
         campaignName: campaignData.campaign_name || campaignData.campaignName,
+        campaignCode: campaignData.campaignCode,
+        journeyName: campaignData.journeyName,
         brand: campaignData.brand,
         subBrands: campaignData.subBrands,
+        semester: campaignData.semester,
+        offers: campaignData.offers,
         campaignOrigin: campaignData.campaignOrigin,
         campaignType: campaignData.campaign_type || campaignData.campaignType,
         campaignObjective: campaignData.campaign_objective || campaignData.campaignObjective,
@@ -207,6 +254,9 @@ export const useBriefingReview = (): BriefingHookReturn => {
         offer: campaignData.offer,
         startDate: campaignData.start_date,
         endDate: campaignData.end_date,
+        isContinuous: campaignData.is_continuous,
+        campaignCodes: campaignData.campaign_codes,
+        quantityEmail: campaignData.quantity_Email,
       },
     },
     segmentation: {
@@ -224,10 +274,21 @@ export const useBriefingReview = (): BriefingHookReturn => {
         baseOrigin: campaignData.baseOrigin,
         modalidade: campaignData.modalidade,
         nom_curso: campaignData.nom_curso,
+        courses: campaignData.courses,
+        excludedCourses: campaignData.excludedCourses,
+        courseLevel: campaignData.courseLevel,
+        nom_curso_exclude: campaignData.nom_curso_exclude,
         atl_niveldeensino_c: campaignData.atl_niveldeensino__c,
+        vestibularStatus: campaignData.vestibularStatus,
+        ageRange: campaignData.ageRange,
+        lastInteraction: campaignData.lastInteraction,
+        removeFromMasterRegua: campaignData.removeFromMasterRegua,
+        mainDocumentationSent: campaignData.mainDocumentationSent,
         entryForm: campaignData.entryForm,
         allowedEntryForms: campaignData.allowedEntryForms,
         excludedEntryForms: campaignData.excludedEntryForms,
+        dispatchTypes: campaignData.dispatchTypes,
+        queries: campaignData.queries,
         // Campos de forma de ingresso
         forma_ingresso_enem: campaignData.forma_ingresso_enem,
         forma_ingresso_transferencia_externa: campaignData.forma_ingresso_transferencia_externa,
@@ -252,7 +313,6 @@ export const useBriefingReview = (): BriefingHookReturn => {
         documentationSent: campaignData.documentationSent,
         outras_exclusoes: campaignData.outras_exclusoes,
         criterios_saida: campaignData.criterios_saida,
-        nom_curso_exclude: campaignData.nom_curso_exclude,
       },
     },
   };

@@ -6,7 +6,6 @@ import {
   Card,
   Chip,
   Grid,
-  Alert,
   Paper,
   Stack,
   Button,
@@ -24,7 +23,6 @@ import { FormStepper } from 'src/components/form-stepper/FormStepper';
 export default function ReviewGeneration() {
   const {
     isGenerating,
-    error,
     generatedBriefing,
     reviewData,
     handleGenerateBriefing,
@@ -87,13 +85,6 @@ export default function ReviewGeneration() {
         {renderSection(reviewData.basicInfo.title, reviewData.basicInfo.data)}
         {renderSection(reviewData.segmentation.title, reviewData.segmentation.data)}
         {renderSection(reviewData.advancedFilters.title, reviewData.advancedFilters.data)}
-
-        {/* Error Display */}
-        {error && (
-          <Alert severity="error" sx={{ mb: 3 }}>
-            {error}
-          </Alert>
-        )}
 
         {/* Generated Briefing Display */}
         {generatedBriefing && (
