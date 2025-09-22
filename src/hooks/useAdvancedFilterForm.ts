@@ -161,8 +161,16 @@ export function useAdvancedFilterForm(state: Partial<DynamicAdvancedFilterFormVa
     }
   };
 
-  const handleSubmitWithValidation = () =>
-    form.handleSubmit(
+  const handleSubmitWithValidation = () => {
+    const rawValues = form.getValues();
+
+    const transformedValues = transformFormData(rawValues);
+
+    Object.entries(transformedValues).forEach(([key, value]) => {
+      form.setValue(key as any, value);
+    });
+
+    return form.handleSubmit(
       (formValues) => {
         handleNext(formValues);
       },
@@ -170,7 +178,8 @@ export function useAdvancedFilterForm(state: Partial<DynamicAdvancedFilterFormVa
         console.log('Erros de validação:', errors);
         scrollToErrors();
       }
-    );
+    )();
+  };
 
   const handlePrevious = () => {
     router.push('/briefing/audience-definition');

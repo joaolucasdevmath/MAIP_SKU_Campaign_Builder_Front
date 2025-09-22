@@ -459,7 +459,7 @@ export default function AdvancedFilterPage() {
                   color="primary"
                   type="button"
                   sx={{ backgroundColor: '#093366', '&:hover': { backgroundColor: '#07264d' } }}
-                  onClick={handleSubmitWithValidation()}
+                  onClick={handleSubmitWithValidation}
                 >
                   Próximo
                 </Button>

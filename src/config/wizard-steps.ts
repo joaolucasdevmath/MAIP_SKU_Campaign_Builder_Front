@@ -5,22 +5,22 @@ export const WIZARD_STEPS = {
     {
       step: 1,
       route: '/briefing/basic-info',
-      title: 'Informações Básicas da Campanha'
+      title: 'Etapa 1 de 4: Informações Básicas da Campanha'
     },
     {
       step: 2,
       route: '/briefing/audience-definition',
-      title: 'Definição do Público'
+      title: 'Etapa 2 de 4: Definição do Público'
     },
     {
       step: 3,
       route: '/briefing/advanced-filter',
-      title: 'Filtros Avançados'
+      title: 'Etapa 3 de 4: Filtros Avançados'
     },
     {
       step: 4,
       route: '/briefing/review-generation',
-      title: 'Revisão e Finalização'
+      title: 'Etapa 4 de 4: Revisão e Finalização'
     }
   ]
 };
