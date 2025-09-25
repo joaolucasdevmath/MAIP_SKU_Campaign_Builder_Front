@@ -8,6 +8,8 @@ import type {
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 
+import { useAudienceData } from 'src/hooks/useAudienceData';
+
 import axiosInstance, { endpoints } from 'src/utils/axios';
 
 import { useFormWizard } from 'src/context/FormWizardContext';
@@ -17,6 +19,12 @@ import { toast } from 'src/components/snackbar';
 export const useBriefingReview = (): BriefingHookReturn => {
   const { state: campaignData } = useFormWizard();
   const router = useRouter();
+  const {
+    runAudienceFlow,
+    data: audienceData,
+    loading: audienceLoading,
+    error: audienceError,
+  } = useAudienceData();
 
   // Debug: verificar sessionStorage
   useEffect(() => {
@@ -44,6 +52,41 @@ export const useBriefingReview = (): BriefingHookReturn => {
       setIsGenerating(true);
       setError(null);
 
+      // Primeiro, calcular custos usando campaign_data - formato correto do backend
+      const campaignPayload = {
+        campaign_name: campaignData.campaign_name || campaignData.campaignName,
+        campaign_type: Array.isArray(campaignData.campaign_type)
+          ? campaignData.campaign_type[0]
+          : campaignData.campaign_type || campaignData.campaignType,
+        channels: { EMAIL: campaignData.quantity_Email || 0 },
+        query_text: campaignData.generated_query || campaignData.generatedQuery || '',
+        additional_info: {
+          base_origin: campaignData.base_origin || campaignData.baseOrigin,
+          nom_grupo_marca: campaignData.nom_grupo_marca,
+          segmentations: Array.isArray(campaignData.segmentation)
+            ? campaignData.segmentation.join(' AND ')
+            : campaignData.segmentation || campaignData.segmentations,
+          nom_tipo_curso: campaignData.nom_tipo_curso || [],
+          tipo_captacao: campaignData.tipo_captacao || [],
+          modalidade: campaignData.modalidade || [],
+          nom_curso: campaignData.nom_curso || [],
+          nom_curso_exclude: campaignData.nom_curso_exclude || [],
+          nom_periodo_academico: campaignData.semester || [],
+          status_funil: Array.isArray(campaignData.status_funil)
+            ? campaignData.status_funil[0]
+            : campaignData.status_funil,
+          atl_niveldeensino__c: campaignData.atl_niveldeensino__c || [],
+          forma_ingresso: campaignData.entryForm || [],
+        },
+      };
+
+      console.log('📊 Calculando custos com payload:', campaignPayload);
+      await runAudienceFlow(campaignPayload);
+
+      if (audienceError) {
+        throw new Error(audienceError);
+      }
+
       // Prepare data for API call seguindo o padrão do backend
       const briefingPayload: BriefingPayload = {
         // Informações básicas
@@ -55,7 +98,9 @@ export const useBriefingReview = (): BriefingHookReturn => {
         semester: campaignData.semester,
         offers: campaignData.offers,
         campaign_origin: campaignData.campaignOrigin,
-        campaign_type: campaignData.campaign_type || campaignData.campaignType,
+        campaign_type: Array.isArray(campaignData.campaign_type)
+          ? campaignData.campaign_type[0]
+          : campaignData.campaign_type || campaignData.campaignType,
         campaign_objective: campaignData.campaign_objective || campaignData.campaignObjective,
         channel: campaignData.channel,
         offer: campaignData.offer,
@@ -69,7 +114,9 @@ export const useBriefingReview = (): BriefingHookReturn => {
         base_origin: campaignData.baseOrigin,
         source_base: campaignData.source_base,
         source_base_id: campaignData.source_base_id,
-        segmentation: campaignData.segmentation,
+        segmentation: Array.isArray(campaignData.segmentation)
+          ? campaignData.segmentation.join(' AND ')
+          : campaignData.segmentation,
         // Configurações avançadas
         modality: campaignData.modalidade,
         courses: campaignData.nom_curso,
@@ -125,21 +172,17 @@ export const useBriefingReview = (): BriefingHookReturn => {
     } catch (err) {
       console.error('Erro ao gerar briefing:', err);
 
-      // Tratamento específico para erro 500 do backend
-      if (err instanceof Error && err.message.includes('500')) {
-        const errorMessage =
-          'Erro interno do servidor. O briefing foi processado mas houve um problema na resposta da API. Entre em contato com o suporte técnico.';
-        setError(errorMessage);
-        toast.error(errorMessage);
+      let errorMessage = 'Erro desconhecido ao gerar briefing';
+
+      // Verificar se é erro do backend com mensagem específica
+      if (typeof err === 'object' && err !== null && 'errorMessage' in err) {
+        errorMessage = `Erro do backend: ${(err as any).errorMessage}`;
       } else if (err instanceof Error) {
-        const errorMessage = `Erro ao gerar briefing: ${err.message}`;
-        setError(errorMessage);
-        toast.error(errorMessage);
-      } else {
-        const errorMessage = 'Erro desconhecido ao gerar briefing';
-        setError(errorMessage);
-        toast.error(errorMessage);
+        errorMessage = `Erro ao gerar briefing: ${err.message}`;
       }
+
+      setError(errorMessage);
+      toast.error(errorMessage);
     } finally {
       setIsGenerating(false);
     }

@@ -1,3 +1,56 @@
+export interface GenerateQueryPayload {
+  campaign_channels: Record<string, number>;
+  filters: Record<string, any>;
+}
+
+export interface GenerateQueryResponse {
+  success: boolean;
+  errorMessage?: string;
+  code: number;
+  data?: string | { query_text: string };
+}
+
+// Interfaces para Campaign Data API
+export interface CampaignDataPayload {
+  campaign_name: string;
+  campaign_type: string;
+  additional_info: {
+    brand?: string;
+    modality?: string;
+    courses?: string;
+    education_level?: string;
+    entry_forms?: string;
+    segmentation?: string;
+    age_range?: string;
+    last_interaction?: number;
+    campaign_start_date?: string;
+    campaign_end_date?: string;
+    campaign_objective?: string;
+    [key: string]: any;
+  };
+  query_text: string; // Obrigatório conforme backend
+  channels: Record<string, number>;
+}
+
+export interface CampaignDataResponse {
+  success: boolean;
+  errorMessage?: string;
+  code: number;
+  data?: {
+    // Campos originais (para compatibilidade)
+    audience_size?: number;
+    estimated_cost?: number;
+    processing_time?: string;
+    cost_breakdown?: Record<string, number>;
+    audience_info?: Record<string, any>;
+
+    // Novos campos da API real
+    audience_volume?: number;
+    estimated_costs?: Record<string, string>;
+    journey_name?: string;
+  };
+}
+
 export interface BriefingPayload {
   // Informações básicas
   campaign_name?: string;
