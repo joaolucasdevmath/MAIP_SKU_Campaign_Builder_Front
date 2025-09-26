@@ -58,7 +58,6 @@ export function useAudiencePayload() {
   const nom_periodo_academico = baseOrigin === 'DE_GERAL_LEADS' ? [] : 
     Array.isArray(campaignData.nom_periodo_academico) ? campaignData.nom_periodo_academico : ["2025.1"];
 
-  // Construir additional_info seguindo o padrão do OGERENTETAMALUCO
   const additionalInfo = {
     base_origin: baseOrigin,
     nom_grupo_marca: campaignData.nom_grupo_marca || campaignData.brand || '',
@@ -67,12 +66,12 @@ export function useAudiencePayload() {
       : String(campaignData.segmentation || campaignData.segmentations || ''),
     nom_tipo_curso: Array.isArray(campaignData.nom_tipo_curso) ? campaignData.nom_tipo_curso : [],
     tipo_captacao: Array.isArray(campaignData.tipo_captacao) ? campaignData.tipo_captacao : [],
-    modalidade: [], // Evitar modalidade
+    modalidade: [], 
     nom_curso: Array.isArray(campaignData.nom_curso) ? campaignData.nom_curso : [],
     nom_curso_exclude: Array.isArray(campaignData.nom_curso_exclude) ? campaignData.nom_curso_exclude : [],
     nom_periodo_academico,
     status_funil: Array.isArray(campaignData.status_funil) ? campaignData.status_funil : campaignData.status_funil || [],
-    atl_niveldeensino__c: [], // Evitar atl_niveldeensino__c
+    atl_niveldeensino__c: [], 
     forma_ingresso: Array.isArray(campaignData.forma_ingresso) ? campaignData.forma_ingresso : Array.isArray(campaignData.entryForm) ? campaignData.entryForm : [],
   };
 

@@ -1,7 +1,8 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+
 import { LoadingButton } from '@mui/lab';
 import {
   Box,
@@ -13,9 +14,14 @@ import {
   Typography,
   CircularProgress,
 } from '@mui/material';
+
 import { useAudienceData } from 'src/hooks/useAudienceData';
+import { useAudienceQuery } from 'src/hooks/useAudienceQuery';
+import { useBriefingReview } from 'src/hooks/useBriefingReview';
 import { useAudiencePayload } from 'src/hooks/useAudiencePayload';
+
 import { useFormWizard } from 'src/context/FormWizardContext';
+
 import { toast } from 'src/components/snackbar';
 import { Iconify } from 'src/components/iconify';
 
@@ -24,6 +30,8 @@ export default function AudiencePage() {
   const { resetCampaignData } = useFormWizard();
   const payload = useAudiencePayload();
   const { loading, error, data, runAudienceFlow } = useAudienceData();
+  const { clearAllData } = useAudienceQuery();
+  const { handleBackToBasicInfo } = useBriefingReview();
 
   useEffect(() => {
     console.log('[AudiencePage] Payload recebido:', JSON.stringify(payload, null, 2));
@@ -52,7 +60,9 @@ export default function AudiencePage() {
   };
 
   const handleResetFlow = () => {
+    console.log('[AudiencePage] Iniciando reset do fluxo...');
     resetCampaignData();
+    console.log('[AudiencePage] Estado limpo com resetCampaignData.');
     router.push('/briefing/review-generation');
   };
 
@@ -139,11 +149,7 @@ export default function AudiencePage() {
           </Box>
 
           <Box sx={{ mt: 2, display: 'flex', gap: 2, justifyContent: 'center' }}>
-            <Button
-              variant="contained"
-              onClick={() => runAudienceFlow(payload)}
-              disabled={loading}
-            >
+            <Button variant="contained" onClick={() => runAudienceFlow(payload)} disabled={loading}>
               {loading ? 'Tentando novamente...' : 'Tentar Novamente'}
             </Button>
             <Button variant="outlined" onClick={() => router.push('/briefing/review-generation')}>
@@ -176,7 +182,9 @@ export default function AudiencePage() {
                 Query SQL Gerada
               </Typography>
               <Typography variant="body2" color="text.secondary" gutterBottom>
-                Etapa: {payload.additional_info.base_origin === 'DE_GERAL_LEADS' ? 'LEAD' : 'OPORTUNIDADE'} | Base: {payload.additional_info.base_origin}
+                Etapa:{' '}
+                {payload.additional_info.base_origin === 'DE_GERAL_LEADS' ? 'LEAD' : 'OPORTUNIDADE'}{' '}
+                | Base: {payload.additional_info.base_origin}
               </Typography>
 
               <Box
@@ -273,9 +281,7 @@ export default function AudiencePage() {
                 <Typography variant="body2" color="text.secondary" gutterBottom>
                   Estimativa de Processamento
                 </Typography>
-                <Typography variant="body1">
-                  Processamento rápido (5 minutos)
-                </Typography>
+                <Typography variant="body1">Processamento rápido (5 minutos)</Typography>
               </Box>
             </Card>
           </Grid>
@@ -299,9 +305,19 @@ export default function AudiencePage() {
 
           <Button
             variant="outlined"
-            onClick={() => router.push('/briefing/basic-info')}
+            type="button"
+            onClick={() => {
+              console.log('[AudiencePage] Iniciando voltar ao início...');
+              console.log('[AudiencePage] Estado antes do reset:', JSON.stringify(payload, null, 2));
+              clearAllData();
+              handleBackToBasicInfo();
+              toast.success('Fluxo reiniciado com sucesso!');
+              console.log('[AudiencePage] Estado limpo com clearAllData e handleBackToBasicInfo.');
+            }}
+            disabled={loading}
             sx={{
               color: '#093366',
+              backgroundColor: 'white',
               borderColor: '#093366',
               '&:hover': {
                 backgroundColor: '#f8f9fa',
