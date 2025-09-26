@@ -34,42 +34,94 @@ export const useAudienceQuery = (): UseAudienceQueryReturn => {
   const handleGenerateQuery = async (): Promise<void> => {
     setIsGenerating(true);
     try {
-      
-      const campaign_channels: Record<string, number> = {
-        EMAIL: campaignData.quantity_Email || 0,
-      };
+      // Construir campaign_channels dinamicamente
+      const campaign_channels: Record<string, number> = {};
+      if (Array.isArray(campaignData.channel)) {
+        campaignData.channel.forEach((channel: string) => {
+          const channelKeyUpper = channel.toUpperCase();
+          const channelKeyOriginal = channel;
+          const quantityKeys = [
+            `quantity_${channelKeyUpper}`,
+            `quantity_${channelKeyOriginal}`,
+            `quantity_${channelKeyOriginal.toLowerCase()}`,
+          ];
+          let quantity: any;
+          // eslint-disable-next-line no-restricted-syntax
+          for (const quantityKey of quantityKeys) {
+            quantity = campaignData[quantityKey];
+            console.log(`[DEBUG useAudienceQuery] Processando canal: ${channel}, quantityKey: ${quantityKey}, quantity: ${quantity}`);
+            if (
+              quantity !== undefined &&
+              quantity !== null &&
+              !Number.isNaN(Number(quantity)) &&
+              Number(quantity) > 0
+            ) {
+              campaign_channels[channelKeyUpper] = Number(quantity);
+              break;
+            }
+          }
+          if (!campaign_channels[channelKeyUpper]) {
+            console.warn(`[DEBUG useAudienceQuery] Canal ${channel} ignorado: valor inválido (${quantity})`);
+          }
+        });
+      }
 
-     
-      const filters: Record<string, string> = {
-        base_origin: String(campaignData.base_origin?.[0] || campaignData.source_base || "").toUpperCase(),
-        nom_grupo_marca: campaignData.nom_grupo_marca || campaignData.brand || "",
-        segmentations: Array.isArray(campaignData.segmentations)
-          ? campaignData.segmentations.join(" AND ")
-          : String(campaignData.segmentations || ""),
-        nom_tipo_curso: Array.isArray(campaignData.nom_tipo_curso)
-          ? campaignData.nom_tipo_curso.join(", ")
-          : String(campaignData.nom_tipo_curso || ""),
-        tipo_captacao: Array.isArray(campaignData.tipo_captacao)
-          ? campaignData.tipo_captacao.join(", ")
-          : String(campaignData.tipo_captacao || ""),
-        modalidade: Array.isArray(campaignData.modalidade)
-          ? campaignData.modalidade.join(", ")
-          : String(campaignData.modalidade || ""),
-        nom_curso: Array.isArray(campaignData.nom_curso)
-          ? campaignData.nom_curso.join(", ")
-          : String(campaignData.nom_curso || ""),
-        nom_curso_exclude: Array.isArray(campaignData.nom_curso_exclude)
-          ? campaignData.nom_curso_exclude.join(", ")
-          : String(campaignData.nom_curso_exclude || ""),
-        nom_periodo_academico: Array.isArray(campaignData.nom_periodo_academico)
-          ? campaignData.nom_periodo_academico.join(", ")
-          : String(campaignData.nom_periodo_academico || ""),
-        atl_niveldeensino__c: Array.isArray(campaignData.atl_niveldeensino__c)
-          ? campaignData.atl_niveldeensino__c.join(", ")
-          : String(campaignData.atl_niveldeensino__c || ""),
-        forma_ingresso: Array.isArray(campaignData.forma_ingresso)
-          ? campaignData.forma_ingresso.join(", ")
-          : String(campaignData.forma_ingresso || ""),
+      // Validação de campaign_channels
+      if (Object.keys(campaign_channels).length === 0) {
+        throw new Error("Pelo menos um canal deve ser especificado em 'campaign_channels'.");
+      }
+
+      // Determinar filtros com base no base_origin
+      const baseOrigin = String(campaignData.base_origin?.[0] || campaignData.source_base || "").toUpperCase();
+      let segmentations = "";
+      let nom_periodo_academico = [];
+      let status_funil: string[] = [];
+      let modalidade: string[] = [];
+      let atl_niveldeensino_c = [];
+      let forma_ingresso = [];
+
+      if (baseOrigin === 'DE_GERAL_LEADS') {
+        // Para DE_GERAL_LEADS: usar modalidade, atl_niveldeensino_c, forma_ingresso
+        const modalidadeStr = Array.isArray(campaignData.modalidade) && campaignData.modalidade.length > 0
+          ? `modalidade IN (${campaignData.modalidade.map((m: string) => `'${m}'`).join(',')})`
+          : "";
+        const atl_niveldeensinoStr = Array.isArray(campaignData.atl_niveldeensino__c) && campaignData.atl_niveldeensino__c.length > 0
+          ? `atl_niveldeensino_c = '${campaignData.atl_niveldeensino__c[0]}'`
+          : "";
+        const forma_ingressoStr = Array.isArray(campaignData.forma_ingresso) && campaignData.forma_ingresso.length > 0
+          ? `forma_ingresso = '${campaignData.forma_ingresso[0]}'`
+          : "";
+        segmentations = [modalidadeStr, atl_niveldeensinoStr, forma_ingressoStr].filter(Boolean).join(" AND ");
+        modalidade = Array.isArray(campaignData.modalidade) ? campaignData.modalidade : [];
+        atl_niveldeensino_c = Array.isArray(campaignData.atl_niveldeensino__c) ? campaignData.atl_niveldeensino__c : [];
+        forma_ingresso = Array.isArray(campaignData.forma_ingresso) ? campaignData.forma_ingresso : [];
+      } else {
+        // Para DE_GERAL_OPORTUNIDADE: usar nom_periodo_academico e status_funil
+        const nom_periodoStr = Array.isArray(campaignData.nom_periodo_academico) && campaignData.nom_periodo_academico.length > 0
+          ? `nom_periodo_academico IN (${campaignData.nom_periodo_academico.map((p: string) => `'${p}'`).join(',')})`
+          : "";
+        const status_funilStr = campaignData.status_funil || "";
+        segmentations = [nom_periodoStr, status_funilStr].filter(Boolean).join(" AND ");
+        nom_periodo_academico = Array.isArray(campaignData.nom_periodo_academico) ? campaignData.nom_periodo_academico : ["2025.1"];
+        status_funil = Array.isArray(campaignData.status_funil)
+          ? campaignData.status_funil
+          : (typeof campaignData.status_funil === 'string' && campaignData.status_funil ? [campaignData.status_funil] : []);
+      }
+
+      // Construir filters
+      const filters: Record<string, any> = {
+        base_origin: baseOrigin,
+        nom_grupo_marca: campaignData.nom_grupo_marca || campaignData.brand || '',
+        segmentations,
+        nom_tipo_curso: Array.isArray(campaignData.nom_tipo_curso) ? campaignData.nom_tipo_curso : [],
+        tipo_captacao: Array.isArray(campaignData.tipo_captacao) ? campaignData.tipo_captacao : [],
+        modalidade,
+        nom_curso: Array.isArray(campaignData.nom_curso) ? campaignData.nom_curso : [],
+        nom_curso_exclude: Array.isArray(campaignData.nom_curso_exclude) ? campaignData.nom_curso_exclude : [],
+        nom_periodo_academico,
+        status_funil,
+        atl_niveldeensino_c,
+        forma_ingresso,
       };
 
       // Validação dos campos obrigatórios
@@ -79,15 +131,16 @@ export const useAudienceQuery = (): UseAudienceQueryReturn => {
       if (!filters.nom_grupo_marca) {
         throw new Error("O campo 'nom_grupo_marca' é obrigatório.");
       }
-      if (!campaign_channels.EMAIL) {
-        throw new Error("A quantidade de emails em 'campaign_channels.EMAIL' é obrigatória.");
-      }
 
-      
+      // Construir payload simplificado
       const queryPayload: GenerateQueryPayload = {
-        campaign_name: campaignData.campaign_name,
-        campaign_type: campaignData.campaignType ?? "",
-        campaign_objective: campaignData.campaign_objective?.[0],
+        campaign_name: campaignData.campaign_name || "teste",
+        campaign_type: Array.isArray(campaignData.campaign_type)
+          ? campaignData.campaign_type[0] || "CAPTAÇÃO"
+          : campaignData.campaign_type || campaignData.campaignType || "CAPTAÇÃO",
+        campaign_objective: Array.isArray(campaignData.campaign_objective)
+          ? campaignData.campaign_objective[0] || "INSCRIÇÃO"
+          : campaignData.campaign_objective || campaignData.campaignObjective || "INSCRIÇÃO",
         campaign_channels,
         filters,
       };

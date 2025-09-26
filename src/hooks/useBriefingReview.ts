@@ -41,7 +41,7 @@ export const useBriefingReview = (): BriefingHookReturn => {
   }, []);
 
   // Debug: verificar se os dados estão chegando
-  console.log('🔍 Debug campaignData no hook:', campaignData);
+  console.log('🔍 Debug campaignData no hook:', JSON.stringify(campaignData, null, 2));
 
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -52,35 +52,85 @@ export const useBriefingReview = (): BriefingHookReturn => {
       setIsGenerating(true);
       setError(null);
 
-      // Primeiro, calcular custos usando campaign_data - formato correto do backend
-      const campaignPayload = {
-        campaign_name: campaignData.campaign_name || campaignData.campaignName,
-        campaign_type: Array.isArray(campaignData.campaign_type)
-          ? campaignData.campaign_type[0]
-          : campaignData.campaign_type || campaignData.campaignType,
-        channels: { EMAIL: campaignData.quantity_Email || 0 },
-        query_text: campaignData.generated_query || campaignData.generatedQuery || '',
-        additional_info: {
-          base_origin: campaignData.base_origin || campaignData.baseOrigin,
-          nom_grupo_marca: campaignData.nom_grupo_marca,
-          segmentations: Array.isArray(campaignData.segmentation)
-            ? campaignData.segmentation.join(' AND ')
-            : campaignData.segmentation || campaignData.segmentations,
-          nom_tipo_curso: campaignData.nom_tipo_curso || [],
-          tipo_captacao: campaignData.tipo_captacao || [],
-          modalidade: campaignData.modalidade || [],
-          nom_curso: campaignData.nom_curso || [],
-          nom_curso_exclude: campaignData.nom_curso_exclude || [],
-          nom_periodo_academico: campaignData.semester || [],
-          status_funil: Array.isArray(campaignData.status_funil)
-            ? campaignData.status_funil[0]
-            : campaignData.status_funil,
-          atl_niveldeensino__c: campaignData.atl_niveldeensino__c || [],
-          forma_ingresso: campaignData.entryForm || [],
-        },
+      // Construir channels dinamicamente
+      const campaign_channels: Record<string, number> = {};
+      if (Array.isArray(campaignData.channel)) {
+        campaignData.channel.forEach((channel: string) => {
+          // Tentar com channelKey em maiúsculo e original
+          const channelKeyUpper = channel.toUpperCase();
+          const channelKeyOriginal = channel;
+          const quantityKeys = [
+            `quantity_${channelKeyUpper}`,
+            `quantity_${channelKeyOriginal}`,
+            `quantity_${channelKeyOriginal.toLowerCase()}`,
+          ];
+          let value: any;
+          // eslint-disable-next-line no-restricted-syntax
+          for (const quantityKey of quantityKeys) {
+            value = campaignData[quantityKey];
+            console.log(`[DEBUG useBriefingReview] Processando canal: ${channel}, quantityKey: ${quantityKey}, value: ${value}`);
+            if (
+              value !== undefined &&
+              value !== null &&
+              !Number.isNaN(Number(value)) &&
+              Number(value) > 0
+            ) {
+              campaign_channels[channelKeyUpper] = Number(value);
+              break;
+            }
+          }
+          if (!campaign_channels[channelKeyUpper]) {
+            console.warn(`[DEBUG useBriefingReview] Canal ${channel} ignorado: valor inválido (${value})`);
+          }
+        });
+      }
+
+      // Validação de channels
+      if (Object.keys(campaign_channels).length === 0) {
+        console.warn('[DEBUG useBriefingReview] Nenhum canal válido encontrado em campaign_channels');
+      } else {
+        console.log('[DEBUG useBriefingReview] Canais construídos:', JSON.stringify(campaign_channels, null, 2));
+      }
+
+      // Campos de lista: manter como array (vazio [] ou preenchido)
+      // Campos single: string
+      const additionalInfo = {
+        base_origin: String(
+          Array.isArray(campaignData.base_origin)
+            ? campaignData.base_origin[0] || ''
+            : campaignData.base_origin || campaignData.baseOrigin || ''
+        ).toUpperCase(),
+        nom_grupo_marca: campaignData.nom_grupo_marca || campaignData.brand || '',
+        segmentations: Array.isArray(campaignData.segmentation)
+          ? campaignData.segmentation.join(' AND ')
+          : String(campaignData.segmentation || campaignData.segmentations || ''),
+        nom_tipo_curso: Array.isArray(campaignData.nom_tipo_curso) ? campaignData.nom_tipo_curso : [],
+        tipo_captacao: Array.isArray(campaignData.tipo_captacao) ? campaignData.tipo_captacao : [],
+        modalidade: Array.isArray(campaignData.modalidade) ? campaignData.modalidade : [],
+        nom_curso: Array.isArray(campaignData.nom_curso) ? campaignData.nom_curso : [],
+        nom_curso_exclude: Array.isArray(campaignData.nom_curso_exclude) ? campaignData.nom_curso_exclude : [],
+        nom_periodo_academico: Array.isArray(campaignData.nom_periodo_academico) ? campaignData.nom_periodo_academico : Array.isArray(campaignData.semester) ? campaignData.semester : [],
+        status_funil: Array.isArray(campaignData.status_funil)
+          ? campaignData.status_funil.length === 1
+            ? String(campaignData.status_funil[0])
+            : campaignData.status_funil.join(', ')
+          : String(campaignData.status_funil || ''),
+        atl_niveldeensino__c: Array.isArray(campaignData.atl_niveldeensino__c) ? campaignData.atl_niveldeensino__c : [],
+        forma_ingresso: Array.isArray(campaignData.forma_ingresso) ? campaignData.forma_ingresso : Array.isArray(campaignData.entryForm) ? campaignData.entryForm : [],
       };
 
-      console.log('📊 Calculando custos com payload:', campaignPayload);
+      // Construir campaignPayload para runAudienceFlow
+      const campaignPayload = {
+        campaign_name: campaignData.campaign_name || campaignData.campaignName || 'teste',
+        campaign_type: Array.isArray(campaignData.campaign_type)
+          ? campaignData.campaign_type[0] || 'CAPTAÇÃO'
+          : campaignData.campaign_type || campaignData.campaignType || 'CAPTAÇÃO',
+        channels: campaign_channels,
+        query_text: campaignData.generated_query || campaignData.generatedQuery || '',
+        additional_info: additionalInfo,
+      };
+
+      console.log('📊 Calculando custos com payload:', JSON.stringify(campaignPayload, null, 2));
       await runAudienceFlow(campaignPayload);
 
       if (audienceError) {
@@ -89,75 +139,73 @@ export const useBriefingReview = (): BriefingHookReturn => {
 
       // Prepare data for API call seguindo o padrão do backend
       const briefingPayload: BriefingPayload = {
-        // Informações básicas
-        campaign_name: campaignData.campaign_name || campaignData.campaignName,
-        campaign_code: campaignData.campaignCode,
-        journey_name: campaignData.journeyName,
-        brand: campaignData.brand,
-        sub_brands: campaignData.subBrands,
-        semester: campaignData.semester,
-        offers: campaignData.offers,
-        campaign_origin: campaignData.campaignOrigin,
+        campaign_name: campaignData.campaign_name || campaignData.campaignName || 'teste',
+        campaign_code: campaignData.campaignCode || '',
+        journey_name: campaignData.journeyName || '',
+        brand: campaignData.brand || '',
+        sub_brands: campaignData.subBrands || [],
+        semester: campaignData.semester || '',
+        offers: campaignData.offers || '',
+        campaign_origin: campaignData.campaignOrigin || '',
         campaign_type: Array.isArray(campaignData.campaign_type)
-          ? campaignData.campaign_type[0]
-          : campaignData.campaign_type || campaignData.campaignType,
-        campaign_objective: campaignData.campaign_objective || campaignData.campaignObjective,
-        channel: campaignData.channel,
-        offer: campaignData.offer,
-        start_date: campaignData.start_date,
-        end_date: campaignData.end_date,
-        is_continuous: campaignData.is_continuous,
-        campaign_codes: campaignData.campaign_codes,
-        quantity_Email: campaignData.quantity_Email,
-        // Configurações de segmentação
-        funnel_stage: campaignData.funnelStage,
-        base_origin: campaignData.baseOrigin,
-        source_base: campaignData.source_base,
-        source_base_id: campaignData.source_base_id,
+          ? campaignData.campaign_type[0] || 'CAPTAÇÃO'
+          : campaignData.campaign_type || campaignData.campaignType || 'CAPTAÇÃO',
+        campaign_objective: Array.isArray(campaignData.campaign_objective)
+          ? campaignData.campaign_objective[0] || 'INSCRIÇÃO'
+          : campaignData.campaign_objective || campaignData.campaignObjective || 'INSCRIÇÃO',
+        channel: campaignData.channel || [],
+        offer: campaignData.offer || '',
+        start_date: campaignData.start_date || '',
+        end_date: campaignData.end_date || '',
+        is_continuous: campaignData.is_continuous || false,
+        campaign_codes: campaignData.campaign_codes || '',
+        quantity_Email: campaignData.quantity_Email || 0,
+        funnel_stage: campaignData.funnelStage || [],
+        base_origin: campaignData.baseOrigin || campaignData.base_origin || [],
+        source_base: campaignData.source_base || '',
+        source_base_id: campaignData.source_base_id || '',
         segmentation: Array.isArray(campaignData.segmentation)
           ? campaignData.segmentation.join(' AND ')
-          : campaignData.segmentation,
-        // Configurações avançadas
-        modality: campaignData.modalidade,
-        courses: campaignData.nom_curso,
-        excluded_courses: campaignData.excludedCourses,
-        course_level: campaignData.atl_niveldeensino__c,
-        vestibular_status: campaignData.vestibularStatus,
-        age_range: campaignData.ageRange,
-        last_interaction: campaignData.lastInteraction,
-        remove_from_master_regua: campaignData.removeFromMasterRegua,
-        main_documentation_sent: campaignData.mainDocumentationSent,
-        entry_form: campaignData.entryForm,
-        allowed_entry_forms: campaignData.allowedEntryForms,
-        excluded_entry_forms: campaignData.excludedEntryForms,
-        dispatch_types: campaignData.dispatchTypes,
-        queries: campaignData.queries?.map((q) => (typeof q === 'string' ? q : JSON.stringify(q))),
-        automated_update: campaignData.automatedUpdate,
+          : campaignData.segmentation || '',
+        modality: campaignData.modalidade || [],
+        courses: campaignData.nom_curso || campaignData.courses || [],
+        excluded_courses: campaignData.excludedCourses || campaignData.nom_curso_exclude || [],
+        course_level: campaignData.atl_niveldeensino__c || campaignData.courseLevel || [],
+        vestibular_status: campaignData.vestibularStatus || campaignData.status_vestibular || [],
+        age_range: campaignData.ageRange || [],
+        last_interaction: campaignData.lastInteraction || 0,
+        remove_from_master_regua: campaignData.removeFromMasterRegua || false,
+        main_documentation_sent: campaignData.mainDocumentationSent || false,
+        entry_form: campaignData.entryForm || campaignData.forma_ingresso || [],
+        allowed_entry_forms: campaignData.allowedEntryForms || [],
+        excluded_entry_forms: campaignData.excludedEntryForms || [],
+        dispatch_types: campaignData.dispatchTypes || [],
+        queries: campaignData.queries?.map((q) => (typeof q === 'string' ? q : JSON.stringify(q))) || [],
+        automated_update: campaignData.automatedUpdate || false,
         call_center_available: campaignData.disponibilizacao_call_center_sim
           ? 'Sim'
           : campaignData.disponibilizacao_call_center_nao
             ? 'Não'
             : undefined,
-        call_center_eps: campaignData.callCenterEPS,
-        extra_information: campaignData.informacoes_extras || campaignData.extraInformation,
-        // Campos dinâmicos do step 3
-        nom_grupo_marca: campaignData.nom_grupo_marca,
-        status_funil: campaignData.status_funil,
-        nom_tipo_curso: campaignData.nom_tipo_curso,
-        doc_pend: campaignData.doc_pend,
-        tipo_captacao: campaignData.tipo_captacao,
-        status_vestibular: campaignData.status_vestibular,
-        interacao_oportunidade: campaignData.interacao_oportunidade,
-        documentation_sent: campaignData.documentationSent,
-        outras_exclusoes: campaignData.outras_exclusoes,
-        criterios_saida: campaignData.criterios_saida,
-        forma_ingresso_enem: campaignData.forma_ingresso_enem,
-        forma_ingresso_transferencia_externa: campaignData.forma_ingresso_transferencia_externa,
-        forma_ingresso_vestibular: campaignData.forma_ingresso_vestibular,
-        forma_ingresso_ingresso_simplificado: campaignData.forma_ingresso_ingresso_simplificado,
+        call_center_eps: campaignData.callCenterEPS || '',
+        extra_information: campaignData.informacoes_extras || campaignData.extraInformation || '',
+        nom_grupo_marca: campaignData.nom_grupo_marca || '',
+        status_funil: campaignData.status_funil || '',
+        nom_tipo_curso: campaignData.nom_tipo_curso || [],
+        doc_pend: campaignData.doc_pend || '',
+        tipo_captacao: campaignData.tipo_captacao || [],
+        status_vestibular: campaignData.status_vestibular || '',
+        interacao_oportunidade: campaignData.interacao_oportunidade || '',
+        documentation_sent: campaignData.documentationSent || false,
+        outras_exclusoes: campaignData.outras_exclusoes || '',
+        criterios_saida: campaignData.criterios_saida || '',
+        forma_ingresso_enem: campaignData.forma_ingresso_enem || false,
+        forma_ingresso_transferencia_externa: campaignData.forma_ingresso_transferencia_externa || false,
+        forma_ingresso_vestibular: campaignData.forma_ingresso_vestibular || false,
+        forma_ingresso_ingresso_simplificado: campaignData.forma_ingresso_ingresso_simplificado || false,
       };
 
-      console.log('🚀 Enviando payload para API:', briefingPayload);
+      console.log('🚀 Enviando payload para API:', JSON.stringify(briefingPayload, null, 2));
 
       const response = await axiosInstance.post<BriefingApiResponse>(
         endpoints.briefing.post,
@@ -174,7 +222,6 @@ export const useBriefingReview = (): BriefingHookReturn => {
 
       let errorMessage = 'Erro desconhecido ao gerar briefing';
 
-      // Verificar se é erro do backend com mensagem específica
       if (typeof err === 'object' && err !== null && 'errorMessage' in err) {
         errorMessage = `Erro do backend: ${(err as any).errorMessage}`;
       } else if (err instanceof Error) {
@@ -212,7 +259,6 @@ export const useBriefingReview = (): BriefingHookReturn => {
 
   const getFieldLabel = (key: string): string => {
     const labels: Record<string, string> = {
-      // Informações Básicas
       campaignName: 'Nome da Campanha',
       campaignCode: 'Código da Campanha',
       journeyName: 'Nome da Jornada',
@@ -230,8 +276,6 @@ export const useBriefingReview = (): BriefingHookReturn => {
       isContinuous: 'Campanha Contínua',
       campaignCodes: 'Códigos da Campanha',
       quantityEmail: 'Quantidade de Emails',
-
-      // Segmentação
       sourceBase: 'Base de Origem',
       segmentation: 'Segmentação',
       funnelStage: 'Estágio do Funil',
@@ -257,8 +301,6 @@ export const useBriefingReview = (): BriefingHookReturn => {
       forma_ingresso_transferencia_externa: 'Forma de Ingresso - Transferência Externa',
       forma_ingresso_vestibular: 'Forma de Ingresso - Vestibular',
       forma_ingresso_ingresso_simplificado: 'Forma de Ingresso - Ingresso Simplificado',
-
-      // Configurações Avançadas
       automatedUpdate: 'Atualização Automatizada',
       callCenterAvailable: 'Call Center Disponível',
       callCenterEPS: 'Call Center EPS',
@@ -277,12 +319,10 @@ export const useBriefingReview = (): BriefingHookReturn => {
     return labels[key] || key.replace(/([A-Z])/g, ' $1').replace(/^./, (str) => str.toUpperCase());
   };
 
-  // Organize data by sections seguindo o padrão das outras etapas
   const reviewData: BriefingReviewData = {
     basicInfo: {
       title: '1. Informações Básicas',
       data: {
-        // Mapeamento correto dos campos do backend para frontend
         campaignName: campaignData.campaign_name || campaignData.campaignName,
         campaignCode: campaignData.campaignCode,
         journeyName: campaignData.journeyName,
@@ -312,7 +352,6 @@ export const useBriefingReview = (): BriefingHookReturn => {
     advancedFilters: {
       title: '3. Configurações Avançadas',
       data: {
-        // Campos movidos da segmentação
         funnelStage: campaignData.funnelStage,
         baseOrigin: campaignData.baseOrigin,
         modalidade: campaignData.modalidade,
@@ -332,12 +371,10 @@ export const useBriefingReview = (): BriefingHookReturn => {
         excludedEntryForms: campaignData.excludedEntryForms,
         dispatchTypes: campaignData.dispatchTypes,
         queries: campaignData.queries,
-        // Campos de forma de ingresso
         forma_ingresso_enem: campaignData.forma_ingresso_enem,
         forma_ingresso_transferencia_externa: campaignData.forma_ingresso_transferencia_externa,
         forma_ingresso_vestibular: campaignData.forma_ingresso_vestibular,
         forma_ingresso_ingresso_simplificado: campaignData.forma_ingresso_ingresso_simplificado,
-        // Outros campos de configurações avançadas
         automatedUpdate: campaignData.automatedUpdate,
         callCenterAvailable: campaignData.disponibilizacao_call_center_sim
           ? 'Sim'
@@ -361,18 +398,13 @@ export const useBriefingReview = (): BriefingHookReturn => {
   };
 
   return {
-    // State
     isGenerating,
     error,
     generatedBriefing,
     reviewData,
-
-    // Actions
     handleGenerateBriefing,
     handleBackToBasicInfo,
     clearBriefing,
-
-    // Utility functions
     renderFieldValue,
     getFieldLabel,
   };

@@ -1,7 +1,6 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-
 import { LoadingButton } from '@mui/lab';
 import {
   Box,
@@ -13,12 +12,9 @@ import {
   Typography,
   CircularProgress,
 } from '@mui/material';
-
 import { useAudienceData } from 'src/hooks/useAudienceData';
 import { useAudiencePayload } from 'src/hooks/useAudiencePayload';
-
 import { useFormWizard } from 'src/context/FormWizardContext';
-
 import { toast } from 'src/components/snackbar';
 import { Iconify } from 'src/components/iconify';
 
@@ -26,16 +22,6 @@ export default function AudiencePage() {
   const router = useRouter();
   const { resetCampaignData } = useFormWizard();
   const payload = useAudiencePayload();
-  const { campaign_name, campaign_type, campaign_channels, additional_info } = payload;
-  const queryText = additional_info?.segmentations || '';
-
-  const campaignPayload = {
-    campaign_name,
-    campaign_type,
-    channels: campaign_channels,
-    query_text: queryText,
-    additional_info,
-  };
   const { loading, error, data, runAudienceFlow } = useAudienceData();
 
   const formatCurrency = (value: number): string =>
@@ -52,7 +38,6 @@ export default function AudiencePage() {
     if (cleaned.includes(',')) {
       cleaned = cleaned.replace(/\./g, '').replace(',', '.');
     }
-
     return parseFloat(cleaned) || 0;
   };
 
@@ -61,7 +46,7 @@ export default function AudiencePage() {
     router.push('/briefing/review-generation');
   };
 
-  if (!queryText && !loading) {
+  if (!payload.query_text && !loading) {
     return (
       <Container maxWidth="lg">
         <Box sx={{ py: 4, textAlign: 'center' }}>
@@ -91,7 +76,7 @@ export default function AudiencePage() {
           <CircularProgress size={40} />
           <Typography variant="h6">Carregando dados da audiência...</Typography>
           <Typography variant="body2" color="text.secondary">
-            Segmentação: {queryText ? 'Encontrada' : 'Não encontrada'}
+            Segmentação: {payload.query_text ? 'Encontrada' : 'Não encontrada'}
           </Typography>
         </Box>
       </Container>
@@ -119,7 +104,7 @@ export default function AudiencePage() {
               component="pre"
               sx={{ fontSize: '0.75rem', maxHeight: '200px', overflow: 'auto' }}
             >
-              {JSON.stringify(campaignPayload, null, 2)}
+              {JSON.stringify(payload, null, 2)}
             </Typography>
           </Box>
 
@@ -131,13 +116,13 @@ export default function AudiencePage() {
             <Typography variant="body2" component="pre" sx={{ fontSize: '0.75rem' }}>
               {JSON.stringify(
                 {
-                  hasQuery: !!queryText,
-                  queryLength: queryText?.length || 0,
-                  campaignName: campaign_name,
-                  campaignType: campaign_type,
-                  channelsCount: Object.keys(campaign_channels).length,
-                  baseOrigin: additional_info.base_origin,
-                  segmentations: additional_info.segmentations,
+                  hasQuery: !!payload.query_text,
+                  queryLength: payload.query_text?.length || 0,
+                  campaignName: payload.campaign_name,
+                  campaignType: payload.campaign_type,
+                  channels: payload.channels,
+                  baseOrigin: payload.additional_info.base_origin,
+                  segmentations: payload.additional_info.segmentations,
                 },
                 null,
                 2
@@ -148,7 +133,7 @@ export default function AudiencePage() {
           <Box sx={{ mt: 2, display: 'flex', gap: 2, justifyContent: 'center' }}>
             <Button
               variant="contained"
-              onClick={() => runAudienceFlow(campaignPayload)}
+              onClick={() => runAudienceFlow(payload)}
               disabled={loading}
             >
               {loading ? 'Tentando novamente...' : 'Tentar Novamente'}
@@ -172,7 +157,7 @@ export default function AudiencePage() {
               2. Audiência da Campanha
             </Typography>
             <Typography variant="body2" color="text.secondary">
-              Query gerada para a campanha &quot;{campaign_name}&quot;
+              Query gerada para a campanha &quot;{payload.campaign_name}&quot;
             </Typography>
           </Box>
         </Box>
@@ -185,7 +170,7 @@ export default function AudiencePage() {
                 Query SQL Gerada
               </Typography>
               <Typography variant="body2" color="text.secondary" gutterBottom>
-                Etapa: LEAD | Base: de_geral_leads
+                Etapa: LEAD | Base: {payload.additional_info.base_origin}
               </Typography>
 
               <Box
@@ -201,7 +186,7 @@ export default function AudiencePage() {
                   overflow: 'auto',
                 }}
               >
-                {queryText ||
+                {payload.query_text ||
                   'Nenhuma query encontrada. Por favor, gere a query primeiro na etapa anterior.'}
               </Box>
 
@@ -210,12 +195,12 @@ export default function AudiencePage() {
                   variant="outlined"
                   startIcon={<Iconify icon="eva:copy-outline" />}
                   onClick={() => {
-                    if (queryText) {
-                      navigator.clipboard.writeText(queryText);
+                    if (payload.query_text) {
+                      navigator.clipboard.writeText(payload.query_text);
                       toast.success('Query copiada para a área de transferência!');
                     }
                   }}
-                  disabled={!queryText}
+                  disabled={!payload.query_text}
                 >
                   Copiar Query
                 </Button>
@@ -244,11 +229,24 @@ export default function AudiencePage() {
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                   <Iconify icon="eva:people-fill" sx={{ color: 'primary.main' }} />
                   <Typography variant="h5" component="span">
-                    {data ? formatNumber(data.audience_volume) : '15.800'}
+                    {data ? formatNumber(data) : '0'}
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
                     contatos
                   </Typography>
+                </Box>
+              </Box>
+
+              <Box sx={{ mb: 3 }}>
+                <Typography variant="body2" color="text.secondary" gutterBottom>
+                  Canais Utilizados
+                </Typography>
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                  {Object.entries(payload.channels).map(([channel, quantity]) => (
+                    <Typography key={channel} variant="body2">
+                      {channel}: {formatNumber(quantity)}
+                    </Typography>
+                  ))}
                 </Box>
               </Box>
 
