@@ -16,6 +16,8 @@ import {
 
 import { useAdvancedFilterForm } from 'src/hooks/useAdvancedFilterForm';
 
+import { useFormWizard } from 'src/context/FormWizardContext';
+
 import { FormStepper } from 'src/components/form-stepper';
 import { Form } from 'src/components/hook-form/form-provider';
 import { FieldWithLabel } from 'src/components/field-with-label';
@@ -34,6 +36,7 @@ export default function AdvancedFilterPage() {
     handleSubmitWithValidation,
     ...methods
   } = useAdvancedFilterForm({});
+  const { state: formWizardState } = useFormWizard();
 
   if (loading || fields.length === 0) {
     return (
@@ -93,41 +96,145 @@ export default function AdvancedFilterPage() {
   }
 
   const renderField = (field: any) => {
-    // Casos específicos baseados no nome do campo
-    if (field.name === 'forma_ingresso' && field.type === 'checkbox') {
-      // Forma de Ingresso como checkboxes
-      return (
-        <FieldWithLabel label="Forma de Ingresso" required={field.required}>
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-            {field.values?.map((option: any, optionIndex: number) => (
-              <RHFCheckbox
-                key={`${option.value}-${optionIndex}`}
-                name={`${field.name}_${option.value.toLowerCase().replace(/\s+/g, '_')}`}
-                label={option.label}
-                sx={{
-                  '& .MuiCheckbox-root': {
-                    color: '#093366',
-                    '&.Mui-checked': {
+    
+
+    if (field.name === 'status_vestibular') {
+      return null;
+    }
+
+    if (
+      [
+        'forma_ingresso_enem',
+        'forma_ingresso_transferencia_externa',
+        'forma_ingresso_vestibular',
+        'forma_ingresso_ingresso_simplificado',
+      ].includes(field.name)
+    ) {
+      if (field.name === 'forma_ingresso_enem') {
+        return (
+          <>
+            <Box sx={{ mb: 2 }}>
+              <Typography variant="subtitle1" sx={{ mb: 1, fontWeight: 600 }}>
+                Forma de Ingresso
+              </Typography>
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5, ml: 1 }}>
+                <RHFCheckbox
+                  name="forma_ingresso_transferencia_externa"
+                  label="Transferência Externa"
+                  sx={{
+                    '& .MuiCheckbox-root': {
                       color: '#093366',
+                      '&.Mui-checked': {
+                        color: '#093366',
+                      },
                     },
-                  },
-                }}
-              />
-            ))}
-          </Box>
-        </FieldWithLabel>
-      );
+                  }}
+                />
+                <RHFCheckbox
+                  name="forma_ingresso_ingresso_simplificado"
+                  label="Ingresso Simplificado"
+                  sx={{
+                    '& .MuiCheckbox-root': {
+                      color: '#093366',
+                      '&.Mui-checked': {
+                        color: '#093366',
+                      },
+                    },
+                  }}
+                />
+                <RHFCheckbox
+                  name="forma_ingresso_enem"
+                  label="Enem"
+                  sx={{
+                    '& .MuiCheckbox-root': {
+                      color: '#093366',
+                      '&.Mui-checked': {
+                        color: '#093366',
+                      },
+                    },
+                  }}
+                />
+                <RHFCheckbox
+                  name="forma_ingresso_vestibular"
+                  label="Vestibular"
+                  sx={{
+                    '& .MuiCheckbox-root': {
+                      color: '#093366',
+                      '&.Mui-checked': {
+                        color: '#093366',
+                      },
+                    },
+                  }}
+                />
+              </Box>
+            </Box>
+            {/* Status do Vestibular só se base = 2 */}
+            {String(formWizardState.source_base_id) === '2' && (
+              <Box sx={{ mb: 2 }}>
+                <Typography variant="subtitle1" sx={{ mb: 1, fontWeight: 600 }}>
+                  Status do Vestibular
+                </Typography>
+                <Controller
+                  name="status_vestibular"
+                  defaultValue={[]}
+                  render={({ field: { value = [], onChange } }) => {
+                    const options = [
+                      { value: 'reprovado', label: 'Reprovado' },
+                      { value: 'pendente', label: 'Pendente' },
+                      { value: 'faltosos', label: 'Faltosos' },
+                      { value: 'aprovado', label: 'Aprovado' },
+                    ];
+                    return (
+                      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5, ml: 1 }}>
+                        {options.map((option) => (
+                          <RHFCheckbox
+                            key={option.value}
+                            name={option.value}
+                            label={option.label}
+                            checked={value.includes(option.value)}
+                            onChange={(_, checked) => {
+                              if (checked) {
+                                onChange([...value, option.value]);
+                              } else {
+                                onChange(value.filter((v: string) => v !== option.value));
+                              }
+                            }}
+                            sx={{
+                              '& .MuiCheckbox-root': {
+                                color: '#093366',
+                                '&.Mui-checked': {
+                                  color: '#093366',
+                                },
+                              },
+                            }}
+                          />
+                        ))}
+                      </Box>
+                    );
+                  }}
+                />
+              </Box>
+            )}
+          </>
+        );
+      }
+      return null;
     }
 
     switch (field.type) {
       case 'dropdown':
+        // Remove status_vestibular do Autocomplete, pois agora é só checkbox
         if (
-          field.name === 'nom_curso' ||
-          field.name === 'nom_curso_exclude' ||
-          field.name === 'atl_niveldeensino__c' ||
-          field.name === 'modalidade'
+          [
+            'etapa_funil',
+            'atl_niveldeensino__c',
+            'modalidade',
+            'nom_curso',
+            'nom_curso_exclude',
+          ].includes(field.name)
         ) {
-          return (
+          // Não renderiza nada para status_vestibular
+          return field.name === 'status_vestibular' ? null : (
             <Controller
               name={field.name}
               control={control}
@@ -142,38 +249,33 @@ export default function AdvancedFilterPage() {
                   getOptionKey={(option) => option.value}
                   value={fieldProps.value || []}
                   onChange={(_, newValue) => fieldProps.onChange(newValue)}
-                  onInputChange={(_, newInputValue) => {}}
                   filterOptions={(options, { inputValue }) => {
                     if (!inputValue || inputValue.trim() === '') {
                       return options;
                     }
-
                     const searchTerm = inputValue.toLowerCase().trim();
-
                     const filtered = options.filter((option) => {
                       const label = (option.label || '').toLowerCase();
-
                       if (label.startsWith(searchTerm)) {
                         return true;
                       }
-
                       const words = label.split(/\s+/);
                       return words.some((word: string) => word.startsWith(searchTerm));
                     });
-
                     return filtered;
                   }}
-                  noOptionsText="Nenhum curso encontrado"
+                  noOptionsText={`Selecione pelo menos um(a) ${field.label.toLowerCase()}`}
                   clearOnEscape
                   openOnFocus
                   renderInput={(params) => (
                     <TextField
                       {...params}
                       placeholder={
-                        field.placeholder || `Busque e selecione ${field.label.toLowerCase()}`
+                        field.placeholder ||
+                        `Selecione pelo menos um(a) ${field.label.toLowerCase()}`
                       }
                       variant="outlined"
-                      helperText={`Busque e selecione múltiplos ${field.label.toLowerCase()}.`}
+                      helperText={`Selecione pelo menos um(a) ${field.label.toLowerCase()}.`}
                     />
                   )}
                   renderTags={(value, getTagProps) =>
@@ -320,7 +422,6 @@ export default function AdvancedFilterPage() {
     <Box>
       <FormStepper />
 
-      {/* Exibição de Erros de Validação */}
       {Object.keys(methods.formState.errors).length > 0 && (
         <Box
           data-testid="error-container"
@@ -330,7 +431,7 @@ export default function AdvancedFilterPage() {
             backgroundColor: '#ffebee',
             borderRadius: 1,
             border: '1px solid #f44336',
-            scrollMarginTop: '20px', // Adiciona margem para o scroll
+            scrollMarginTop: '20px',
           }}
         >
           <Typography variant="h6" color="error" gutterBottom>
@@ -364,7 +465,6 @@ export default function AdvancedFilterPage() {
               </Grid>
             ))}
 
-            {/* Campos Estáticos Adicionais */}
             <Grid item xs={12}>
               <FieldWithLabel label="Outras Exclusões">
                 <RHFTextField
@@ -435,7 +535,6 @@ export default function AdvancedFilterPage() {
               </FieldWithLabel>
             </Grid>
 
-            {/* Botões de Navegação */}
             <Grid item xs={12}>
               <Box display="flex" justifyContent="space-between" mt={4}>
                 <Button
@@ -459,7 +558,7 @@ export default function AdvancedFilterPage() {
                   color="primary"
                   type="button"
                   sx={{ backgroundColor: '#093366', '&:hover': { backgroundColor: '#07264d' } }}
-                  onClick={handleSubmitWithValidation()}
+                  onClick={handleSubmitWithValidation}
                 >
                   Próximo
                 </Button>

@@ -110,15 +110,17 @@ export function useAudienceDefinitionForm(state: Partial<DynamicAudienceFormValu
   };
 
   const handleNext = async (data: DynamicAudienceFormValues) => {
-    // Buscar o ID da source_base selecionada para salvar no contexto
+    
     const sourceBaseField = fields.find((f) => f.name === 'source_base');
     const selectedOption = sourceBaseField?.values?.find(
       (item) => item.value === data.source_base
     );
 
+    
     const dataToSave = {
       ...data,
-      source_base_id: selectedOption?.ids?.toString() || ''
+      source_base_id: selectedOption?.ids?.toString() || '',
+      base_origin: data.source_base ? [data.source_base] : [],
     };
 
     console.log('Dados salvos no step 2:', dataToSave);

@@ -63,5 +63,8 @@ export const endpoints = {
     step2Segment: (source_base_id: string) => `/api/briefing/step/2/${source_base_id}`,
     step3Segment: (source_base_id: string) => `/api/briefing/step/3/${source_base_id}`,
     post: '/api/briefing/',
+    generate: '/api/briefing/generate',
+    generateQuery: '/api/generate/audience_query',
+    campaignData: '/api/generate/campaign_data',
   }
 };
