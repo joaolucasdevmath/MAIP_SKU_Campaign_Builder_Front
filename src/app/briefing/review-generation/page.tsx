@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useRef } from 'react';
+import React from 'react';
 import { useRouter } from 'next/navigation';
 
 import { LoadingButton } from '@mui/lab';
@@ -17,7 +17,7 @@ import {
   Typography,
   CardContent,
   CircularProgress,
-  Alert,
+
 } from '@mui/material';
 
 import { useAudienceQuery } from 'src/hooks/useAudienceQuery';
@@ -27,11 +27,11 @@ import { toast } from 'src/components/snackbar';
 import { FormStepper } from 'src/components/form-stepper/FormStepper';
 
 export default function ReviewGeneration() {
-  // ...existing code...
+  
   const router = useRouter();
   const {
     isGenerating,
-    error,
+    
     generatedBriefing,
     reviewData,
     handleGenerateBriefing,
@@ -162,13 +162,6 @@ export default function ReviewGeneration() {
               {generatedBriefing}
             </Typography>
           </Paper>
-        )}
-
-        {/* Error Display */}
-        {error && (
-          <Alert severity="error" sx={{ mb: 4 }}>
-            {error}
-          </Alert>
         )}
 
         {/* Action Buttons */}

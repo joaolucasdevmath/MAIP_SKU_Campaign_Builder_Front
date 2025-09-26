@@ -5,8 +5,8 @@ import axiosInstance, { endpoints } from 'src/utils/axios';
 interface CampaignDataPayload {
 	campaign_name: string;
 	campaign_type: string;
-	campaign_channels: Record<string, number>;
-	filters: Record<string, any>;
+	channels: Record<string, number>;
+	additional_info: Record<string, any>;
 }
 
 interface UseAudienceDataResult {

@@ -1,4 +1,7 @@
 export interface GenerateQueryPayload {
+  campaign_name: string;
+  campaign_type: string;
+  campaign_objective: string;
   campaign_channels: Record<string, number>;
   filters: Record<string, any>;
 }
@@ -28,7 +31,7 @@ export interface CampaignDataPayload {
     campaign_objective?: string;
     [key: string]: any;
   };
-  query_text: string; // Obrigatório conforme backend
+  query_text: string; 
   channels: Record<string, number>;
 }
 
