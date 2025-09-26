@@ -1,6 +1,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
+import { useEffect } from 'react';
 import { LoadingButton } from '@mui/lab';
 import {
   Box,
@@ -23,6 +24,15 @@ export default function AudiencePage() {
   const { resetCampaignData } = useFormWizard();
   const payload = useAudiencePayload();
   const { loading, error, data, runAudienceFlow } = useAudienceData();
+
+  useEffect(() => {
+    console.log('[AudiencePage] Payload recebido:', JSON.stringify(payload, null, 2));
+    console.log('[AudiencePage] Estado atual:', { loading, error, data });
+    if (payload.query_text && !data && !loading && !error) {
+      console.log('[AudiencePage] Chamando runAudienceFlow...');
+      runAudienceFlow(payload);
+    }
+  }, [payload, data, loading, error, runAudienceFlow]);
 
   const formatCurrency = (value: number): string =>
     new Intl.NumberFormat('pt-BR', {
@@ -94,7 +104,6 @@ export default function AudiencePage() {
             {error}
           </Typography>
 
-          {/* Payload enviado */}
           <Box sx={{ mt: 3, p: 2, bgcolor: '#f5f5f5', borderRadius: 1, textAlign: 'left' }}>
             <Typography variant="subtitle2" gutterBottom>
               Payload enviado para API:
@@ -108,7 +117,6 @@ export default function AudiencePage() {
             </Typography>
           </Box>
 
-          {/* Debug info */}
           <Box sx={{ mt: 2, p: 2, bgcolor: '#fff3cd', borderRadius: 1, textAlign: 'left' }}>
             <Typography variant="subtitle2" gutterBottom>
               Informações de Debug:
@@ -150,7 +158,6 @@ export default function AudiencePage() {
   return (
     <Container maxWidth="lg">
       <Box sx={{ py: 4 }}>
-        {/* Header */}
         <Box sx={{ display: 'flex', alignItems: 'center', mb: 4 }}>
           <Box>
             <Typography variant="h4" component="h1">
@@ -163,14 +170,13 @@ export default function AudiencePage() {
         </Box>
 
         <Grid container spacing={3}>
-          {/* Query SQL Gerada */}
           <Grid item xs={12} md={8}>
             <Paper sx={{ p: 3, mb: 3 }}>
               <Typography variant="h6" gutterBottom>
                 Query SQL Gerada
               </Typography>
               <Typography variant="body2" color="text.secondary" gutterBottom>
-                Etapa: LEAD | Base: {payload.additional_info.base_origin}
+                Etapa: {payload.additional_info.base_origin === 'DE_GERAL_LEADS' ? 'LEAD' : 'OPORTUNIDADE'} | Base: {payload.additional_info.base_origin}
               </Typography>
 
               <Box
@@ -215,7 +221,6 @@ export default function AudiencePage() {
             </Paper>
           </Grid>
 
-          {/* Informações da Audiência */}
           <Grid item xs={12} md={4}>
             <Card sx={{ p: 3, mt: 10 }}>
               <Typography variant="h6" gutterBottom>
@@ -227,9 +232,9 @@ export default function AudiencePage() {
                   Tamanho da Audiência
                 </Typography>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                  <Iconify icon="eva:people-fill" sx={{ color: 'primary.main' }} />
+                  <Iconify icon="eva:people-fill" sx={{ color: '#093366' }} />
                   <Typography variant="h5" component="span">
-                    {data ? formatNumber(data) : '0'}
+                    {data && data.audience_volume ? formatNumber(data.audience_volume) : '0'}
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
                     contatos
@@ -255,9 +260,9 @@ export default function AudiencePage() {
                   Custo Estimado da Campanha
                 </Typography>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                  <Iconify icon="eva:credit-card-fill" sx={{ color: 'warning.main' }} />
+                  <Iconify icon="eva:credit-card-fill" sx={{ color: '#093366' }} />
                   <Typography variant="h5" component="span">
-                    {data && data.estimated_costs
+                    {data && data.estimated_costs && data.estimated_costs.Total
                       ? formatCurrency(parseCurrency(data.estimated_costs.Total))
                       : 'R$ 0,00'}
                   </Typography>
@@ -269,14 +274,13 @@ export default function AudiencePage() {
                   Estimativa de Processamento
                 </Typography>
                 <Typography variant="body1">
-                  {data?.processingTime || 'Processamento rápido (5 minutos)'}
+                  Processamento rápido (5 minutos)
                 </Typography>
               </Box>
             </Card>
           </Grid>
         </Grid>
 
-        {/* Botões de Ação */}
         <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 4 }}>
           <Button
             variant="outlined"
