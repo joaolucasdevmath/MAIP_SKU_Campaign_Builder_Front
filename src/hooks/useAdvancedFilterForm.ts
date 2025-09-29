@@ -60,9 +60,9 @@ export function useAdvancedFilterForm(state: Partial<DynamicAdvancedFilterFormVa
       setError(null);
       try {
         const res = await axiosInstance.get(endpoints.briefing.step3Segment(sourceBaseId));
-        console.log('Dados do backend:', res.data); // Para debugging
+        
         let tipoCaptacaoField = res.data.data.find((f: any) => f.name === 'tipo_captacao');
-        // Se não vier do backend, adiciona manualmente
+        
         if (!tipoCaptacaoField) {
           tipoCaptacaoField = {
             name: 'tipo_captacao',
@@ -272,11 +272,11 @@ export function useAdvancedFilterForm(state: Partial<DynamicAdvancedFilterFormVa
     return form.handleSubmit(
       (formValues) => {
         handleNext(formValues);
-        console.log('Formulário válido, dados enviados:', formValues);
+        
         
       },
       (errors) => {
-        console.log('Erros de validação:', errors);
+       
         scrollToErrors();
       }
     )();

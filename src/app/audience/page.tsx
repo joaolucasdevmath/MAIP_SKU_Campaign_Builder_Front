@@ -166,7 +166,7 @@ export default function AudiencePage() {
       <Box sx={{ py: 4 }}>
         <Box sx={{ display: 'flex', alignItems: 'center', mb: 4 }}>
           <Box>
-            <Typography variant="h4" component="h1">
+           <Typography variant="h4" gutterBottom sx={{ mb: 3, color: '#093366' }}>
               2. Audiência da Campanha
             </Typography>
             <Typography variant="body2" color="text.secondary">

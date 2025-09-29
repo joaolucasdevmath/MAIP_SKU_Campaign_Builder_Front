@@ -21,27 +21,15 @@ export const useBriefingReview = (): BriefingHookReturn => {
   const router = useRouter();
   const {
     runAudienceFlow,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     data: audienceData,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     loading: audienceLoading,
     error: audienceError,
   } = useAudienceData();
 
-  // Debug: verificar sessionStorage
-  useEffect(() => {
-    const sessionData = sessionStorage.getItem('formWizardData');
-    console.log('🔍 SessionStorage formWizardData:', sessionData);
-    if (sessionData) {
-      try {
-        const parsed = JSON.parse(sessionData);
-        console.log('📦 Dados do sessionStorage parseados:', parsed);
-      } catch (error) {
-        console.error('❌ Erro ao parsear sessionStorage:', error);
-      }
-    }
-  }, []);
+ 
 
-  // Debug: verificar se os dados estão chegando
-  console.log('🔍 Debug campaignData no hook:', JSON.stringify(campaignData, null, 2));
 
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -68,7 +56,7 @@ export const useBriefingReview = (): BriefingHookReturn => {
           // eslint-disable-next-line no-restricted-syntax
           for (const quantityKey of quantityKeys) {
             value = campaignData[quantityKey];
-            console.log(`[DEBUG useBriefingReview] Processando canal: ${channel}, quantityKey: ${quantityKey}, value: ${value}`);
+            
             if (
               value !== undefined &&
               value !== null &&
@@ -119,7 +107,7 @@ export const useBriefingReview = (): BriefingHookReturn => {
         forma_ingresso: Array.isArray(campaignData.forma_ingresso) ? campaignData.forma_ingresso : Array.isArray(campaignData.entryForm) ? campaignData.entryForm : [],
       };
 
-      // Construir campaignPayload para runAudienceFlow
+      
       const campaignPayload = {
         campaign_name: campaignData.campaign_name || campaignData.campaignName || 'teste',
         campaign_type: Array.isArray(campaignData.campaign_type)
@@ -171,7 +159,15 @@ export const useBriefingReview = (): BriefingHookReturn => {
         courses: campaignData.nom_curso || campaignData.courses || [],
         excluded_courses: campaignData.excludedCourses || campaignData.nom_curso_exclude || [],
         course_level: campaignData.atl_niveldeensino__c || campaignData.courseLevel || [],
-        vestibular_status: campaignData.vestibularStatus || campaignData.status_vestibular || [],
+        vestibular_status: Array.isArray(campaignData.vestibularStatus)
+          ? campaignData.vestibularStatus
+          : typeof campaignData.vestibularStatus === 'string' && campaignData.vestibularStatus && (campaignData.vestibularStatus as string).trim() !== ''
+            ? [campaignData.vestibularStatus]
+            : Array.isArray(campaignData.status_vestibular)
+              ? campaignData.status_vestibular
+              : typeof campaignData.status_vestibular === 'string' && campaignData.status_vestibular && (campaignData.status_vestibular as string).trim() !== ''
+                ? [campaignData.status_vestibular]
+                : undefined,
         age_range: campaignData.ageRange || [],
         last_interaction: campaignData.lastInteraction || 0,
         remove_from_master_regua: campaignData.removeFromMasterRegua || false,
@@ -192,10 +188,16 @@ export const useBriefingReview = (): BriefingHookReturn => {
         nom_grupo_marca: campaignData.nom_grupo_marca || '',
         status_funil: campaignData.status_funil || '',
         nom_tipo_curso: campaignData.nom_tipo_curso || [],
-        doc_pend: campaignData.doc_pend || '',
+        doc_pend: Array.isArray(campaignData.doc_pend)
+          ? campaignData.doc_pend
+          : typeof campaignData.doc_pend === 'string' && campaignData.doc_pend && (campaignData.doc_pend as string).trim() !== ''
+            ? [campaignData.doc_pend]
+            : undefined,
         tipo_captacao: campaignData.tipo_captacao || [],
         status_vestibular: campaignData.status_vestibular || '',
-        interacao_oportunidade: campaignData.interacao_oportunidade || '',
+        interacao_oportunidade: campaignData.interacao_oportunidade !== undefined && campaignData.interacao_oportunidade !== null
+          ? Number(campaignData.interacao_oportunidade)
+          : undefined,
         documentation_sent: campaignData.documentationSent || false,
         outras_exclusoes: campaignData.outras_exclusoes || '',
         criterios_saida: campaignData.criterios_saida || '',
