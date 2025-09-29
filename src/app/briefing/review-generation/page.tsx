@@ -1,6 +1,7 @@
+
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 
 import { LoadingButton } from '@mui/lab';
@@ -17,9 +18,14 @@ import {
   Typography,
   CardContent,
   CircularProgress,
-
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  TextField,
 } from '@mui/material';
 
+import { useTemplate } from 'src/hooks/useTemplate';
 import { useAudienceQuery } from 'src/hooks/useAudienceQuery';
 import { useBriefingReview } from 'src/hooks/useBriefingReview';
 
@@ -27,11 +33,9 @@ import { toast } from 'src/components/snackbar';
 import { FormStepper } from 'src/components/form-stepper/FormStepper';
 
 export default function ReviewGeneration() {
-  
   const router = useRouter();
   const {
     isGenerating,
-    
     generatedBriefing,
     reviewData,
     handleGenerateBriefing,
@@ -39,7 +43,6 @@ export default function ReviewGeneration() {
     renderFieldValue,
     getFieldLabel,
   } = useBriefingReview();
-
   const {
     isGenerating: isGeneratingQuery,
     generatedQuery,
@@ -47,6 +50,34 @@ export default function ReviewGeneration() {
     handleSaveAsDraft,
     clearAllData,
   } = useAudienceQuery();
+  const { isSaving, saveTemplate } = useTemplate();
+
+  const [openModal, setOpenModal] = useState(false);
+  const [description, setDescription] = useState('');
+  const [isTemplate, setIsTemplate] = useState(false);
+
+  const handleOpenModal = (isTemplateMode: boolean) => {
+    setIsTemplate(isTemplateMode);
+    setOpenModal(true);
+  };
+
+  const handleCloseModal = () => {
+    setOpenModal(false);
+    setDescription('');
+  };
+
+  const handleSave = async () => {
+    try {
+      await saveTemplate(isTemplate, description);
+      if (!isTemplate) {
+        await handleGenerateBriefing();
+        router.push('/audience');
+      }
+      handleCloseModal();
+    } catch (error) {
+      toast.error('Erro ao salvar');
+    }
+  };
 
   const renderSection = (title: string, data: Record<string, any>) => (
     <Card sx={{ mb: 3, boxShadow: 2 }}>
@@ -56,7 +87,6 @@ export default function ReviewGeneration() {
         </Typography>
         <Grid container spacing={3}>
           {Object.entries(data).map(([key, value]) => {
-            // Lógica para verificar se deve renderizar
             const shouldRender =
               value !== undefined &&
               value !== null &&
@@ -92,7 +122,7 @@ export default function ReviewGeneration() {
   );
 
   return (
-    <Container maxWidth="lg">
+     <Container maxWidth="lg">
       <Box sx={{ py: 4 }}>
         <FormStepper currentStep={4} />
 
@@ -146,7 +176,7 @@ export default function ReviewGeneration() {
           </Paper>
         )}
 
-        {/* Generated Briefing Display */}
+
         {generatedBriefing && (
           <Paper sx={{ p: 4, mb: 4, bgcolor: '#f8f9fa', borderRadius: 2 }}>
             <Typography variant="h6" gutterBottom>
@@ -164,9 +194,7 @@ export default function ReviewGeneration() {
           </Paper>
         )}
 
-        {/* Action Buttons */}
         <Stack spacing={3} sx={{ mt: 4 }}>
-          {/* Primeira linha de botões - Query e Draft */}
           <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
             <Button
               variant="outlined"
@@ -175,7 +203,7 @@ export default function ReviewGeneration() {
                 clearAllData();
                 handleBackToBasicInfo();
               }}
-              disabled={isGeneratingQuery || isGenerating}
+              disabled={isGeneratingQuery || isGenerating || isSaving}
               sx={{
                 color: '#093366',
                 backgroundColor: 'white',
@@ -190,7 +218,6 @@ export default function ReviewGeneration() {
             </Button>
 
             <Box sx={{ display: 'flex', gap: 2 }}>
-              {/* Botão sempre "Gerar Query da Audiência" */}
               <LoadingButton
                 variant="contained"
                 type="button"
@@ -221,10 +248,11 @@ export default function ReviewGeneration() {
               </LoadingButton>
 
               {generatedQuery && (
-                <Button
+                <LoadingButton
                   variant="contained"
                   type="button"
-                  onClick={handleSaveAsDraft}
+                  loading={isSaving}
+                  onClick={() => handleOpenModal(true)}
                   disabled={isGeneratingQuery || isGenerating}
                   sx={{
                     backgroundColor: '#093366',
@@ -235,12 +263,12 @@ export default function ReviewGeneration() {
                   }}
                 >
                   Salvar como Template
-                </Button>
+                </LoadingButton>
               )}
             </Box>
           </Box>
 
-          {generatedQuery && (
+                 {generatedQuery && (
             <Box sx={{ display: 'flex', justifyContent: 'center' }}>
               <LoadingButton
                 variant="contained"
@@ -272,6 +300,41 @@ export default function ReviewGeneration() {
             </Box>
           )}
         </Stack>
+
+ <Dialog
+          open={openModal}
+          onClose={handleCloseModal}
+          aria-labelledby="save-dialog-title"
+          BackdropProps={{
+            sx: { backgroundColor: 'rgba(0, 0, 0, 0.5)' },
+            inert: openModal ? true : undefined,
+          }}
+        >
+          <DialogTitle id="save-dialog-title">
+            {isTemplate ? 'Salvar como Template' : 'Salvar Campanha'}
+          </DialogTitle>
+          <DialogContent>
+            <TextField
+              autoFocus
+              margin="dense"
+              label="Descrição do Template"
+              type="text"
+              fullWidth
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              multiline
+              rows={4}
+            />
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleCloseModal} color="inherit">
+              Cancelar
+            </Button>
+            <Button onClick={handleSave} variant="contained" sx={{ backgroundColor: '#093366' }}>
+              Salvar
+            </Button>
+          </DialogActions>
+        </Dialog>
       </Box>
     </Container>
   );

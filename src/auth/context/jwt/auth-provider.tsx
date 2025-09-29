@@ -30,35 +30,19 @@ export function AuthProvider({ children }: Props) {
     loading: true,
   });
 
-  // const checkUserSession = useCallback(async () => {
-  //   try {
-  //     const accessToken = sessionStorage.getItem(STORAGE_KEY);
-
-  //     if (accessToken && isValidToken(accessToken)) {
-  //       setSession(accessToken);
-
-  //       const res = await axios.get(endpoints.auth.me);
-
-  //       const { user } = res.data;
-
-  //       setState({ user: { ...user, accessToken }, loading: false });
-  //     } else {
-  //       setState({ user: null, loading: false });
-  //     }
-  //   } catch (error) {
-  //     console.error(error);
-  //     setState({ user: null, loading: false });
-  //   }
-  // }, [setState]);
-
-
-   const checkUserSession = useCallback(async () => {
-    // Acesso livre: ignora chamada à API e considera usuário autenticado
-    const accessToken = sessionStorage.getItem(STORAGE_KEY);
-    if (accessToken && isValidToken(accessToken)) {
-      setSession(accessToken);
-      setState({ user: { name: 'Demo User', email: 'demo@minimals.cc', accessToken }, loading: false });
-    } else {
+  const checkUserSession = useCallback(async () => {
+    try {
+      const accessToken = sessionStorage.getItem(STORAGE_KEY);
+      if (accessToken && isValidToken(accessToken)) {
+        setSession(accessToken);
+        const res = await axios.get(endpoints.auth.me);
+        const { user } = res.data;
+        setState({ user: { ...user, accessToken }, loading: false });
+      } else {
+        setState({ user: null, loading: false });
+      }
+    } catch (error) {
+      console.error(error);
       setState({ user: null, loading: false });
     }
   }, [setState]);

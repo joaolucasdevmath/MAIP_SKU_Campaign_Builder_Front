@@ -6,7 +6,21 @@ import { CONFIG } from 'src/config-global';
 
 // ----------------------------------------------------------------------
 
+
 const axiosInstance = axios.create({ baseURL: CONFIG.site.serverUrl });
+
+
+axiosInstance.interceptors.request.use(
+  (config) => {
+    const token = sessionStorage.getItem('jwt_access_token');
+    if (token) {
+      config.headers = config.headers || {};
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
 
 axiosInstance.interceptors.response.use(
   (response) => response,
@@ -66,5 +80,10 @@ export const endpoints = {
     generate: '/api/briefing/generate',
     generateQuery: '/api/generate/audience_query',
     campaignData: '/api/generate/campaign_data',
+    saveTemplate: '/api/template/',
+    getTemplate: '/api/template/',
+    loginBasic: '/api/auth/basic/',
+    loginAzure: '/api/auth/azure/',
+    
   }
 };

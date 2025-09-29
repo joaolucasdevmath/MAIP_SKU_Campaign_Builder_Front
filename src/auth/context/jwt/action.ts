@@ -23,20 +23,14 @@ export type SignUpParams = {
  * Sign in
  *************************************** */
 export const signInWithPassword = async ({ email, password }: SignInParams): Promise<void> => {
-  // Liberação temporária: acesso sem autenticação
-  // try {
-  //   const params = { email, password };
-  //   const res = await axios.post(endpoints.auth.signIn, params);
-  //   const { accessToken } = res.data;
-  //   if (!accessToken) {
-  //     throw new Error('Access token not found in response');
-  //   }
-  //   setSession(accessToken);
-  // } catch (error) {
-  //   console.error('Error during sign in:', error);
-  //   throw error;
-  // }
-    setSession('eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJmYWtlVXNlciIsImV4cCI6MTk5OTk5OTk5OX0.dummySignature'); // Token JWT válido (fake) para liberar acesso
+  // Implemente aqui o login real, removendo o token fake
+  // Exemplo:
+  // const params = { email, password };
+  // const res = await axios.post(endpoints.auth.signIn, params);
+  // const { accessToken } = res.data;
+  // if (!accessToken) throw new Error('Access token not found in response');
+  // setSession(accessToken);
+  throw new Error('Login básico desabilitado. Use MSAL ou implemente login real.');
 };
 
 /** **************************************
@@ -48,26 +42,14 @@ export const signUp = async ({
   firstName,
   lastName,
 }: SignUpParams): Promise<void> => {
-  const params = {
-    email,
-    password,
-    firstName,
-    lastName,
-  };
-
-  // Liberação temporária: cadastro sem autenticação
-  // try {
-  //   const res = await axios.post(endpoints.auth.signUp, params);
-  //   const { accessToken } = res.data;
-  //   if (!accessToken) {
-  //     throw new Error('Access token not found in response');
-  //   }
-  //   sessionStorage.setItem(STORAGE_KEY, accessToken);
-  // } catch (error) {
-  //   console.error('Error during sign up:', error);
-  //   throw error;
-  // }
-    sessionStorage.setItem(STORAGE_KEY, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJmYWtlVXNlciIsImV4cCI6MTk5OTk5OTk5OX0.dummySignature'); // Token JWT válido (fake) para liberar acesso
+  // Implemente aqui o cadastro real, removendo o token fake
+  // Exemplo:
+  // const params = { email, password, firstName, lastName };
+  // const res = await axios.post(endpoints.auth.signUp, params);
+  // const { accessToken } = res.data;
+  // if (!accessToken) throw new Error('Access token not found in response');
+  // sessionStorage.setItem(STORAGE_KEY, accessToken);
+  throw new Error('Cadastro básico desabilitado. Use MSAL ou implemente cadastro real.');
 };
 
 /** **************************************

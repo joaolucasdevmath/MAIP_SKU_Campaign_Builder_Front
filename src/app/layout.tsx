@@ -1,10 +1,8 @@
-import 'src/global.css';
-
-import Head from 'next/head';
-
 // ----------------------------------------------------------------------
 
 import type { Viewport } from 'next';
+
+import Head from 'next/head';
 
 import { CONFIG } from 'src/config-global';
 import { primary } from 'src/theme/core/palette';
@@ -22,11 +20,9 @@ import { detectSettings } from 'src/components/settings/server';
 import NavbarWrapper from 'src/components/NavbarWrapper/NavbarWrapper';
 import { SettingsDrawer, defaultSettings, SettingsProvider } from 'src/components/settings';
 
-import { AuthProvider as JwtAuthProvider } from 'src/auth/context/jwt';
+import MsalClientProvider from 'src/auth/context/jwt/MsalClientProvider';
 
 // ----------------------------------------------------------------------
-
-const AuthProvider = JwtAuthProvider;
 
 export const viewport: Viewport = {
   width: 'device-width',
@@ -52,12 +48,11 @@ export default async function RootLayout({ children }: Props) {
       </Head>
       <body>
         {getInitColorSchemeScript}
-        
-        <NavbarWrapper />
-        <div style={{ marginTop: 64 }}>
-          <I18nProvider lang={CONFIG.isStaticExport ? undefined : lang}>
-            <LocalizationProvider>
-              <AuthProvider>
+        <MsalClientProvider>
+          <NavbarWrapper />
+          <div style={{ marginTop: 64 }}>
+            <I18nProvider lang={CONFIG.isStaticExport ? undefined : lang}>
+              <LocalizationProvider>
                 <SettingsProvider
                   settings={settings}
                   caches={CONFIG.isStaticExport ? 'localStorage' : 'cookie'}
@@ -65,19 +60,18 @@ export default async function RootLayout({ children }: Props) {
                   <ThemeProvider>
                     <MotionLazy>
                       <FormWizardProvider>
-                      <Snackbar />
-                      <ProgressBar />
-                      <SettingsDrawer />
-                      {children}
+                        <Snackbar />
+                        <ProgressBar />
+                        <SettingsDrawer />
+                        {children}
                       </FormWizardProvider>
                     </MotionLazy>
-
                   </ThemeProvider>
                 </SettingsProvider>
-              </AuthProvider>
-            </LocalizationProvider>
-          </I18nProvider>
-        </div>
+              </LocalizationProvider>
+            </I18nProvider>
+          </div>
+        </MsalClientProvider>
       </body>
     </html>
   );
