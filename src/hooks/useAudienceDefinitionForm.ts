@@ -123,9 +123,9 @@ export function useAudienceDefinitionForm(state: Partial<DynamicAudienceFormValu
       base_origin: data.source_base ? [data.source_base] : [],
     };
 
-    console.log('Dados salvos no step 2:', dataToSave);
+    
     updateCampaignData(dataToSave);
-    router.push('/briefing/advanced-filter'); // próxima rota
+    router.push('/briefing/advanced-filter');
   };
 
   const handlePrevious = () => {

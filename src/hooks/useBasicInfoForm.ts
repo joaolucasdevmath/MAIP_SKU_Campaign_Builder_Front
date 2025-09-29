@@ -56,7 +56,7 @@ export function useBasicInfoForm(state: Partial<DynamicFormValues>) {
       
       try {
         const res = await axiosInstance.get(endpoints.briefing.step1);
-        console.log('Campos recebidos do backend:', res.data);
+        
         
         if (res.data.success && Array.isArray(res.data.data)) {
           setFields(res.data.data);

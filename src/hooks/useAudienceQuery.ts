@@ -34,7 +34,7 @@ export const useAudienceQuery = (): UseAudienceQueryReturn => {
   const handleGenerateQuery = async (): Promise<void> => {
     setIsGenerating(true);
     try {
-      // Construir campaign_channels dinamicamente
+      
       const campaign_channels: Record<string, number> = {};
       if (Array.isArray(campaignData.channel)) {
         campaignData.channel.forEach((channel: string) => {
@@ -49,7 +49,7 @@ export const useAudienceQuery = (): UseAudienceQueryReturn => {
           // eslint-disable-next-line no-restricted-syntax
           for (const quantityKey of quantityKeys) {
             quantity = campaignData[quantityKey];
-            console.log(`[DEBUG useAudienceQuery] Processando canal: ${channel}, quantityKey: ${quantityKey}, quantity: ${quantity}`);
+            
             if (
               quantity !== undefined &&
               quantity !== null &&
