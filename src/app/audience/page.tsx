@@ -12,7 +12,7 @@ import {
   Button,
   Container,
   Typography,
-  CircularProgress,
+  
 } from '@mui/material';
 
 import { useAudienceData } from 'src/hooks/useAudienceData';
@@ -24,6 +24,7 @@ import { useFormWizard } from 'src/context/FormWizardContext';
 
 import { toast } from 'src/components/snackbar';
 import { Iconify } from 'src/components/iconify';
+import { SplashScreen } from 'src/components/loading-screen';
 
 export default function AudiencePage() {
   const router = useRouter();
@@ -92,10 +93,10 @@ export default function AudiencePage() {
   if (loading && !data) {
     return (
       <Container maxWidth="lg">
-        <Box sx={{ py: 4, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
-          <CircularProgress size={40} />
-          <Typography variant="h6">Carregando dados da audiência...</Typography>
-          <Typography variant="body2" color="text.secondary">
+        <Box sx={{ py: 4, minHeight: '400px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+          <SplashScreen portal={false} />
+          
+          <Typography variant="body2" color="text.secondary" align="center">
             Segmentação: {payload.query_text ? 'Encontrada' : 'Não encontrada'}
           </Typography>
         </Box>
@@ -166,12 +167,10 @@ export default function AudiencePage() {
       <Box sx={{ py: 4 }}>
         <Box sx={{ display: 'flex', alignItems: 'center', mb: 4 }}>
           <Box>
-           <Typography variant="h4" gutterBottom sx={{ mb: 3, color: '#093366' }}>
+           <Typography variant="h4" gutterBottom sx={{ mb: 3, color: '#000' }}>
               2. Audiência da Campanha
             </Typography>
-            <Typography variant="body2" color="text.secondary">
-              Query gerada para a campanha &quot;{payload.campaign_name}&quot;
-            </Typography>
+           
           </Box>
         </Box>
 

@@ -34,7 +34,7 @@ export function Section({
   layoutQuery,
   methods,
   title = 'MATH',
-  imgUrl = `${CONFIG.site.basePath}/assets/illustrations/yduqs.png`,
+  imgUrl = `${CONFIG.site.basePath}/assets/illustrations/math.png`,
   subtitle = 'AI CAMPING BUILDER',
   ...other
 }: SectionProps) {
@@ -64,20 +64,18 @@ export function Section({
       {...other}
     >
   
-      <div>
-        <Typography
-          variant="h1"
-          sx={{
-            textAlign: 'center',
-            color: theme.palette.common.black,
-            fontWeight: 800,
-            letterSpacing: 2,
-            mb: 1,
+      <div style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+        <img
+          src={imgUrl}
+          alt="Logo Math"
+          style={{
+            maxWidth: 180,
+            width: '100%',
+            marginBottom: 8,
+            display: 'block',
+            objectFit: 'contain',
           }}
-        >
-          {title}
-        </Typography>
-
+        />
         {subtitle && (
           <Typography
             sx={{

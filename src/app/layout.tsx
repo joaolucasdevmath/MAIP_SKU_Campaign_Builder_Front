@@ -41,10 +41,10 @@ export default async function RootLayout({ children }: Props) {
   return (
     <html lang={lang ?? 'en'} suppressHydrationWarning>
       <Head>
-        <link rel="icon" href="/assets/illustrations/yduqs.png" type="image/png" />
+        <link rel="icon" href="/assets/illustrations/math.png" type="image/png" />
         <meta name="theme-color" content={primary.main} />
         <meta name="description" content="AI Camping Builder" />
-        <meta property="og:image" content="/assets/illustrations/yduqs.png" />
+        <meta property="og:image" content="/assets/illustrations/math.png" />
       </Head>
       <body>
         {getInitColorSchemeScript}
