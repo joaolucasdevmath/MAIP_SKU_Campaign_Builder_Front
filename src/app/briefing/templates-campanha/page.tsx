@@ -15,7 +15,6 @@ import {
   CardContent,
   DialogTitle,
   DialogContent,
-  CircularProgress,
 } from '@mui/material';
 
 import { useTemplate } from 'src/hooks/useTemplate';
