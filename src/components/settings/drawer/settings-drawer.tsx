@@ -66,11 +66,7 @@ export function SettingsDrawer({
         </IconButton>
       </Tooltip>
 
-      <Tooltip title="Close">
-        <IconButton onClick={settings.onCloseDrawer}>
-          <Iconify icon="mingcute:close-line" />
-        </IconButton>
-      </Tooltip>
+    
     </Box>
   );
 

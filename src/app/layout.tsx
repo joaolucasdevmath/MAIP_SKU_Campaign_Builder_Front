@@ -18,7 +18,7 @@ import { ProgressBar } from 'src/components/progress-bar';
 import { MotionLazy } from 'src/components/animate/motion-lazy';
 import { detectSettings } from 'src/components/settings/server';
 import NavbarWrapper from 'src/components/NavbarWrapper/NavbarWrapper';
-import { SettingsDrawer, defaultSettings, SettingsProvider } from 'src/components/settings';
+import { defaultSettings, SettingsProvider } from 'src/components/settings';
 
 import MsalClientProvider from 'src/auth/context/jwt/MsalClientProvider';
 
@@ -62,7 +62,6 @@ export default async function RootLayout({ children }: Props) {
                       <FormWizardProvider>
                         <Snackbar />
                         <ProgressBar />
-                        <SettingsDrawer />
                         {children}
                       </FormWizardProvider>
                     </MotionLazy>

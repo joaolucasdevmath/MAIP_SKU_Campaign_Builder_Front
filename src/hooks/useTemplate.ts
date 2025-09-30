@@ -28,7 +28,7 @@ interface UseTemplateReturn {
 
 export const useTemplate = (): UseTemplateReturn => {
   const { state: campaignData, updateCampaignData } = useFormWizard();
-  console.log('useTemplate - campaignData:', campaignData);
+  
   const [templates, setTemplates] = useState<Template[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -71,10 +71,10 @@ export const useTemplate = (): UseTemplateReturn => {
         {
           name: 'forma_ingresso',
           value: [
-            campaignData.forma_ingresso_enem ? 'ENEM' : '',
-            campaignData.forma_ingresso_ingresso_simplificado ? 'Ingresso Simplificado' : '',
-            campaignData.forma_ingresso_transferencia_externa ? 'Transferência Externa' : '',
-            campaignData.forma_ingresso_vestibular ? 'Vestibular' : '',
+            campaignData.forma_ingresso_enem ? '' : '',
+            campaignData.forma_ingresso_ingresso_simplificado ? '' : '',
+            campaignData.forma_ingresso_transferencia_externa ? '' : '',
+            campaignData.forma_ingresso_vestibular ? '' : '',
           ].filter(Boolean).join(', ') || '',
         },
         { name: 'ultima_interacao', value: String(campaignData.ultima_interacao) || '' },
@@ -88,7 +88,7 @@ export const useTemplate = (): UseTemplateReturn => {
           name: 'disponibilizacao_call_center_nao',
           value: String(campaignData.disponibilizacao_call_center_nao) || '',
         },
-        { name: 'base_origin', value: campaignData.base_origin?.[0] || 'de_geral_leads' },
+        { name: 'base_origin', value: campaignData.base_origin?.[0] || '' },
       ];
 
       const templateData = {

@@ -20,7 +20,7 @@ import {
 
 import { useTemplate } from 'src/hooks/useTemplate';
 
-import { toast } from 'src/components/snackbar';
+
 
 export default function TemplatesPage() {
   const { templates, isLoading, fetchTemplates } = useTemplate();
@@ -47,7 +47,7 @@ export default function TemplatesPage() {
       <Box sx={{ py: 4 }}>
         {isLoading ? (
           <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
-            <CircularProgress />
+            <CircularProgress sx={{ color: '#093366' }} /> 
           </Box>
         ) : Array.isArray(templates) ? (
           <Grid container spacing={3}>
@@ -95,7 +95,7 @@ export default function TemplatesPage() {
                       </Button>
 
                       <Button
-                        variant="contained"
+                        variant="outlined"
                         onClick={() => handleOpenModal(template)}
                         sx={{
                           borderColor: '#093366',
@@ -110,7 +110,7 @@ export default function TemplatesPage() {
                           mt: 2,
                         }}
                       >
-                        Gerar e Prosseguir
+                        Ver Detalhes
                       </Button>
                     </CardContent>
                   </Card>

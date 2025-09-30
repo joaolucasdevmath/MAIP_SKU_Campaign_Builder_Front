@@ -1,8 +1,8 @@
 'use client';
 
 import { z as zod } from 'zod';
-import { useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { useState, useEffect } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 
 import Link from '@mui/material/Link';
@@ -43,7 +43,12 @@ export const SignInSchema = zod.object({
 // ----------------------------------------------------------------------
 
 export function JwtSignInView() {
-  // Hooks de autenticação
+ 
+  useEffect(() => {
+    sessionStorage.removeItem('jwt_access_token');
+    
+  }, []);
+  
   const router = useRouter();
   const { login, loading: basicLoading } = useBasicAuth();
   const { loginWithMicrosoft, loading: msLoading, error: msError } = useMicrosoftLogin();
