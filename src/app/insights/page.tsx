@@ -14,7 +14,6 @@ import {
   Button,
   Typography,
   CardContent,
-  CircularProgress,
 } from '@mui/material';
 
 import { useAudienceData } from 'src/hooks/useAudienceData';
@@ -25,6 +24,7 @@ import { useFormWizard } from 'src/context/FormWizardContext';
 
 import { toast } from 'src/components/snackbar';
 import { Iconify } from 'src/components/iconify';
+import { SplashScreen } from 'src/components/loading-screen';
 
 interface AudiencePayload {
   campaign_name?: string;
@@ -328,8 +328,9 @@ export default function Insights() {
 
   if (loading && !data) {
     return (
-      <Box sx={{ py: 4, display: 'flex', justifyContent: 'center' }}>
-        <CircularProgress />
+      <Box sx={{ py: 4, minHeight: '400px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+        <SplashScreen portal={false} />
+        <Typography variant="h6" align="center" sx={{ mt: 2 }}>Carregando dados da audiência...</Typography>
       </Box>
     );
   }
@@ -356,11 +357,11 @@ export default function Insights() {
 
   return (
     <Box sx={{ p: 3 }}>
-      <Typography variant="h4" gutterBottom sx={{ mb: 3, color: '#093366' }}>
+      <Typography variant="h4" gutterBottom sx={{ mb: 3, color: '#000' }}>
         3. Insights e Benchmark da Campanha
       </Typography>
       <Grid container spacing={3}>
-        {/* Coluna da esquerda: Métricas + Custos */}
+       
         <Grid item xs={12} md={8}>
           <Card sx={{ boxShadow: 2, borderRadius: 2, mb: 3 }}>
             <CardContent>

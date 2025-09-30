@@ -1,10 +1,11 @@
 'use client';
 
-import { Box, Grid, Button, Typography, CircularProgress } from '@mui/material';
+import { Box, Grid, Button, Typography } from '@mui/material';
 
 import { useBasicInfoForm } from 'src/hooks/useBasicInfoForm';
 
 import { FormStepper } from 'src/components/form-stepper';
+import { SplashScreen } from 'src/components/loading-screen';
 import { Form } from 'src/components/hook-form/form-provider';
 import { FieldWithLabel } from 'src/components/field-with-label';
 import { RHFCheckbox } from 'src/components/hook-form/rhf-checkbox';
@@ -33,25 +34,15 @@ export default function BasicInfoPage() {
     return (
       <Box>
         <FormStepper />
-        <Box
-          sx={{
-            mt: 4,
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-            minHeight: '400px',
-            gap: 3,
-          }}
-        >
-          <CircularProgress size={50} sx={{ color: '#093366' }} />
-          <Typography variant="h6" color="text.secondary">
-            Carregando campos do formulário...
-          </Typography>
-          <Typography variant="body2" color="text.secondary">
-            Aguarde enquanto buscamos as configurações.
-          </Typography>
+        <Box sx={{ mt: 4, minHeight: '400px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <SplashScreen portal={false} />
         </Box>
+        <Typography variant="h6" color="text.secondary" align="center" sx={{ mt: 2 }}>
+          Carregando campos do formulário...
+        </Typography>
+        <Typography variant="body2" color="text.secondary" align="center">
+          Aguarde enquanto buscamos as configurações.
+        </Typography>
       </Box>
     );
   }

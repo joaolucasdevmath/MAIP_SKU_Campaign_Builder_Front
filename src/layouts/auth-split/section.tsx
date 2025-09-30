@@ -3,6 +3,7 @@ import type { Breakpoint } from '@mui/material/styles';
 
 import Box from '@mui/material/Box';
 import Link from '@mui/material/Link';
+import { Stack } from '@mui/material';
 import Tooltip from '@mui/material/Tooltip';
 import { useTheme } from '@mui/material/styles';
 import Typography from '@mui/material/Typography';
@@ -11,7 +12,6 @@ import { RouterLink } from 'src/routes/components';
 
 import { CONFIG } from 'src/config-global';
 import { varAlpha, bgGradient } from 'src/theme/styles';
-import { Stack } from '@mui/material';
 
 // ----------------------------------------------------------------------
 
@@ -34,7 +34,7 @@ export function Section({
   layoutQuery,
   methods,
   title = 'MATH',
-  imgUrl = `${CONFIG.site.basePath}/assets/illustrations/yduqs.png`,
+  imgUrl = `${CONFIG.site.basePath}/assets/illustrations/math.png`,
   subtitle = 'AI CAMPING BUILDER',
   ...other
 }: SectionProps) {
@@ -63,46 +63,19 @@ export function Section({
       }}
       {...other}
     >
-      <Box
-        sx={{
-          position: 'relative',
-          width: 64,
-          height: 64,
-          bgcolor: '#000',
-          borderRadius: '50%',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          boxShadow: 3,
-        }}
-      >
-        <svg
-          width={32}
-          height={32}
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="white"
-          strokeWidth={2}
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        >
-          <path d="M12 3v.01M12 21v.01M3 12h.01M21 12h.01M5.64 5.64l.01.01M18.36 18.36l.01.01M5.64 18.36l.01-.01M18.36 5.64l.01-.01M12 12l2.35 2.35M9.65 9.65L12 12m0 0l2.35-2.35M9.65 14.35L12 12M12 6l1.06-1.06M10.94 10.94L12 12m0 0l1.06 1.06M12 18l-1.06 1.06M12 12l-1.06-1.06M14.35 9.65L12 12m0 0l-1.06 1.06M12 12l1.06-1.06" />
-        </svg>
-      </Box>
-      <div>
-        <Typography
-          variant="h1"
-          sx={{
-            textAlign: 'center',
-            color: theme.palette.common.black,
-            fontWeight: 800,
-            letterSpacing: 2,
-            mb: 1,
+  
+      <div style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+        <img
+          src={imgUrl}
+          alt="Logo Math"
+          style={{
+            maxWidth: 180,
+            width: '100%',
+            marginBottom: 8,
+            display: 'block',
+            objectFit: 'contain',
           }}
-        >
-          {title}
-        </Typography>
-
+        />
         {subtitle && (
           <Typography
             sx={{

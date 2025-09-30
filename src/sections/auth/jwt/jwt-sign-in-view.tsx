@@ -1,8 +1,8 @@
 'use client';
 
 import { z as zod } from 'zod';
-import { useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { useState, useEffect } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 
 import Link from '@mui/material/Link';
@@ -18,12 +18,12 @@ import { useRouter } from 'src/routes/hooks';
 import { RouterLink } from 'src/routes/components';
 
 import { useBoolean } from 'src/hooks/use-boolean';
+import { useBasicAuth } from 'src/hooks/useBasicAuth';
+import { useBackendAuth } from 'src/hooks/useBackendAuth';
+import { useMicrosoftLogin } from 'src/hooks/useMicrosoftLogin';
 
 import { Iconify } from 'src/components/iconify';
 import { Form, Field } from 'src/components/hook-form';
-
-import { useAuthContext } from 'src/auth/hooks';
-import { signInWithPassword } from 'src/auth/context/jwt';
 
 // ----------------------------------------------------------------------
 
@@ -43,45 +43,60 @@ export const SignInSchema = zod.object({
 // ----------------------------------------------------------------------
 
 export function JwtSignInView() {
-  const [loading, setLoading] = useState(false);
-
-  function handleMicrosoftLogin() {
-    setLoading(true);
-    console.log('Login Microsoft');
-    setTimeout(() => setLoading(false), 1200);
-  }
+ 
+  useEffect(() => {
+    sessionStorage.removeItem('jwt_access_token');
+    
+  }, []);
+  
   const router = useRouter();
-
-  const { checkUserSession } = useAuthContext();
+  const { login, loading: basicLoading } = useBasicAuth();
+  const { loginWithMicrosoft, loading: msLoading, error: msError } = useMicrosoftLogin();
+  const { authenticate, loading: backendLoading } = useBackendAuth();
 
   const [errorMsg, setErrorMsg] = useState('');
-
   const password = useBoolean();
-
   const defaultValues = {
-    email: 'demo@minimals.cc',
-    password: '@demo1',
+    email: '',
+    password: '',
   };
-
   const methods = useForm<SignInSchemaType>({
     resolver: zodResolver(SignInSchema),
     defaultValues,
   });
-
   const {
     handleSubmit,
     formState: { isSubmitting },
   } = methods;
 
+  
   const onSubmit = handleSubmit(async (data) => {
-    try {
-  await signInWithPassword({ email: data.email, password: data.password });
-  router.push(paths.briefing.basicInfo);
-    } catch (error) {
-      console.error(error);
-      setErrorMsg(error instanceof Error ? error.message : error);
+    const result = await login({ email: data.email, password: data.password });
+    if (result && result.success && result.data?.token) {
+      
+      sessionStorage.setItem('jwt_access_token', result.data.token);
+      router.push(paths.briefing.basicInfo);
+    } else {
+      setErrorMsg(result?.errorMessage || 'Erro de autenticação');
     }
   });
+
+  
+ const handleMicrosoftLogin = async () => {
+  const msAccessToken = await loginWithMicrosoft();
+  if (msAccessToken) {
+    
+    const backendResult = await authenticate(msAccessToken);
+    if (backendResult && backendResult.success && backendResult.data?.token) {
+      sessionStorage.setItem('jwt_access_token', backendResult.data.token); 
+      router.push(paths.briefing.basicInfo);
+    } else {
+      setErrorMsg(backendResult?.errorMessage || 'Erro na autenticação Microsoft');
+    }
+  } else {
+    setErrorMsg(msError || 'Erro ao autenticar com Microsoft');
+  }
+};
 
   const renderForm = (
     <Stack spacing={3}>
@@ -91,8 +106,12 @@ export function JwtSignInView() {
       <Typography variant="body2" color="text.secondary" align="center" mb={3}>
         Acesse sua plataforma Campaign Builder
       </Typography>
+      {errorMsg && (
+        <Alert severity="error" sx={{ mb: 2 }}>
+          {errorMsg}
+        </Alert>
+      )}
       <Field.Text name="email" label="Email*" InputLabelProps={{ shrink: true }} />
-
       <Stack spacing={1.5}>
         <Link
           component={RouterLink}
@@ -103,11 +122,9 @@ export function JwtSignInView() {
         >
           Esqueceu senha?
         </Link>
-
         <Field.Text
           name="password"
           label="Senha*"
-          placeholder="6+ characters"
           type={password.value ? 'text' : 'password'}
           InputLabelProps={{ shrink: true }}
           InputProps={{
@@ -121,19 +138,17 @@ export function JwtSignInView() {
           }}
         />
       </Stack>
-
       <LoadingButton
         fullWidth
         color="inherit"
         size="large"
         type="submit"
         variant="contained"
-        loading={isSubmitting}
-        loadingIndicator="Sign in..."
+        loading={isSubmitting || basicLoading}
+        loadingIndicator="Entrando..."
       >
         Entrar
       </LoadingButton>
-
       {/* Separador e botão Microsoft */}
       <Box sx={{ display: 'flex', alignItems: 'center', my: 2 }}>
         <Box sx={{ flexGrow: 1, borderTop: '1px solid #e5e7eb' }} />
@@ -156,8 +171,8 @@ export function JwtSignInView() {
         type="button"
         fullWidth
         size="large"
-        onClick={() => handleMicrosoftLogin()}
-        disabled={loading}
+        onClick={handleMicrosoftLogin}
+        disabled={msLoading || backendLoading}
         sx={{
           fontWeight: 600,
           height: 48,
@@ -175,10 +190,10 @@ export function JwtSignInView() {
           '&:active': { transform: 'scale(0.97)' },
           '&:disabled': { opacity: 0.6, cursor: 'not-allowed' },
         }}
-        loading={loading}
-        loadingIndicator={loading ? 'Entrando...' : undefined}
+        loading={msLoading || backendLoading}
+        loadingIndicator={msLoading || backendLoading ? 'Entrando...' : undefined}
       >
-        {loading ? 'Entrando...' : 'Login com Microsoft'}
+        {msLoading || backendLoading ? 'Entrando...' : 'Login com Microsoft'}
       </LoadingButton>
     </Stack>
   );

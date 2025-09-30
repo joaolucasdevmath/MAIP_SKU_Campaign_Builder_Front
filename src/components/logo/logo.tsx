@@ -42,7 +42,7 @@ export const Logo = forwardRef<HTMLDivElement, LogoProps>(
     <Box
       alt="logo"
       component="img"
-      src={`${CONFIG.site.basePath}/assets/illustrations/yduqs.png`}
+      src={`${CONFIG.site.basePath}/assets/illustrations/math.png`}
       sx={{ 
         display: 'block', 
         width, 

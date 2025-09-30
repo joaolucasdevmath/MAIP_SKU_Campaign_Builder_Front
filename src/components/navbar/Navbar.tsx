@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import { useState } from 'react';
 import { usePathname } from 'next/navigation';
@@ -40,12 +40,31 @@ export default function Navbar() {
         boxShadow: '0 2px 8px 0 rgba(0,0,0,0.04)',
       }}
     >
-      <Box sx={{ display: 'flex', alignItems: 'center', height: 64, px: 4, justifyContent: 'space-between' }}>
+      <Box
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+          height: 64,
+          px: 4,
+          justifyContent: 'space-between',
+        }}
+      >
         <Box sx={{ display: 'flex', alignItems: 'center' }}>
           <Box sx={{ mr: 2 }}>
-            <img src="/assets/illustrations/yduqs.png" alt="YDUQS Logo" style={{ height: 30, marginLeft: 4 }} />
+            <img
+              src="/assets/illustrations/math.png"
+              alt="MATH Logo"
+              style={{ height: 30, marginLeft: 4 }}
+            />
           </Box>
-          <Typography variant="h6" sx={{ fontWeight: 600, color: theme.palette.info.darker }}>
+          <Typography
+            variant="h6"
+            sx={{
+              fontWeight: 700,
+              fontFamily: "'Public Sans', 'Inter', Arial, sans-serif",
+              color: theme.palette.info.darker,
+            }}
+          >
             AI Campaign Builder
           </Typography>
         </Box>
@@ -54,7 +73,10 @@ export default function Navbar() {
           {steps.map((step) => {
             const isActive = pathname === step.path.replace(/\/$/, '');
             return (
-              <Box key={step.path} sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+              <Box
+                key={step.path}
+                sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}
+              >
                 <Link
                   href={step.path}
                   underline="none"
@@ -62,7 +84,7 @@ export default function Navbar() {
                     py: 2,
                     fontWeight: 600,
                     fontSize: 16,
-                    color: isActive ? '#003768' : theme.palette.grey[500],
+                    color: isActive ? '#000' : theme.palette.grey[500],
                     transition: 'color 0.2s',
                     cursor: 'pointer',
                   }}
@@ -93,7 +115,7 @@ export default function Navbar() {
                     py: 2,
                     fontWeight: 600,
                     fontSize: 18,
-                    color: isActive ? '#003768' : theme.palette.grey[500],
+                    color: isActive ? '#000' : theme.palette.grey[500],
                     transition: 'color 0.2s',
                     cursor: 'pointer',
                   }}
