@@ -169,7 +169,10 @@ export const useAudienceQuery = (): UseAudienceQueryReturn => {
           throw new Error('A query gerada não é uma string válida.');
         }
 
-        setGeneratedQuery(apiGeneratedQueryText);
+        
+        const maskedQuery = apiGeneratedQueryText.replace(/(nom_grupo_marca\s*=\s*')([^']*)(')/g, '$1MARCA$3');
+        setGeneratedQuery(maskedQuery);
+        
         updateCampaignData({
           generated_query: apiGeneratedQueryText,
           generatedQuery: apiGeneratedQueryText,

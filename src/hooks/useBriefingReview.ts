@@ -217,8 +217,8 @@ export const useBriefingReview = (): BriefingHookReturn => {
       const result = response.data;
       setGeneratedBriefing(result.briefing || result.message || 'Briefing gerado com sucesso!');
 
-      // Toast de sucesso
-      toast.success('Briefing gerado com sucesso!');
+  // Toast de sucesso
+  // toast.success('Briefing gerado com sucesso!');
     } catch (err) {
       console.error('Erro ao gerar briefing:', err);
 
@@ -230,8 +230,8 @@ export const useBriefingReview = (): BriefingHookReturn => {
         errorMessage = `Erro ao gerar briefing: ${err.message}`;
       }
 
-      setError(errorMessage);
-      toast.error(errorMessage);
+  setError(errorMessage);
+  // toast.error(errorMessage);
     } finally {
       setIsGenerating(false);
     }

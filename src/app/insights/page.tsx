@@ -43,12 +43,13 @@ interface AudiencePayload {
   nom_grupo_marca?: string;
 }
 
+
 export default function Insights() {
   const router = useRouter();
   const { state } = useFormWizard();
   const payload = useAudiencePayload() as AudiencePayload;
   const { loading, error, data, runAudienceFlow } = useAudienceData();
-  const { generatedQuery } = useAudienceQuery();
+  const { generatedQuery, clearAllData } = useAudienceQuery();
   const [pdfLoading, setPdfLoading] = useState(false);
 
   useEffect(() => {
@@ -87,8 +88,8 @@ export default function Insights() {
 
   const generatePDF = () => {
     setPdfLoading(true);
-    console.log('Valores do payload:', payload); // Para debug
-    console.log('Valores do state:', state); // Para debug
+    console.log('Valores do payload:', payload); 
+    console.log('Valores do state:', state); 
 
     // eslint-disable-next-line new-cap
     const doc = new jsPDF();
@@ -102,7 +103,9 @@ export default function Insights() {
 
       // Dados dinâmicos
       const campaignName = payload.campaign_name || state.campaign_name || 'Não definido';
-      const brand = state.nom_grupo_marca || payload.nom_grupo_marca || 'Não definido';
+  // const brand = state.nom_grupo_marca || payload.nom_grupo_marca || 'Não definido';
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const brand = 'MARCA';
 
       // Objetivo da campanha
       const campaignObjective = state.campaign_objective
@@ -201,7 +204,8 @@ export default function Insights() {
         50
       );
       doc.text(`Objetivo da Campanha: ${campaignObjective}`, 10, 55);
-      doc.text(`Marca: ${brand}`, 10, 60);
+  // doc.text(`Marca: ${brand}`, 10, 60);
+  doc.text(`Marca: MARCA`, 10, 60);
       doc.text(`Semestre: ${semester}`, 10, 65);
 
       // Seção 2: Configurações de Disparo
@@ -529,9 +533,12 @@ export default function Insights() {
                 <Button
                   variant="outlined"
                   sx={{ color: '#093366', borderColor: '#093366' }}
-                  onClick={() => router.push('/audience')}
+                  onClick={() => {
+                    clearAllData();
+                    router.replace('/briefing/basic-info');
+                  }}
                 >
-                  Voltar para Audiência
+                  Voltar para Início
                 </Button>
               </Box>
             </CardContent>

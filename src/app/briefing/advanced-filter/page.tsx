@@ -14,6 +14,7 @@ import {
 } from '@mui/material';
 
 import { useAdvancedFilterForm } from 'src/hooks/useAdvancedFilterForm';
+
 import { useFormWizard } from 'src/context/FormWizardContext';
 
 import { FormStepper } from 'src/components/form-stepper';
@@ -35,6 +36,7 @@ export default function AdvancedFilterPage() {
     handleSubmitWithValidation,
     ...methods
   } = useAdvancedFilterForm({});
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { state: formWizardState } = useFormWizard();
 
   if (loading || fields.length === 0) {
