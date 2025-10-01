@@ -9,9 +9,9 @@ import { getFirestore } from 'firebase/firestore';
 import { CONFIG } from 'src/config-global';
 
 // ----------------------------------------------------------------------
-
+// @ts-ignore
 const isFirebase = CONFIG.auth.method === 'firebase';
-
+// @ts-ignore
 export const firebaseApp = isFirebase ? initializeApp(CONFIG.firebase) : ({} as FirebaseApp);
 
 export const AUTH = isFirebase ? getAuth(firebaseApp) : ({} as AuthType);

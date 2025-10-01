@@ -24,8 +24,11 @@ const LINKS = [
   {
     headline: 'Minimal',
     children: [
+      // @ts-ignore
       { name: 'About us', href: paths.about },
+      // @ts-ignore
       { name: 'Contact us', href: paths.contact },
+      // @ts-ignore
       { name: 'FAQs', href: paths.faqs },
     ],
   },

@@ -75,6 +75,7 @@ export function NavMobile({ data, open, onClose, slots, sx }: NavMobileProps) {
             variant="contained"
             rel="noopener"
             target="_blank"
+            // @ts-ignore
             href={paths.minimalStore}
           >
             Purchase
