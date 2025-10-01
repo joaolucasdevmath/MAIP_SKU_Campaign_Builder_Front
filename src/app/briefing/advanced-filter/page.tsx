@@ -117,7 +117,6 @@ export default function AdvancedFilterPage() {
                 renderTags={(value, getTagProps) =>
                   value.map((option, index) => (
                     <Chip
-                     
                       label={option.label || option.toString()}
                       {...getTagProps({ index })}
                       sx={{ bgcolor: '#f1f1f1', color: '#093366' }} 
@@ -326,6 +325,36 @@ export default function AdvancedFilterPage() {
     return null;
   };
 
+  const renderNivelEscolaridadeSection = () => {
+    const nivelEscolaridadeFields = fields.filter((field) => field.name.startsWith('nivel_escolaridade_'));
+    if (nivelEscolaridadeFields.length > 0) {
+      return (
+        <Grid item xs={12}>
+          <FieldWithLabel label="Nível de Escolaridade">
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5, ml: 1 }}>
+              {nivelEscolaridadeFields.map((field, index) => (
+                <RHFCheckbox
+                  key={index}
+                  name={field.name}
+                  label={field.label}
+                  sx={{
+                    '& .MuiCheckbox-root': {
+                      color: '#093366',
+                      '&.Mui-checked': {
+                        color: '#093366',
+                      },
+                    },
+                  }}
+                />
+              ))}
+            </Box>
+          </FieldWithLabel>
+        </Grid>
+      );
+    }
+    return null;
+  };
+
   return (
     <Box>
       <FormStepper />
@@ -364,6 +393,7 @@ export default function AdvancedFilterPage() {
                 !field.name.startsWith('forma_ingresso_') &&
                 !field.name.startsWith('status_prova_') &&
                 !field.name.startsWith('nom_tipo_curso_') &&
+                !field.name.startsWith('nivel_escolaridade_') &&
                 field.name !== 'tipo_captacao_transf._externa' &&
                 field.name !== 'tipo_captacao_vestibular_(ingresso_simplificado)'
               )
@@ -379,6 +409,7 @@ export default function AdvancedFilterPage() {
                 </Grid>
               ))}
             {renderNivelEnsinoSection()}
+            {renderNivelEscolaridadeSection()}
             {renderFormaIngressoSection()}
             {renderStatusVestibularSection()}
 

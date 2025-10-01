@@ -1,3 +1,8 @@
+import type {
+  AdvancedFilterBackendField,
+  DynamicAdvancedFilterFormValues,
+} from 'src/types/advancedFilterFormTypes';
+
 import { useForm } from 'react-hook-form';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
@@ -5,11 +10,8 @@ import { zodResolver } from '@hookform/resolvers/zod';
 
 import axiosInstance, { endpoints } from 'src/utils/axios';
 import { advancedFilterSchema } from 'src/utils/schemas/advancedFilterSchema';
+
 import { useFormWizard } from 'src/context/FormWizardContext';
-import type {
-  AdvancedFilterBackendField,
-  DynamicAdvancedFilterFormValues,
-} from 'src/types/advancedFilterFormTypes';
 
 export function useAdvancedFilterForm(state: Partial<DynamicAdvancedFilterFormValues>) {
   const [fields, setFields] = useState<AdvancedFilterBackendField[]>([]);
@@ -46,9 +48,14 @@ export function useAdvancedFilterForm(state: Partial<DynamicAdvancedFilterFormVa
           const dynamicFields = res.data.data
             .map((field: any) => {
               console.log('Processando campo:', field); 
-              if (field.name === 'nivel_escolaridade') {
-                
-                return null;
+              if (field.name === 'nivel_escolaridade' && Array.isArray(field.values)) {
+                // Mapear nivel_escolaridade como checkboxes
+                return field.values.map((option: any) => ({
+                  name: `nivel_escolaridade_${option.value.toLowerCase().replace(/\s+/g, '_')}`,
+                  label: option.label || option.value,
+                  type: 'boolean',
+                  required: false,
+                }));
               }
               if (field.name === 'status_vestibular') {
                 return {
