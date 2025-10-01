@@ -11,6 +11,7 @@ export const Map = forwardRef<MapRef, MapProps>(({ ...other }, ref) => (
   <MapGL
     ref={ref}
     mapLib={import('mapbox-gl')}
+    // @ts-ignore
     mapboxAccessToken={CONFIG.mapbox.apiKey}
     {...other}
   />
