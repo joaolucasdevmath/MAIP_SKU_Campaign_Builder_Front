@@ -1,9 +1,12 @@
 'use client';
 
+import { useState, useEffect } from 'react';
+
 import { Box, Grid, Button, Typography } from '@mui/material';
 
 import { useBasicInfoForm } from 'src/hooks/useBasicInfoForm';
 
+import { toast } from 'src/components/snackbar';
 import { FormStepper } from 'src/components/form-stepper';
 import { SplashScreen } from 'src/components/loading-screen';
 import { Form } from 'src/components/hook-form/form-provider';
@@ -12,8 +15,66 @@ import { RHFCheckbox } from 'src/components/hook-form/rhf-checkbox';
 import { RHFMultiSelect } from 'src/components/hook-form/rhf-select';
 import { RHFTextField } from 'src/components/hook-form/rhf-text-field';
 import { RHFDatePicker } from 'src/components/hook-form/rhf-date-picker';
+import { useAudienceQuery } from 'src/hooks/useAudienceQuery';
+
+const parseDate = (dateStr: string | undefined): string | null => {
+  if (!dateStr) return null;
+  const [day, month, year] = dateStr.split('/').map(Number);
+  const parsedDate = new Date(year, month - 1, day);
+  if (Number.isNaN(parsedDate.getTime())) return null;
+  return parsedDate.toISOString().replace('Z', '-03:00');
+};
+
+const extractFormValues = (data: any, channelOptions: any[]) => {
+  if (!data) return {};
+
+  const core = data.campaign?.core || {};
+
+  const initialValues = {
+    campaign_name: core.campaign_name || '',
+    campaign_objective: core.campaign_objective ? [core.campaign_objective] : [],
+    campaign_type: core.campaign_type ? [core.campaign_type] : [],
+
+    offer: core.offer || '',
+    campaign_codes: core.code || '',
+    start_date: parseDate(core.start_date) || null,
+    end_date: parseDate(core.end_date) || null,
+    is_continuous: core.is_template === false,
+  };
+
+  console.log('Valores iniciais mapeados:', initialValues);
+  return initialValues;
+};
+
 
 export default function BasicInfoPage() {
+  
+  const { clearAllData } = useAudienceQuery();
+
+useEffect(() => {
+  clearAllData();
+  
+// eslint-disable-next-line react-hooks/exhaustive-deps
+}, []);
+
+  const [templateData, setTemplateData] = useState<any | null>(null);
+
+  // Carregar dados do sessionStorage
+  useEffect(() => {
+    const stored = sessionStorage.getItem('briefing_template_data');
+    if (stored) {
+      try {
+        const parsed = JSON.parse(stored);
+        console.log('Dados do sessionStorage:', parsed); 
+        setTemplateData(parsed);
+      } catch (error) {
+        console.error('Erro ao parsear dados do template:', error);
+        toast.error('Erro ao carregar dados do template.');
+        setTemplateData(null);
+      }
+    }
+  }, []);
+
   const {
     fields,
     loading,
@@ -27,14 +88,33 @@ export default function BasicInfoPage() {
     channelField,
     offerField,
     campaignCodesField,
+    reset,
     ...methods
   } = useBasicInfoForm({});
+
+  useEffect(() => {
+    if (templateData && channelField) {
+      const initialValues = extractFormValues(templateData, channelField.values || []);
+      console.log('Atualizando formulário com valores:', initialValues);
+      reset(initialValues);
+
+      sessionStorage.removeItem('briefing_template_data');
+    }
+  }, [templateData, channelField, reset]);
 
   if (loading || fields.length === 0) {
     return (
       <Box>
         <FormStepper />
-        <Box sx={{ mt: 4, minHeight: '400px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <Box
+          sx={{
+            mt: 4,
+            minHeight: '400px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
           <SplashScreen portal={false} />
         </Box>
         <Typography variant="h6" color="text.secondary" align="center" sx={{ mt: 2 }}>
@@ -51,9 +131,9 @@ export default function BasicInfoPage() {
     <Box>
       <FormStepper />
       <Box sx={{ mt: 4 }}>
+        {/* @ts-ignore */}
         <Form methods={{ control, handleSubmit, ...methods }} onSubmit={handleSubmit(onSubmit)}>
           <Grid container spacing={3}>
-            {/* Campo estático: Nome da Campanha */}
             <Grid item xs={12}>
               <FieldWithLabel label="Nome da Campanha" required>
                 <RHFTextField
@@ -79,28 +159,6 @@ export default function BasicInfoPage() {
                     chip
                     helperText="Tipo principal da campanha."
                     variant="outlined"
-                    slotProps={{
-                      select: {
-                        MenuProps: {
-                          PaperProps: {
-                            sx: {
-                              bgcolor: 'white',
-                              '& .MuiMenuItem-root': {
-                                '&:hover': {
-                                  bgcolor: '#f0f8ff',
-                                },
-                                '&.Mui-selected': {
-                                  bgcolor: '#f0f8ff',
-                                  '&:hover': {
-                                    bgcolor: '#e6f3ff',
-                                  },
-                                },
-                              },
-                            },
-                          },
-                        },
-                      },
-                    }}
                   />
                 </FieldWithLabel>
               )}
@@ -121,28 +179,6 @@ export default function BasicInfoPage() {
                     chip
                     helperText="Objetivo específico da campanha."
                     variant="outlined"
-                    slotProps={{
-                      select: {
-                        MenuProps: {
-                          PaperProps: {
-                            sx: {
-                              bgcolor: 'white',
-                              '& .MuiMenuItem-root': {
-                                '&:hover': {
-                                  bgcolor: '#f0f8ff',
-                                },
-                                '&.Mui-selected': {
-                                  bgcolor: '#f0f8ff',
-                                  '&:hover': {
-                                    bgcolor: '#e6f3ff',
-                                  },
-                                },
-                              },
-                            },
-                          },
-                        },
-                      },
-                    }}
                   />
                 </FieldWithLabel>
               )}
@@ -189,28 +225,6 @@ export default function BasicInfoPage() {
                     chip
                     helperText="Selecione os tipos de disparo para esta campanha."
                     variant="outlined"
-                    slotProps={{
-                      select: {
-                        MenuProps: {
-                          PaperProps: {
-                            sx: {
-                              bgcolor: 'white',
-                              '& .MuiMenuItem-root': {
-                                '&:hover': {
-                                  bgcolor: '#f0f8ff',
-                                },
-                                '&.Mui-selected': {
-                                  bgcolor: '#f0f8ff',
-                                  '&:hover': {
-                                    bgcolor: '#e6f3ff',
-                                  },
-                                },
-                              },
-                            },
-                          },
-                        },
-                      },
-                    }}
                   />
                 </FieldWithLabel>
               )}
@@ -250,8 +264,8 @@ export default function BasicInfoPage() {
 
             <Grid item xs={12} md={6}>
               <FieldWithLabel label="Data de Início da Campanha">
-                <RHFDatePicker 
-                  name="start_date" 
+                <RHFDatePicker
+                  name="start_date"
                   slotProps={{
                     popper: {
                       sx: {
@@ -278,8 +292,8 @@ export default function BasicInfoPage() {
 
             <Grid item xs={12} md={6}>
               <FieldWithLabel label="Data de Fim da Campanha">
-                <RHFDatePicker 
-                  name="end_date" 
+                <RHFDatePicker
+                  name="end_date"
                   slotProps={{
                     popper: {
                       sx: {

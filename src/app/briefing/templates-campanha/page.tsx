@@ -2,46 +2,63 @@
 
 import type Template from 'src/types/templatesTypes';
 
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 
 import {
   Box,
   Card,
   Grid,
   Button,
-  Dialog,
   Container,
   Typography,
   CardContent,
-  DialogTitle,
-  DialogContent,
 } from '@mui/material';
 
 import { useTemplate } from 'src/hooks/useTemplate';
 
+import axiosInstance, { endpoints } from 'src/utils/axios';
+
+import { toast } from 'src/components/snackbar';
 import { Iconify } from 'src/components/iconify';
 import { SplashScreen } from 'src/components/loading-screen';
 
+
 export default function TemplatesPage() {
   const { templates, isLoading, fetchTemplates } = useTemplate();
-  const [openModal, setOpenModal] = useState(false);
-  const [selectedTemplate, setSelectedTemplate] = useState<Template | null>(null);
+  const router = useRouter();
 
   useEffect(() => {
     fetchTemplates();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const handleOpenModal = (template: Template) => {
-    setSelectedTemplate(template);
-    setOpenModal(true);
-  };
+const handleReviewEdit = async (template: Template) => {
+  try {
+    // Garantir que o endpoint não tenha barras duplas
+    const endpoint = `${endpoints.briefing.getTemplate}/${template.id}`.replace(/\/+/g, '/');
+    console.log('Chamando endpoint:', endpoint); // Log para depuração
 
-  const handleCloseModal = () => {
-    setOpenModal(false);
-    setSelectedTemplate(null);
-  };
+    const response = await axiosInstance.get(endpoint, {
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${localStorage.getItem('accessToken')}`, // Ajuste conforme sua lógica de autenticação
+      },
+    });
 
+    console.log('Resposta da API:', response.data); // Log para verificar a resposta
+    if (response.data && response.data.success && response.data.data) {
+      sessionStorage.setItem('briefing_template_data', JSON.stringify(response.data.data));
+      router.push('/briefing/basic-info');
+    } else {
+      toast.error('Erro ao buscar template: Dados inválidos.');
+    }
+  } catch (error: any) {
+    console.error('Erro ao buscar template:', error);
+    const errorMessage = error.response?.data?.detail || 'Falha na conexão com o servidor.';
+    toast.error(`Erro ao buscar template: ${errorMessage}`);
+  }
+};
   return (
     <Container maxWidth="lg">
       <Box sx={{ py: 4 }}>
@@ -122,7 +139,7 @@ export default function TemplatesPage() {
                       <Box display="flex" justifyContent="center" alignItems="center">
                         <Button
                           variant="outlined"
-                          onClick={() => handleOpenModal(template)}
+                          onClick={() => handleReviewEdit(template)}
                           sx={{
                             borderColor: '#093366',
                             color: '#093366',
@@ -148,34 +165,7 @@ export default function TemplatesPage() {
           <Typography variant="body1">Erro: Dados de templates inválidos.</Typography>
         )}
 
-        <Dialog open={openModal} onClose={handleCloseModal}>
-          <DialogTitle>Detalhes do Template</DialogTitle>
-          <DialogContent>
-            {selectedTemplate && (
-              <>
-                <Typography variant="h6">{selectedTemplate.campaign_name || 'Sem nome'}</Typography>
-                <Typography variant="body1" sx={{ mt: 1 }}>
-                  Descrição: {selectedTemplate.description || 'Sem descrição'}
-                </Typography>
-                <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-                  ID: {selectedTemplate.id || 'Não definido'}
-                </Typography>
-                <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-                  Início: {selectedTemplate.start_date || 'Não definido'}
-                </Typography>
-                <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-                  Fim: {selectedTemplate.end_date || 'Não definido'}
-                </Typography>
-                <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-                  Oferta: {selectedTemplate.offer || 'Não definida'}
-                </Typography>
-                <Button onClick={handleCloseModal} sx={{ mt: 2 }}>
-                  Fechar
-                </Button>
-              </>
-            )}
-          </DialogContent>
-        </Dialog>
+       
       </Box>
     </Container>
   );

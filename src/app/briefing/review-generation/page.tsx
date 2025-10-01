@@ -13,16 +13,16 @@ import {
   Paper,
   Stack,
   Button,
+  Dialog,
   Divider,
   Container,
+  TextField,
   Typography,
   CardContent,
-  CircularProgress,
-  Dialog,
   DialogTitle,
   DialogContent,
   DialogActions,
-  TextField,
+  CircularProgress,
 } from '@mui/material';
 
 import { useTemplate } from 'src/hooks/useTemplate';
@@ -131,7 +131,49 @@ export default function ReviewGeneration() {
         {/* Seções organizadas pelos dados do hook */}
         {renderSection(reviewData.basicInfo.title, reviewData.basicInfo.data)}
         {renderSection(reviewData.segmentation.title, reviewData.segmentation.data)}
+        {/*
+        // --- BLOCO ORIGINAL ---
         {renderSection(reviewData.advancedFilters.title, reviewData.advancedFilters.data)}
+        // --- FIM BLOCO ORIGINAL ---
+        */}
+        {/* --- Seção 3. Configurações Avançadas (Grupo/Marca mockado, resto dinâmico) --- */}
+        <Card sx={{ mb: 3, boxShadow: 2 }}>
+          <CardContent>
+            <Typography variant="h6" gutterBottom>
+              3. Configurações Avançadas
+            </Typography>
+            <Grid container spacing={3}>
+              {Object.entries(reviewData.advancedFilters.data).map(([key, value]) => {
+                const shouldRender =
+                  value !== undefined &&
+                  value !== null &&
+                  value !== '' &&
+                  !(Array.isArray(value) && value.length === 0);
+                if (!shouldRender) return null;
+                return (
+                  <Grid item xs={12} sm={6} key={key}>
+                    <Box>
+                      <Typography variant="body2" sx={{ fontWeight: 500, mb: 1 }}>
+                        {getFieldLabel(key)}
+                      </Typography>
+                      {key === 'nom_grupo_marca' || key === 'brand' || key === 'grupoMarca' ? (
+                        <Typography variant="body1">MARCA</Typography>
+                      ) : Array.isArray(value) && value.length > 0 ? (
+                        <Stack direction="row" spacing={1} flexWrap="wrap" gap={1}>
+                          {value.map((item, index) => (
+                            <Chip key={index} label={item} size="small" variant="outlined" />
+                          ))}
+                        </Stack>
+                      ) : (
+                        <Typography variant="body1">{renderFieldValue(value)}</Typography>
+                      )}
+                    </Box>
+                  </Grid>
+                );
+              })}
+            </Grid>
+          </CardContent>
+        </Card>
 
         {/* Generated Query Display */}
         {generatedQuery && (
@@ -140,6 +182,8 @@ export default function ReviewGeneration() {
               Query da Audiência Gerada
             </Typography>
             <Box sx={{ position: 'relative' }}>
+              {/*
+              // --- BLOCO ORIGINAL ---
               <Typography
                 variant="body2"
                 sx={{
@@ -172,6 +216,48 @@ export default function ReviewGeneration() {
               >
                 Copiar Query
               </Button>
+              // --- FIM BLOCO ORIGINAL ---
+              */}
+              {/* --- BLOCO COM MÁSCARA --- */}
+              {(() => {
+                const rawQuery = typeof generatedQuery === 'string'
+                  ? generatedQuery
+                  : JSON.stringify(generatedQuery, null, 2);
+                const maskedQuery = rawQuery.replace(/(nom_grupo_marca\s*=\s*')([^']*)(')/g, '$1MARCA$3');
+                return (
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      whiteSpace: 'pre-wrap',
+                      lineHeight: 1.6,
+                      fontFamily: 'monospace',
+                      backgroundColor: '#f5f5f5',
+                      p: 2,
+                      borderRadius: 1,
+                      border: '1px solid #ddd',
+                      mb: 2,
+                    }}
+                  >
+                    {maskedQuery}
+                  </Typography>
+                );
+              })()}
+              <Button
+                variant="outlined"
+                size="small"
+                onClick={() => {
+                  const rawQuery = typeof generatedQuery === 'string'
+                    ? generatedQuery
+                    : JSON.stringify(generatedQuery, null, 2);
+                  const maskedQuery = rawQuery.replace(/(nom_grupo_marca\s*=\s*')([^']*)(')/g, '$1MARCA$3');
+                  navigator.clipboard.writeText(maskedQuery);
+                  toast.success('Query copiada para a área de transferência!');
+                }}
+                sx={{ mt: 1 }}
+              >
+                Copiar Query
+              </Button>
+              {/* --- FIM BLOCO COM MÁSCARA --- */}
             </Box>
           </Paper>
         )}
