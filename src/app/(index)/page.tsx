@@ -4,7 +4,7 @@ import { JwtSignInView } from 'src/sections/auth/jwt';
 
 export const metadata = {
   title: 'MATH',
-  description: 'AI Camping Builder',
+  description: 'AI Campaign Builder',
 };
 
 export default function Page() {

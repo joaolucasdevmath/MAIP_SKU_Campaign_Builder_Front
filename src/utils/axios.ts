@@ -47,30 +47,7 @@ export const fetcher = async (args: string | [string, AxiosRequestConfig]) => {
 // ----------------------------------------------------------------------
 
 export const endpoints = {
-  chat: '/api/chat',
-  kanban: '/api/kanban',
-  calendar: '/api/calendar',
-  auth: {
-    me: '/api/auth/me',
-    signIn: '/api/auth/sign-in',
-    signUp: '/api/auth/sign-up',
-  },
-  mail: {
-    list: '/api/mail/list',
-    details: '/api/mail/details',
-    labels: '/api/mail/labels',
-  },
-  post: {
-    list: '/api/post/list',
-    details: '/api/post/details',
-    latest: '/api/post/latest',
-    search: '/api/post/search',
-  },
-  product: {
-    list: '/api/product/list',
-    details: '/api/product/details',
-    search: '/api/product/search',
-  },
+ 
    briefing: {
     step1: '/api/briefing/step/1',
     step2: '/api/briefing/step/2',
@@ -84,6 +61,9 @@ export const endpoints = {
     getTemplate: '/api/template/',
     loginBasic: '/api/auth/basic/',
     loginAzure: '/api/auth/azure/',
-    
+    archive: '/api/archive/',
+    archiveSave: '/api/archive/',
+    archiveId: '/api/archive/{id}',
+   
   }
 };

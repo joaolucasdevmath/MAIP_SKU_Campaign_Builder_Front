@@ -28,11 +28,14 @@ import {
 import { useTemplate } from 'src/hooks/useTemplate';
 import { useAudienceQuery } from 'src/hooks/useAudienceQuery';
 import { useBriefingReview } from 'src/hooks/useBriefingReview';
+import { useArchive } from 'src/hooks/useArchive';
+import { useFormWizard } from 'src/context/FormWizardContext';
 
 import { toast } from 'src/components/snackbar';
 import { FormStepper } from 'src/components/form-stepper/FormStepper';
 
 export default function ReviewGeneration() {
+  const { state: campaignData } = useFormWizard();
   const router = useRouter();
   const {
     isGenerating,
@@ -43,11 +46,11 @@ export default function ReviewGeneration() {
     renderFieldValue,
     getFieldLabel,
   } = useBriefingReview();
+  const { saveArchive, buildArchivePayload } = useArchive();
   const {
     isGenerating: isGeneratingQuery,
     generatedQuery,
     handleGenerateQuery,
-    handleSaveAsDraft,
     clearAllData,
   } = useAudienceQuery();
   const { isSaving, saveTemplate } = useTemplate();
@@ -131,13 +134,13 @@ export default function ReviewGeneration() {
         {/* Seções organizadas pelos dados do hook */}
         {renderSection(reviewData.basicInfo.title, reviewData.basicInfo.data)}
         {renderSection(reviewData.segmentation.title, reviewData.segmentation.data)}
-        {/*
-        // --- BLOCO ORIGINAL ---
+        
+        
         {renderSection(reviewData.advancedFilters.title, reviewData.advancedFilters.data)}
-        // --- FIM BLOCO ORIGINAL ---
-        */}
+       
+       
         {/* --- Seção 3. Configurações Avançadas (Grupo/Marca mockado, resto dinâmico) --- */}
-        <Card sx={{ mb: 3, boxShadow: 2 }}>
+        {/* <Card sx={{ mb: 3, boxShadow: 2 }}>
           <CardContent>
             <Typography variant="h6" gutterBottom>
               3. Configurações Avançadas
@@ -173,7 +176,7 @@ export default function ReviewGeneration() {
               })}
             </Grid>
           </CardContent>
-        </Card>
+        </Card> */}
 
         {/* Generated Query Display */}
         {generatedQuery && (
@@ -182,8 +185,8 @@ export default function ReviewGeneration() {
               Query da Audiência Gerada
             </Typography>
             <Box sx={{ position: 'relative' }}>
-              {/*
-              // --- BLOCO ORIGINAL ---
+              
+            
               <Typography
                 variant="body2"
                 sx={{
@@ -216,10 +219,10 @@ export default function ReviewGeneration() {
               >
                 Copiar Query
               </Button>
-              // --- FIM BLOCO ORIGINAL ---
-              */}
+              
+             
               {/* --- BLOCO COM MÁSCARA --- */}
-              {(() => {
+              {/* {(() => {
                 const rawQuery = typeof generatedQuery === 'string'
                   ? generatedQuery
                   : JSON.stringify(generatedQuery, null, 2);
@@ -241,8 +244,8 @@ export default function ReviewGeneration() {
                     {maskedQuery}
                   </Typography>
                 );
-              })()}
-              <Button
+              })()} */}
+              {/* <Button
                 variant="outlined"
                 size="small"
                 onClick={() => {
@@ -256,7 +259,7 @@ export default function ReviewGeneration() {
                 sx={{ mt: 1 }}
               >
                 Copiar Query
-              </Button>
+              </Button> */}
               {/* --- FIM BLOCO COM MÁSCARA --- */}
             </Box>
           </Paper>
@@ -334,57 +337,98 @@ export default function ReviewGeneration() {
               </LoadingButton>
 
               {generatedQuery && (
-                <LoadingButton
-                  variant="contained"
-                  type="button"
-                  loading={isSaving}
-                  onClick={() => handleOpenModal(true)}
-                  disabled={isGeneratingQuery || isGenerating}
-                  sx={{
-                    backgroundColor: '#093366',
-                    color: 'white',
-                    '&:hover': {
-                      backgroundColor: '#07264d',
-                    },
-                  }}
-                >
-                  Salvar como Template
-                </LoadingButton>
-              )}
+  <Box sx={{ display: 'flex', justifyContent: 'center' }}>
+    <LoadingButton
+      variant="contained"
+      color="primary"
+      type="button"
+      size="large"
+      loading={isGenerating}
+      loadingIndicator={
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          <CircularProgress size={20} sx={{ color: 'white' }} />
+          <Typography variant="body2" sx={{ color: 'white' }}>
+            Salvando e gerando briefing...
+          </Typography>
+        </Box>
+      }
+      sx={{
+        backgroundColor: '#093366',
+        '&:hover': { backgroundColor: '#07264d' },
+        minWidth: 200,
+      }}
+      onClick={async () => {
+         console.log('DADOS DO CONTEXTO:', campaignData); 
+const payload = buildArchivePayload({
+  campaignCore: {
+    offer: campaignData.offer || '',
+    code: campaignData.campaign_codes || campaignData.campaignCode || '',
+    campaign_name: campaignData.campaign_name || campaignData.campaignName || '',
+    campaign_type: Array.isArray(campaignData.campaign_type)
+      ? campaignData.campaign_type[0]
+      : campaignData.campaign_type || campaignData.campaignType || '',
+    campaign_objective: Array.isArray(campaignData.campaign_objective)
+      ? campaignData.campaign_objective[0]
+      : campaignData.campaign_objective || campaignData.campaignObjective || '',
+    start_date: campaignData.start_date
+      ? campaignData.start_date.split('T')[0]
+      : campaignData.campaignStartDate
+      ? new Date(campaignData.campaignStartDate).toISOString().split('T')[0]
+      : '',
+    end_date: campaignData.end_date
+      ? campaignData.end_date.split('T')[0]
+      : campaignData.campaignEndDate
+      ? new Date(campaignData.campaignEndDate).toISOString().split('T')[0]
+      : '',
+    segmentation_sql: campaignData.generatedQuery || campaignData.generated_query || '',
+    audience_snapshot: campaignData.audienceInfo?.audienceSize ?? 0,
+    status: 'draft',
+    is_template: false,
+    
+  },
+  // @ts-ignore
+  channels: (campaignData.channel || []).map((type, idx) => ({
+    id: idx + 1,
+    quantity: campaignData[`quantity_${type}`] || 0,
+  })),
+  briefingCore: {
+    name: campaignData.campaign_name || campaignData.campaignName || '',
+    segmentation: (campaignData.segmentation || []).join(' AND '),
+    source_base_id: campaignData.source_base_id || '1',
+    source_base: (campaignData.base_origin && campaignData.base_origin[0]) || campaignData.source_base || '',
+  },
+  briefingFields: [
+    { name: 'nom_grupo_marca', value: campaignData.nom_grupo_marca || '' },
+    { name: 'modalidade', value: (campaignData.modalidade || []).join(', ') },
+    { name: 'atl_niveldeensino__c', value: (campaignData.atl_niveldeensino__c || []).join(', ') },
+    { name: 'forma_ingresso_enem', value: campaignData.forma_ingresso_enem ? 'true' : 'false' },
+    { name: 'forma_ingresso_vestibular', value: campaignData.forma_ingresso_vestibular ? 'true' : 'false' },
+    { name: 'disponibilizacao_call_center_nao', value: campaignData.disponibilizacao_call_center_nao ? 'true' : 'false' },
+    { name: 'disponibilizacao_call_center_sim', value: campaignData.disponibilizacao_call_center_sim ? 'true' : 'false' },
+    { name: 'status_funil', value: campaignData.status_funil || '' },
+    { name: 'outras_exclusoes', value: campaignData.outras_exclusoes || '' },
+    { name: 'criterios_saida', value: campaignData.criterios_saida || '' },
+    { name: 'informacoes_extras', value: campaignData.informacoes_extras || '' },
+    { name: 'base_origin', value: (campaignData.base_origin && campaignData.base_origin[0]) || '' },
+    
+  ],
+});
+        console.log('Payload a ser salvo histoarico:', payload);
+
+        await saveArchive(payload);
+        await handleGenerateBriefing();
+        router.push('/audience');
+      }}
+      disabled={!generatedQuery}
+    >
+      Salvar e Avançar
+    </LoadingButton>
+  </Box>
+)}
             </Box>
           </Box>
 
-                 {generatedQuery && (
-            <Box sx={{ display: 'flex', justifyContent: 'center' }}>
-              <LoadingButton
-                variant="contained"
-                color="primary"
-                type="button"
-                size="large"
-                loading={isGenerating}
-                loadingIndicator={
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                    <CircularProgress size={20} sx={{ color: 'white' }} />
-                    <Typography variant="body2" sx={{ color: 'white' }}>
-                      Salvando e gerando briefing...
-                    </Typography>
-                  </Box>
-                }
-                sx={{
-                  backgroundColor: '#093366',
-                  '&:hover': { backgroundColor: '#07264d' },
-                  minWidth: 200,
-                }}
-                onClick={async () => {
-                  await handleGenerateBriefing();
-                  router.push('/audience');
-                }}
-                disabled={!generatedQuery}
-              >
-                Salvar e Avançar
-              </LoadingButton>
-            </Box>
-          )}
+       
         </Stack>
 
  <Dialog

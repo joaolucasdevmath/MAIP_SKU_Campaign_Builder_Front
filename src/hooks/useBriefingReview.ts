@@ -5,7 +5,7 @@ import type {
   BriefingApiResponse,
 } from 'src/types/briefingTypes';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 
 import { useAudienceData } from 'src/hooks/useAudienceData';
@@ -14,7 +14,7 @@ import axiosInstance, { endpoints } from 'src/utils/axios';
 
 import { useFormWizard } from 'src/context/FormWizardContext';
 
-import { toast } from 'src/components/snackbar';
+
 
 export const useBriefingReview = (): BriefingHookReturn => {
   const { state: campaignData } = useFormWizard();
