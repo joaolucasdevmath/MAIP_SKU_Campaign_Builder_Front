@@ -103,9 +103,9 @@ export default function Insights() {
 
       // Dados dinâmicos
       const campaignName = payload.campaign_name || state.campaign_name || 'Não definido';
-  // const brand = state.nom_grupo_marca || payload.nom_grupo_marca || 'Não definido';
+  const brand = state.nom_grupo_marca || payload.nom_grupo_marca || 'Não definido';
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const brand = 'MARCA';
+  
 
       // Objetivo da campanha
       const campaignObjective = state.campaign_objective
@@ -204,8 +204,8 @@ export default function Insights() {
         50
       );
       doc.text(`Objetivo da Campanha: ${campaignObjective}`, 10, 55);
-  // doc.text(`Marca: ${brand}`, 10, 60);
-  doc.text(`Marca: MARCA`, 10, 60);
+  doc.text(`Marca: ${brand}`, 10, 60);
+ 
       doc.text(`Semestre: ${semester}`, 10, 65);
 
       // Seção 2: Configurações de Disparo
@@ -285,39 +285,48 @@ export default function Insights() {
         220
       );
 
-      // Seção 8: Queries Geradas
-      doc.setFontSize(12);
-      doc.text('8. QUERIES GERADAS', 10, 230);
-      doc.setFontSize(10);
-      doc.text('Query 1:', 10, 235);
-      doc.text(
-        `Etapa: ${payload.additional_info?.base_origin === 'DE_GERAL_LEADS' ? 'LEAD' : 'OPORTUNIDADE'}`,
-        15,
-        240
-      );
-      doc.text(`Base: ${payload.additional_info?.base_origin || 'Não definido'}`, 15, 245);
-      doc.text(`Contatos: ${data?.audience_volume || 'Não definido'}`, 15, 250);
-      doc.text(`SQL: ${generatedQuery || 'Nenhuma query gerada'}`, 15, 255);
+     // Seção 8: Queries Geradas
+doc.setFontSize(12);
+doc.text('8. QUERIES GERADAS', 10, 230);
+doc.setFontSize(10);
+doc.text('Query 1:', 10, 235);
+doc.text(
+  `Etapa: ${payload.additional_info?.base_origin === 'DE_GERAL_LEADS' ? 'LEAD' : 'OPORTUNIDADE'}`,
+  15,
+  240
+);
+doc.text(`Base: ${payload.additional_info?.base_origin || 'Não definido'}`, 15, 245);
+doc.text(`Contatos: ${data?.audience_volume || 'Não definido'}`, 15, 250);
 
-      // Seção 9: Análise de Custo-Benefício
-      doc.setFontSize(12);
-      doc.text('9. ANÁLISE DE CUSTO-BENEFÍCIO', 10, 265);
-      doc.setFontSize(10);
-      doc.text(
-        `Custo por Contato: ${data?.estimated_costs?.Total && data.audience_volume ? formatCurrency(parseCurrency(data.estimated_costs.Total) / data.audience_volume) : 'Não definido'}`,
-        10,
-        270
-      );
-      doc.text(
-        `Custo Total Estimado: ${data?.estimated_costs?.Total ? formatCurrency(parseCurrency(data.estimated_costs.Total)) : 'Não definido'}`,
-        10,
-        275
-      );
-      doc.text(
-        `Tamanho da Audiência: ${data?.audience_volume ? `${formatNumber(data.audience_volume)} contatos` : 'Não definido'}`,
-        10,
-        280
-      );
+
+
+const sqlLines = doc.splitTextToSize(`SQL: ${generatedQuery || 'Nenhuma query gerada'}`, 180);
+doc.text(sqlLines, 15, 255);
+
+// Calcula a próxima posição Y após a query para dar respiro antes da seção 9
+let yAfterQuery = 255 + sqlLines.length * 5;
+if (yAfterQuery < 265) yAfterQuery = 265; // nunca deixa colar na seção 9
+else yAfterQuery += 8; // se for maior, dá um respiro extra
+
+// Seção 9: Análise de Custo-Benefício
+doc.setFontSize(12);
+doc.text('9. ANÁLISE DE CUSTO-BENEFÍCIO', 10, yAfterQuery);
+doc.setFontSize(10);
+doc.text(
+  `Custo por Contato: ${data?.estimated_costs?.Total && data.audience_volume ? formatCurrency(parseCurrency(data.estimated_costs.Total) / data.audience_volume) : 'Não definido'}`,
+  10,
+  yAfterQuery + 5
+);
+doc.text(
+  `Custo Total Estimado: ${data?.estimated_costs?.Total ? formatCurrency(parseCurrency(data.estimated_costs.Total)) : 'Não definido'}`,
+  10,
+  yAfterQuery + 10
+);
+doc.text(
+  `Tamanho da Audiência: ${data?.audience_volume ? `${formatNumber(data.audience_volume)} contatos` : 'Não definido'}`,
+  10,
+  yAfterQuery + 15
+);
 
       // Salva o PDF
       doc.save('relatorio_campanha.pdf');

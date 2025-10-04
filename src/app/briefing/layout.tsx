@@ -6,7 +6,7 @@ import { BriefingMainTabs } from 'src/components/briefing';
 
 export const metadata = {
   title: 'MATH',
-  description: 'AI Camping Builder',
+  description: 'AI Campaign Builder',
 };
 
 export default function BriefingLayout({ children }: { children: React.ReactNode }) {

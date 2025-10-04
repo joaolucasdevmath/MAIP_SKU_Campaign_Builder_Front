@@ -35,7 +35,7 @@ export function Section({
   methods,
   title = 'MATH',
   imgUrl = `${CONFIG.site.basePath}/assets/illustrations/math.png`,
-  subtitle = 'AI CAMPING BUILDER',
+  subtitle = 'AI CAMPAIGN BUILDER',
   ...other
 }: SectionProps) {
   const theme = useTheme();

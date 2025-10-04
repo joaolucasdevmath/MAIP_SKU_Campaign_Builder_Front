@@ -77,16 +77,16 @@ export const useTemplate = (): UseTemplateReturn => {
             campaignData.forma_ingresso_vestibular ? '' : '',
           ].filter(Boolean).join(', ') || '',
         },
-        { name: 'ultima_interacao', value: String(campaignData.ultima_interacao) || '' },
-        { name: 'remover_regua_master', value: String(campaignData.remover_regua_master) || '' },
+        { name: 'ultima_interacao', value: campaignData.ultima_interacao ?? '' },
+        { name: 'remover_regua_master', value: campaignData.remover_regua_master ?? '' },
         {
           name: 'documentacao_principal_enviada',
-          value: String(campaignData.documentacao_principal_enviada) || '',
+          value: campaignData.documentacao_principal_enviada ?? '',
         },
-        { name: 'atualizacao_automatica', value: String(campaignData.atualizacao_automatica) || '' },
+        { name: 'atualizacao_automatica', value: campaignData.atualizacao_automatica ?? '' },
         {
           name: 'disponibilizacao_call_center_nao',
-          value: String(campaignData.disponibilizacao_call_center_nao) || '',
+          value: campaignData.disponibilizacao_call_center_nao ?? '',
         },
         { name: 'base_origin', value: campaignData.base_origin?.[0] || '' },
       ];

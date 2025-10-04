@@ -1,0 +1,102 @@
+import { useState, useEffect } from 'react';
+
+import axiosInstance, { endpoints } from 'src/utils/axios';
+
+export interface Template {
+	id: string;
+	campaign_name: string;
+	start_date: string;
+	description: string;
+	end_date: string;
+	offer: string;
+	code: string;
+	channels: string;
+}
+
+interface ApiResponse {
+	success: boolean;
+	errorMessage?: string;
+	code: number;
+	data: Template[];
+}
+
+export function useArchive() {
+	const [data, setData] = useState<Template[]>([]);
+	const [loading, setLoading] = useState(true);
+	const [error, setError] = useState<string | null>(null);
+
+
+		useEffect(() => {
+			const fetchData = async () => {
+				try {
+					const response = await axiosInstance.get(endpoints.briefing.getTemplate);
+					console.log('HISTORICO response:', response.data);
+					const json: ApiResponse = response.data;
+					if (json.success) {
+						setData(json.data);
+					} else {
+						setError(json.errorMessage || 'Erro desconhecido');
+					}
+				} catch (err: any) {
+					setError(err.message || 'Erro ao buscar dados');
+				} finally {
+					setLoading(false);
+				}
+			};
+			fetchData();
+		}, []);
+
+	  const buildArchivePayload = ({
+    campaignCore,
+    channels,
+    briefingCore,
+    briefingFields,
+  }: {
+    campaignCore: {
+      id?: string; 
+      offer: string;
+      code: string;
+      campaign_name: string;
+      campaign_type: string;
+      campaign_objective: string;
+      start_date: string;
+      end_date: string;
+      segmentation_sql: string;
+      audience_snapshot: number;
+      status: string;
+      is_template: boolean;
+     
+    };
+    channels: Array<{ id: number; quantity: number }>;
+    briefingCore: {
+      name: string;
+      segmentation: string;
+      source_base_id: string;
+      source_base: string;
+    };
+    briefingFields: Array<{ name: string; value: string }>;
+  }) => ({
+    campaign: {
+      core: campaignCore,
+      channels,
+    },
+    briefing: {
+      core: briefingCore,
+      fields: briefingFields,
+    },
+  });
+
+
+  const saveArchive = async (payload: any) => {
+    try {
+      console.log('Payload enviado para /api/archive/:', payload);
+      const response = await axiosInstance.post(endpoints.briefing.archiveSave, payload);
+      return response.data;
+    } catch (err: any) {
+      setError(err.message || 'Erro ao salvar dados');
+      throw err;
+    }
+  };
+
+	return { data, loading, error, saveArchive, buildArchivePayload };
+}

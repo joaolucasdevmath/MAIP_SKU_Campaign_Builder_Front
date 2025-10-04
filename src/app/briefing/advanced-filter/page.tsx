@@ -109,7 +109,8 @@ export default function AdvancedFilterPage() {
                 renderInput={(params) => (
                   <TextField
                     {...params}
-                    label={field.label}
+                  
+                    
                     placeholder={`Selecione ${field.label.toLowerCase()}`}
                     variant="outlined"
                     error={!!methods.formState.errors[field.name]}
@@ -144,7 +145,7 @@ export default function AdvancedFilterPage() {
         <RHFTextField
           name={field.name}
           select
-          label={field.label}
+         
           variant="outlined"
           error={!!methods.formState.errors[field.name]}
         >
@@ -179,7 +180,7 @@ export default function AdvancedFilterPage() {
         <RHFTextField
           name={field.name}
           type="number"
-          label={field.label}
+         
           variant="outlined"
           error={!!methods.formState.errors[field.name]}
         />
@@ -215,7 +216,7 @@ export default function AdvancedFilterPage() {
     return (
       <RHFTextField
         name={field.name}
-        label={field.label}
+       
         variant="outlined"
         multiline={field.name === 'informacoes_extras' || field.name === 'outras_exclusoes'}
         rows={4}

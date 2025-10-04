@@ -186,8 +186,7 @@ export default function AudiencePage() {
                 | Base: {payload.additional_info.base_origin}
               </Typography>
 
-              {/*
-              // --- BLOCO ORIGINAL ---
+            
               <Box
                 sx={{
                   bgcolor: '#1a1a1a',
@@ -220,11 +219,11 @@ export default function AudiencePage() {
                   Copiar Query
                 </Button>
               </Box>
-              // --- FIM BLOCO ORIGINAL ---
-              */}
+             
+             
 
               {/* --- BLOCO COM MÁSCARA --- */}
-              <Box
+              {/* <Box
                 sx={{
                   bgcolor: '#1a1a1a',
                   color: 'white',
@@ -240,9 +239,9 @@ export default function AudiencePage() {
                 {payload.query_text
                   ? payload.query_text.replace(/(nom_grupo_marca\s*=\s*')([^']*)(')/g, '$1MARCA$3')
                   : 'Nenhuma query encontrada. Por favor, gere a query primeiro na etapa anterior.'}
-              </Box>
+              </Box> */}
 
-              <Box sx={{ display: 'flex', gap: 2 }}>
+              {/* <Box sx={{ display: 'flex', gap: 2 }}>
                 <Button
                   variant="outlined"
                   startIcon={<Iconify icon="eva:copy-outline" />}
@@ -257,7 +256,7 @@ export default function AudiencePage() {
                 >
                   Copiar Query
                 </Button>
-              </Box>
+              </Box> */}
               {/* --- FIM BLOCO COM MÁSCARA --- */}
 
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 2 }}>

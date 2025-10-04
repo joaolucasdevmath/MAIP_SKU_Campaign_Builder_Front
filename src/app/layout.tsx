@@ -43,7 +43,7 @@ export default async function RootLayout({ children }: Props) {
       <Head>
         <link rel="icon" href="/assets/illustrations/math.png" type="image/png" />
         <meta name="theme-color" content={primary.main} />
-        <meta name="description" content="AI Camping Builder" />
+        <meta name="description" content="AI Campaign Builder" />
         <meta property="og:image" content="/assets/illustrations/math.png" />
       </Head>
       <body>
