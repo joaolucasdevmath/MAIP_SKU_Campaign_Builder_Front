@@ -29,7 +29,7 @@ import { SplashScreen } from 'src/components/loading-screen';
 
 export default function AudiencePage() {
   const router = useRouter();
-  const { resetCampaignData, state } = useFormWizard();
+  const { resetCampaignData} = useFormWizard();
   const payload = useAudiencePayload();
   const { loading, error, data, runAudienceFlow } = useAudienceData();
   const { clearAllData } = useAudienceQuery();

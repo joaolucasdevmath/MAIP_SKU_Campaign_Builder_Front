@@ -414,7 +414,11 @@ export default function ReviewGeneration() {
                         ],
                       });
                       console.log('Payload a ser salvo histoarico:', payload);
-                      await saveArchive(payload);
+                      const response = await saveArchive(payload);
+                      if (response?.data?.id) {
+                        sessionStorage.setItem('archiveId', response.data.id);
+                        sessionStorage.setItem('archivePayload', JSON.stringify(payload));
+                      }
                       await handleGenerateBriefing();
                       router.push('/audience');
                     }}
