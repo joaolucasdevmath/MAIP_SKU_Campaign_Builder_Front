@@ -52,6 +52,14 @@ export default function Insights() {
   const { generatedQuery, clearAllData } = useAudienceQuery();
   const [pdfLoading, setPdfLoading] = useState(false);
 
+  // Redireciona para /audience se não tiver audiência gerada
+  useEffect(() => {
+    const hasAudience = !!(state.generatedQuery || state.generated_query);
+    if (!hasAudience) {
+      router.replace('/audience');
+    }
+  }, [state, router]);
+
   useEffect(() => {
     if (payload.query_text && !data && !loading && !error) {
       // @ts-ignore
@@ -204,7 +212,8 @@ export default function Insights() {
         50
       );
       doc.text(`Objetivo da Campanha: ${campaignObjective}`, 10, 55);
-  doc.text(`Marca: ${brand}`, 10, 60);
+  // doc.text(`Marca: ${brand}`, 10, 60);
+  doc.text('Marca: MARCA', 10, 60);
  
       doc.text(`Semestre: ${semester}`, 10, 65);
 
@@ -431,22 +440,30 @@ doc.text(
               <Typography variant="h6" gutterBottom sx={{ display: 'flex', alignItems: 'center' }}>
                 <Iconify icon="mdi:cash" sx={{ mr: 1, color: '#093366' }} /> Custos por Canal
               </Typography>
-              <Box sx={{ border: '1px solid #e0e0e0', borderRadius: 2, p: 2, width: 250 }}>
-                <Typography variant="body2" color="text.secondary">
-                  Canal
-                </Typography>
-                <Typography variant="body2" sx={{ fontWeight: 700 }}>
-                  Email
-                </Typography>
-                <Typography variant="body2" color="text.secondary">
-                  Custo Total
-                </Typography>
-                <Typography variant="h6" sx={{ fontWeight: 700, color: '#093366' }}>
-                  {data?.estimated_costs?.email
-                    ? formatCurrency(parseCurrency(data.estimated_costs.email))
-                    : 'R$ 0,00'}
-                </Typography>
-              </Box>
+              {data?.estimated_costs && Object.keys(data.estimated_costs).length > 0 ? (
+                <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
+                  {Object.entries(data.estimated_costs)
+                    .filter(([canal]) => canal.toLowerCase() !== 'total')
+                    .map(([canal, valor]) => (
+                      <Box key={canal} sx={{ border: '1px solid #e0e0e0', borderRadius: 2, p: 2, minWidth: 180, mb: 2 }}>
+                        <Typography variant="body2" color="text.secondary">
+                          Canal
+                        </Typography>
+                        <Typography variant="body2" sx={{ fontWeight: 700 }}>
+                          {canal.charAt(0).toUpperCase() + canal.slice(1)}
+                        </Typography>
+                        <Typography variant="body2" color="text.secondary">
+                          Custo Total
+                        </Typography>
+                        <Typography variant="h6" sx={{ fontWeight: 700, color: '#093366' }}>
+                          {valor ? formatCurrency(parseCurrency(valor as string)) : 'R$ 0,00'}
+                        </Typography>
+                      </Box>
+                    ))}
+                </Box>
+              ) : (
+                <Typography variant="body2" color="text.secondary">Nenhum custo por canal disponível</Typography>
+              )}
             </CardContent>
           </Card>
         </Grid>
@@ -460,7 +477,7 @@ doc.text(
               </Typography>
               <Box sx={{ mb: 2 }}>
                 <Typography variant="body2">
-                  Marca: <b>{state.nom_grupo_marca}</b>
+                  Marca: <b>MARCA</b>
                 </Typography>
                 <Typography variant="body2">
                   Objetivo: <b>{state.campaign_objective}</b>

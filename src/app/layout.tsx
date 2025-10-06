@@ -49,27 +49,27 @@ export default async function RootLayout({ children }: Props) {
       <body>
         {getInitColorSchemeScript}
         <MsalClientProvider>
-          <NavbarWrapper />
-          <div style={{ marginTop: 64 }}>
-            <I18nProvider lang={CONFIG.isStaticExport ? undefined : lang}>
-              <LocalizationProvider>
-                <SettingsProvider
-                  settings={settings}
-                  caches={CONFIG.isStaticExport ? 'localStorage' : 'cookie'}
-                >
-                  <ThemeProvider>
-                    <MotionLazy>
-                      <FormWizardProvider>
+          <FormWizardProvider>
+            <NavbarWrapper />
+            <div style={{ marginTop: 64 }}>
+              <I18nProvider lang={CONFIG.isStaticExport ? undefined : lang}>
+                <LocalizationProvider>
+                  <SettingsProvider
+                    settings={settings}
+                    caches={CONFIG.isStaticExport ? 'localStorage' : 'cookie'}
+                  >
+                    <ThemeProvider>
+                      <MotionLazy>
                         <Snackbar />
                         <ProgressBar />
                         {children}
-                      </FormWizardProvider>
-                    </MotionLazy>
-                  </ThemeProvider>
-                </SettingsProvider>
-              </LocalizationProvider>
-            </I18nProvider>
-          </div>
+                      </MotionLazy>
+                    </ThemeProvider>
+                  </SettingsProvider>
+                </LocalizationProvider>
+              </I18nProvider>
+            </div>
+          </FormWizardProvider>
         </MsalClientProvider>
       </body>
     </html>

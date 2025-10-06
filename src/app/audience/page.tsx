@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 
 import { LoadingButton } from '@mui/lab';
@@ -26,22 +26,48 @@ import { toast } from 'src/components/snackbar';
 import { Iconify } from 'src/components/iconify';
 import { SplashScreen } from 'src/components/loading-screen';
 
+
 export default function AudiencePage() {
   const router = useRouter();
-  const { resetCampaignData } = useFormWizard();
+  const { resetCampaignData, state } = useFormWizard();
   const payload = useAudiencePayload();
   const { loading, error, data, runAudienceFlow } = useAudienceData();
   const { clearAllData } = useAudienceQuery();
   const { handleBackToBasicInfo } = useBriefingReview();
+  const [contextReady, setContextReady] = useState(false);
+
+ 
+  useEffect(() => {
+    
+    if (typeof window !== 'undefined') {
+      const stored = sessionStorage.getItem('formWizardData');
+      if (stored) {
+        try {
+          const parsed = JSON.parse(stored);
+          
+          if (parsed && Object.keys(parsed).length > 0) {
+            setContextReady(true);
+          }
+        } catch {
+          setContextReady(true); 
+        }
+      } else {
+        setContextReady(true);
+      }
+    } else {
+      setContextReady(true);
+    }
+  }, []);
 
   useEffect(() => {
+    if (!contextReady) return;
     console.log('[AudiencePage] Payload recebido:', JSON.stringify(payload, null, 2));
     console.log('[AudiencePage] Estado atual:', { loading, error, data });
     if (payload.query_text && !data && !loading && !error) {
       console.log('[AudiencePage] Chamando runAudienceFlow...');
       runAudienceFlow(payload);
     }
-  }, [payload, data, loading, error, runAudienceFlow]);
+  }, [payload, data, loading, error, runAudienceFlow, contextReady]);
 
   const formatCurrency = (value: number): string =>
     new Intl.NumberFormat('pt-BR', {
@@ -66,6 +92,19 @@ export default function AudiencePage() {
     console.log('[AudiencePage] Estado limpo com resetCampaignData.');
     router.push('/briefing/review-generation');
   };
+
+  if (!contextReady) {
+    return (
+      <Container maxWidth="lg">
+        <Box sx={{ py: 8, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: 400 }}>
+          <SplashScreen portal={false} />
+          <Typography variant="body2" color="text.secondary" align="center" sx={{ mt: 2 }}>
+            Carregando contexto da campanha...
+          </Typography>
+        </Box>
+      </Container>
+    );
+  }
 
   if (!payload.query_text && !loading) {
     return (
@@ -187,7 +226,7 @@ export default function AudiencePage() {
               </Typography>
 
             
-              <Box
+              {/* <Box
                 sx={{
                   bgcolor: '#1a1a1a',
                   color: 'white',
@@ -219,11 +258,11 @@ export default function AudiencePage() {
                   Copiar Query
                 </Button>
               </Box>
-             
+              */}
              
 
               {/* --- BLOCO COM MÁSCARA --- */}
-              {/* <Box
+              <Box
                 sx={{
                   bgcolor: '#1a1a1a',
                   color: 'white',
@@ -239,9 +278,9 @@ export default function AudiencePage() {
                 {payload.query_text
                   ? payload.query_text.replace(/(nom_grupo_marca\s*=\s*')([^']*)(')/g, '$1MARCA$3')
                   : 'Nenhuma query encontrada. Por favor, gere a query primeiro na etapa anterior.'}
-              </Box> */}
+              </Box> 
 
-              {/* <Box sx={{ display: 'flex', gap: 2 }}>
+               <Box sx={{ display: 'flex', gap: 2 }}>
                 <Button
                   variant="outlined"
                   startIcon={<Iconify icon="eva:copy-outline" />}
@@ -256,7 +295,7 @@ export default function AudiencePage() {
                 >
                   Copiar Query
                 </Button>
-              </Box> */}
+              </Box>
               {/* --- FIM BLOCO COM MÁSCARA --- */}
 
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 2 }}>
