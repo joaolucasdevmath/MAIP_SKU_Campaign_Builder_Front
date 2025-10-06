@@ -98,5 +98,20 @@ export function useArchive() {
     }
   };
 
-	return { data, loading, error, saveArchive, buildArchivePayload };
+  const updateArchiveStatus = async (payload: any, status: string) => {
+    const updatedPayload = {
+      ...payload,
+      campaign: {
+        ...payload.campaign,
+        core: {
+          ...payload.campaign.core,
+          status,
+        },
+      },
+    };
+    const response = await axiosInstance.post(endpoints.briefing.archiveSave, updatedPayload);
+    return response.data;
+  };
+
+	return { data, loading, error, saveArchive, buildArchivePayload, updateArchiveStatus };
 }

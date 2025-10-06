@@ -16,8 +16,10 @@ import {
   CardContent,
 } from '@mui/material';
 
+import { useArchive } from 'src/hooks/useArchive';
 import { useAudienceData } from 'src/hooks/useAudienceData';
 import { useAudienceQuery } from 'src/hooks/useAudienceQuery';
+import { useBriefingReview } from 'src/hooks/useBriefingReview';
 import { useAudiencePayload } from 'src/hooks/useAudiencePayload';
 
 import { useFormWizard } from 'src/context/FormWizardContext';
@@ -47,18 +49,26 @@ interface AudiencePayload {
 export default function Insights() {
   const router = useRouter();
   const { state } = useFormWizard();
+  const {
+     
+      handleBackToBasicInfo,
+     
+    } = useBriefingReview();
   const payload = useAudiencePayload() as AudiencePayload;
   const { loading, error, data, runAudienceFlow } = useAudienceData();
   const { generatedQuery, clearAllData } = useAudienceQuery();
   const [pdfLoading, setPdfLoading] = useState(false);
+  const { updateArchiveStatus } = useArchive();
+  const [blockRedirect, setBlockRedirect] = useState(false);
 
-  // Redireciona para /audience se não tiver audiência gerada
+ 
   useEffect(() => {
+    if (blockRedirect) return;
     const hasAudience = !!(state.generatedQuery || state.generated_query);
     if (!hasAudience) {
       router.replace('/audience');
     }
-  }, [state, router]);
+  }, [state, router, blockRedirect]);
 
   useEffect(() => {
     if (payload.query_text && !data && !loading && !error) {
@@ -94,20 +104,12 @@ export default function Insights() {
     ? funnelStageMap[payload.additional_info.base_origin] || 'Não definido'
     : 'Não definido';
 
-  const generatePDF = () => {
+  const generatePDF = async () => {
     setPdfLoading(true);
-    console.log('Valores do payload:', payload); 
-    console.log('Valores do state:', state); 
-
-    // eslint-disable-next-line new-cap
-    const doc = new jsPDF();
-
     try {
-      // Configurações iniciais
-      doc.setFontSize(16);
-      doc.text('RELATÓRIO COMPLETO DA CAMPANHA', 10, 10);
-      doc.setFontSize(10);
-      doc.text(`Relatório Gerado em: 26/09/2025 às 16:57`, 10, 15);
+      
+      // eslint-disable-next-line new-cap
+      const doc = new jsPDF();
 
       // Dados dinâmicos
       const campaignName = payload.campaign_name || state.campaign_name || 'Não definido';
@@ -340,6 +342,71 @@ doc.text(
       // Salva o PDF
       doc.save('relatorio_campanha.pdf');
       toast.success('PDF gerado e baixado com sucesso!');
+
+      // --- Atualização do status para completed ---
+      let payloadToSend = null;
+      const archivePayload = typeof window !== 'undefined' ? sessionStorage.getItem('archivePayload') : null;
+      if (archivePayload) {
+        payloadToSend = JSON.parse(archivePayload);
+      } else {
+        // Monta o payload dinâmico a partir do contexto/state caso não esteja salvo
+        payloadToSend = {
+          campaign: {
+            core: {
+              offer: state.offer || '',
+              code: state.campaign_codes || state.campaignCode || '',
+              campaign_name: state.campaign_name || state.campaignName || '',
+              campaign_type: Array.isArray(state.campaign_type) ? state.campaign_type[0] : state.campaign_type || state.campaignType || '',
+              campaign_objective: Array.isArray(state.campaign_objective) ? state.campaign_objective[0] : state.campaign_objective || state.campaignObjective || '',
+              start_date: state.start_date ? state.start_date.split('T')[0] : state.campaignStartDate ? new Date(state.campaignStartDate).toISOString().split('T')[0] : '',
+              end_date: state.end_date ? state.end_date.split('T')[0] : state.campaignEndDate ? new Date(state.campaignEndDate).toISOString().split('T')[0] : '',
+              segmentation_sql: state.generatedQuery || state.generated_query || '',
+              audience_snapshot: state.audienceInfo?.audienceSize ?? 0,
+              status: 'completed',
+              is_template: false,
+            },
+            channels: (state.channel || []).map((type: any, idx: any) => ({
+              id: idx + 1,
+              quantity: state[`quantity_${type}`] || 0,
+            })),
+          },
+          briefing: {
+            core: {
+              name: state.campaign_name || state.campaignName || '',
+              segmentation: (state.segmentation || []).join(' AND '),
+              source_base_id: state.source_base_id || '1',
+              source_base: (state.base_origin && state.base_origin[0]) || state.source_base || '',
+            },
+            fields: [
+              { name: 'nom_grupo_marca', value: state.nom_grupo_marca || '' },
+              { name: 'modalidade', value: (state.modalidade || []).join(', ') },
+              { name: 'atl_niveldeensino__c', value: (state.atl_niveldeensino__c || []).join(', ') },
+              { name: 'forma_ingresso_enem', value: state.forma_ingresso_enem ? 'true' : 'false' },
+              { name: 'forma_ingresso_vestibular', value: state.forma_ingresso_vestibular ? 'true' : 'false' },
+              { name: 'disponibilizacao_call_center_nao', value: state.disponibilizacao_call_center_nao ? 'true' : 'false' },
+              { name: 'disponibilizacao_call_center_sim', value: state.disponibilizacao_call_center_sim ? 'true' : 'false' },
+              { name: 'status_funil', value: state.status_funil || '' },
+              { name: 'outras_exclusoes', value: state.outras_exclusoes || '' },
+              { name: 'criterios_saida', value: state.criterios_saida || '' },
+              { name: 'informacoes_extras', value: state.informacoes_extras || '' },
+              { name: 'base_origin', value: (state.base_origin && state.base_origin[0]) || '' },
+            ],
+          },
+        };
+      }
+      // Sempre garantir que o id do draft está presente no payload
+      const archiveId = typeof window !== 'undefined' ? sessionStorage.getItem('archiveId') : null;
+      if (archiveId) {
+        payloadToSend.campaign.core.id = archiveId;
+      }
+      // Chama updateArchiveStatus para atualizar o status do histórico existente
+      try {
+        const resp = await updateArchiveStatus(payloadToSend, 'completed');
+        console.log('Resposta updateArchiveStatus:', resp);
+      } catch (e) {
+        console.error('Erro updateArchiveStatus:', e);
+        toast.error('Erro ao atualizar status do histórico');
+      }
     } catch (pdfError) {
       console.error('Erro ao gerar PDF:', pdfError);
       toast.error('Erro ao gerar o PDF. Tente novamente.');
@@ -556,13 +623,18 @@ doc.text(
                 >
                   Finalizar e Exportar PDF
                 </LoadingButton>
-                <Button
-                  variant="outlined"
-                  sx={{ color: '#093366', borderColor: '#093366' }}
-                  onClick={() => {
-                    clearAllData();
-                    router.replace('/briefing/basic-info');
-                  }}
+               <Button
+                            variant="outlined"
+                            sx={{ color: '#093366', borderColor: '#093366' }}
+                            onClick={() => {
+                              clearAllData();
+                              setBlockRedirect(true);
+                              if (typeof handleBackToBasicInfo === 'function') {
+                                handleBackToBasicInfo();
+                              } else {
+                                router.replace('/briefing/basic-info');
+                              }
+                            }}
                 >
                   Voltar para Início
                 </Button>
