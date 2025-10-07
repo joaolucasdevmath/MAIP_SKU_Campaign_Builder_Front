@@ -63,7 +63,7 @@ export const endpoints = {
     loginAzure: '/api/auth/azure/',
     archive: '/api/archive/',
     archiveSave: '/api/archive/',
-    archiveId: '/api/archive/{id}',
+  archiveId: (id: string) => `/api/archive/${id}`,
    
   }
 };

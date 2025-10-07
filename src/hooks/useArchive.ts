@@ -113,5 +113,21 @@ export function useArchive() {
     return response.data;
   };
 
-	return { data, loading, error, saveArchive, buildArchivePayload, updateArchiveStatus };
+  // Buscar dados de um archive específico pelo id
+  const getArchiveById = async (id: string) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await axiosInstance.get(endpoints.briefing.archiveId(id));
+      // O retorno esperado é response.data.data
+      return response.data.data;
+    } catch (err: any) {
+      setError(err.message || 'Erro ao buscar dados do archive');
+      return null;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return { data, loading, error, saveArchive, buildArchivePayload, updateArchiveStatus, getArchiveById };
 }

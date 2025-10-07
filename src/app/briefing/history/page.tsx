@@ -1,6 +1,8 @@
 'use client';
 
-import React from 'react';
+
+
+import { useRouter } from 'next/navigation';
 
 import { Box, Card, Grid, Button, Container, Typography, CardContent } from '@mui/material';
 
@@ -10,7 +12,17 @@ import { Iconify } from 'src/components/iconify/iconify';
 import { SplashScreen } from 'src/components/loading-screen';
 
 export default function HistoryPage() {
-  const { data: templates, loading, error } = useArchive();
+  const { data: templates, loading, error, getArchiveById } = useArchive();
+  const router = useRouter();
+
+  // Função para reutilizar o briefing
+  const handleReuse = async (id: string) => {
+    const archiveData = await getArchiveById(id);
+    if (archiveData) {
+      sessionStorage.setItem('briefing_template_data', JSON.stringify(archiveData));
+      router.push('/briefing/basic-info');
+    }
+  };
 
   return (
     <Container maxWidth="lg">
@@ -106,7 +118,7 @@ export default function HistoryPage() {
                       <Box display="flex" justifyContent="center" alignItems="center">
                         <Button
                           variant="outlined"
-                          onClick={() => {}}
+                          onClick={() => handleReuse(template.id)}
                           sx={{
                             borderColor: '#093366',
                             color: '#093366',
