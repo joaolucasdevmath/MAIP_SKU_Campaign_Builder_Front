@@ -393,7 +393,7 @@ export default function ReviewGeneration() {
                           quantity: campaignData[`quantity_${type}`] || 0,
                         })),
                         briefingCore: {
-                          name: campaignData.campaign_name || campaignData.campaignName || '',
+                          name: campaignData.journey_name || campaignData.campaign_name || campaignData.campaignName || 'NOME_PADRAO',
                           segmentation: (campaignData.segmentation || []).join(' AND '),
                           source_base_id: campaignData.source_base_id || '1',
                           source_base: (campaignData.base_origin && campaignData.base_origin[0]) || campaignData.source_base || '',

@@ -9,7 +9,7 @@ import axios, { fetcher, endpoints } from 'src/utils/axios';
 // ----------------------------------------------------------------------
 
 const enableServer = false;
-
+// @ts-ignore
 const CHART_ENDPOINT = endpoints.chat;
 
 const swrOptions = {

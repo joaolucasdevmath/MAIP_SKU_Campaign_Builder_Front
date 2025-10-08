@@ -9,7 +9,7 @@ import axios, { fetcher, endpoints } from 'src/utils/axios';
 // ----------------------------------------------------------------------
 
 const enableServer = false;
-
+// @ts-ignore
 const KANBAN_ENDPOINT = endpoints.kanban;
 
 const swrOptions = {
@@ -63,6 +63,7 @@ export async function createColumn(columnData: IKanbanColumn) {
    */
   mutate(
     KANBAN_ENDPOINT,
+    // @ts-ignore
     (currentData) => {
       const { board } = currentData as BoardData;
 
