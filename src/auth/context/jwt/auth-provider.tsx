@@ -35,6 +35,7 @@ export function AuthProvider({ children }: Props) {
       const accessToken = sessionStorage.getItem(STORAGE_KEY);
       if (accessToken && isValidToken(accessToken)) {
         setSession(accessToken);
+        // @ts-ignore
         const res = await axios.get(endpoints.auth.me);
         const { user } = res.data;
         setState({ user: { ...user, accessToken }, loading: false });

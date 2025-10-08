@@ -102,7 +102,7 @@ export const useAudienceQuery = (): UseAudienceQueryReturn => {
           : "";
         const status_funilStr = campaignData.status_funil || "";
         segmentations = [nom_periodoStr, status_funilStr].filter(Boolean).join(" AND ");
-        nom_periodo_academico = Array.isArray(campaignData.nom_periodo_academico) ? campaignData.nom_periodo_academico : ["2025.1"];
+        nom_periodo_academico = Array.isArray(campaignData.nom_periodo_academico) ? campaignData.nom_periodo_academico : [''];
         status_funil = Array.isArray(campaignData.status_funil)
           ? campaignData.status_funil
           : (typeof campaignData.status_funil === 'string' && campaignData.status_funil ? [campaignData.status_funil] : []);
@@ -162,20 +162,26 @@ export const useAudienceQuery = (): UseAudienceQueryReturn => {
             ? (result.data as any).query_text
             : result.data;
 
+        // Captura o journey_name da resposta
+        const journeyName = typeof result.data === 'object' && 'journey_name' in result.data
+          ? (result.data as any).journey_name
+          : undefined;
+
         console.log('Query gerada:', apiGeneratedQueryText);
+        console.log('Journey Name:', journeyName);
 
         // Validar se a query é uma string válida
         if (typeof apiGeneratedQueryText !== 'string' || !apiGeneratedQueryText.trim()) {
           throw new Error('A query gerada não é uma string válida.');
         }
 
-        
         const maskedQuery = apiGeneratedQueryText.replace(/(nom_grupo_marca\s*=\s*')([^']*)(')/g, '$1MARCA$3');
         setGeneratedQuery(maskedQuery);
-        
+
         updateCampaignData({
           generated_query: apiGeneratedQueryText,
           generatedQuery: apiGeneratedQueryText,
+          journey_name: journeyName || '',
         });
         toast.success('Query da audiência gerada com sucesso!');
       } else {

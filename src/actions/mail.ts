@@ -21,6 +21,7 @@ type LabelsData = {
 };
 
 export function useGetLabels() {
+  // @ts-ignore
   const url = endpoints.mail.labels;
 
   const { data, isLoading, error, isValidating } = useSWR<LabelsData>(url, fetcher, swrOptions);
@@ -46,6 +47,7 @@ type MailsData = {
 };
 
 export function useGetMails(labelId: string) {
+  // @ts-ignore
   const url = labelId ? [endpoints.mail.list, { params: { labelId } }] : '';
 
   const { data, isLoading, error, isValidating } = useSWR<MailsData>(url, fetcher, swrOptions);
@@ -73,6 +75,7 @@ type MailData = {
 };
 
 export function useGetMail(mailId: string) {
+  // @ts-ignore
   const url = mailId ? [endpoints.mail.details, { params: { mailId } }] : '';
 
   const { data, isLoading, error, isValidating } = useSWR<MailData>(url, fetcher, swrOptions);

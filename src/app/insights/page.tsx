@@ -113,6 +113,7 @@ export default function Insights() {
 
       // Dados dinâmicos
       const campaignName = payload.campaign_name || state.campaign_name || 'Não definido';
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const brand = state.nom_grupo_marca || payload.nom_grupo_marca || 'Não definido';
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   
@@ -201,11 +202,9 @@ export default function Insights() {
       doc.text('1. INFORMAÇÕES BÁSICAS DA CAMPANHA', 10, 25);
       doc.setFontSize(10);
       doc.text(`Nome da Campanha: ${campaignName}`, 10, 30);
-      doc.text(
-        `Nome da Jornada: ${payload.additional_info?.base_origin || 'Não definido'}`,
-        10,
-        35
-      );
+      // Nome da Jornada: prioriza state.journey_name, senão data.journey_name, senão base_origin
+      const journeyName = state.journey_name || data?.journey_name || payload.additional_info?.base_origin || 'Não definido';
+      doc.text(`Nome da Jornada: ${journeyName}`, 10, 35);
       doc.text(`Código da Campanha: ${campaignCode}`, 10, 40);
       doc.text(`Ofertas: ${offers}`, 10, 45);
       doc.text(
@@ -214,9 +213,8 @@ export default function Insights() {
         50
       );
       doc.text(`Objetivo da Campanha: ${campaignObjective}`, 10, 55);
-  // doc.text(`Marca: ${brand}`, 10, 60);
-  doc.text('Marca: MARCA', 10, 60);
- 
+      // doc.text(`Marca: ${brand}`, 10, 60);
+      doc.text('Marca: MARCA', 10, 60);
       doc.text(`Semestre: ${semester}`, 10, 65);
 
       // Seção 2: Configurações de Disparo
@@ -349,7 +347,9 @@ doc.text(
       if (archivePayload) {
         payloadToSend = JSON.parse(archivePayload);
       } else {
-        // Monta o payload dinâmico a partir do contexto/state caso não esteja salvo
+        
+        
+       
         payloadToSend = {
           campaign: {
             core: {
@@ -372,7 +372,7 @@ doc.text(
           },
           briefing: {
             core: {
-              name: state.campaign_name || state.campaignName || '',
+              name: (state.journey_name || '-'),
               segmentation: (state.segmentation || []).join(' AND '),
               source_base_id: state.source_base_id || '1',
               source_base: (state.base_origin && state.base_origin[0]) || state.source_base || '',
@@ -399,7 +399,7 @@ doc.text(
       if (archiveId) {
         payloadToSend.campaign.core.id = archiveId;
       }
-      // Chama updateArchiveStatus para atualizar o status do histórico existente
+      
       try {
         const resp = await updateArchiveStatus(payloadToSend, 'completed');
         console.log('Resposta updateArchiveStatus:', resp);
@@ -565,7 +565,7 @@ doc.text(
                 Nome da Régua/Jornada
               </Typography>
               <Typography variant="body2" sx={{ fontSize: '0.9rem', color: 'text.secondary' }}>
-                {payload.additional_info?.base_origin || '-'}
+                {state.journey_name || data?.journey_name || payload.additional_info?.base_origin || '-'}
               </Typography>
             </CardContent>
           </Card>

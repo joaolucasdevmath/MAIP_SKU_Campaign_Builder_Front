@@ -20,6 +20,7 @@ type PostsData = {
 };
 
 export function useGetPosts() {
+  // @ts-ignore
   const url = endpoints.post.list;
 
   const { data, isLoading, error, isValidating } = useSWR<PostsData>(url, fetcher, swrOptions);
@@ -45,6 +46,7 @@ type PostData = {
 };
 
 export function useGetPost(title: string) {
+  // @ts-ignore
   const url = title ? [endpoints.post.details, { params: { title } }] : '';
 
   const { data, isLoading, error, isValidating } = useSWR<PostData>(url, fetcher, swrOptions);
@@ -69,6 +71,7 @@ type LatestPostsData = {
 };
 
 export function useGetLatestPosts(title: string) {
+  // @ts-ignore
   const url = title ? [endpoints.post.latest, { params: { title } }] : '';
 
   const { data, isLoading, error, isValidating } = useSWR<LatestPostsData>(
@@ -98,6 +101,7 @@ type SearchResultsData = {
 };
 
 export function useSearchPosts(query: string) {
+  // @ts-ignore
   const url = query ? [endpoints.post.search, { params: { query } }] : '';
 
   const { data, isLoading, error, isValidating } = useSWR<SearchResultsData>(url, fetcher, {

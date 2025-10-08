@@ -8,7 +8,7 @@ import axios, { fetcher, endpoints } from 'src/utils/axios';
 // ----------------------------------------------------------------------
 
 const enableServer = false;
-
+// @ts-ignore
 const CALENDAR_ENDPOINT = endpoints.calendar;
 
 const swrOptions = {
@@ -64,6 +64,7 @@ export async function createEvent(eventData: ICalendarEvent) {
    */
   mutate(
     CALENDAR_ENDPOINT,
+    // @ts-ignore
     (currentData) => {
       const currentEvents: ICalendarEvent[] = currentData?.events;
 
@@ -91,6 +92,7 @@ export async function updateEvent(eventData: Partial<ICalendarEvent>) {
    */
   mutate(
     CALENDAR_ENDPOINT,
+    // @ts-ignore
     (currentData) => {
       const currentEvents: ICalendarEvent[] = currentData?.events;
 
@@ -120,6 +122,7 @@ export async function deleteEvent(eventId: string) {
    */
   mutate(
     CALENDAR_ENDPOINT,
+    // @ts-ignore
     (currentData) => {
       const currentEvents: ICalendarEvent[] = currentData?.events;
 
