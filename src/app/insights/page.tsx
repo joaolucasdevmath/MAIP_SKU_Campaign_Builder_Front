@@ -462,7 +462,7 @@ doc.text(
                 <Grid item xs={6}>
                   <Box sx={{ border: '1px solid #e0e0e0', borderRadius: 2, p: 2, height: '100%' }}>
                     <Typography variant="body2" color="text.secondary">
-                      Valor da Campanha
+                      Valor Estimado da Campanha
                     </Typography>
                     <Typography variant="h5" sx={{ fontWeight: 700, color: '#093366' }}>
                       {data?.estimated_costs?.Total
@@ -520,7 +520,7 @@ doc.text(
                           {canal.charAt(0).toUpperCase() + canal.slice(1)}
                         </Typography>
                         <Typography variant="body2" color="text.secondary">
-                          Custo Total
+                          Custo Total Estimado
                         </Typography>
                         <Typography variant="h6" sx={{ fontWeight: 700, color: '#093366' }}>
                           {valor ? formatCurrency(parseCurrency(valor as string)) : 'R$ 0,00'}

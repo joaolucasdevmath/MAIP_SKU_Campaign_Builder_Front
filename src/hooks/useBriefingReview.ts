@@ -168,8 +168,8 @@ export const useBriefingReview = (): BriefingHookReturn => {
               : typeof campaignData.status_vestibular === 'string' && campaignData.status_vestibular && (campaignData.status_vestibular as string).trim() !== ''
                 ? [campaignData.status_vestibular]
                 : undefined,
-        age_range: campaignData.ageRange || [],
-        last_interaction: campaignData.lastInteraction || 0,
+       
+        
         remove_from_master_regua: campaignData.removeFromMasterRegua || false,
         main_documentation_sent: campaignData.mainDocumentationSent || false,
         entry_form: campaignData.entryForm || campaignData.forma_ingresso || [],
@@ -290,8 +290,8 @@ export const useBriefingReview = (): BriefingHookReturn => {
       nom_curso_exclude: 'Cursos Excluídos (Nome)',
       atl_niveldeensino_c: 'Nível de Ensino',
       vestibularStatus: 'Status do Vestibular',
-      ageRange: 'Faixa Etária',
-      lastInteraction: 'Última Interação (dias)',
+     
+     
       removeFromMasterRegua: 'Remover da Régua Master',
       mainDocumentationSent: 'Documentação Principal Enviada',
       dispatchTypes: 'Tipos de Disparo',
@@ -364,8 +364,8 @@ export const useBriefingReview = (): BriefingHookReturn => {
         nom_curso_exclude: campaignData.nom_curso_exclude,
         atl_niveldeensino_c: campaignData.atl_niveldeensino__c,
         vestibularStatus: campaignData.vestibularStatus,
-        ageRange: campaignData.ageRange,
-        lastInteraction: campaignData.lastInteraction,
+       
+       
         removeFromMasterRegua: campaignData.removeFromMasterRegua,
         mainDocumentationSent: campaignData.mainDocumentationSent,
         entryForm: campaignData.entryForm,
