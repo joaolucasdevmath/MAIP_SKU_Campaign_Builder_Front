@@ -40,11 +40,11 @@ export const useBriefingReview = (): BriefingHookReturn => {
       setIsGenerating(true);
       setError(null);
 
-      // Construir channels dinamicamente
+     
       const campaign_channels: Record<string, number> = {};
       if (Array.isArray(campaignData.channel)) {
         campaignData.channel.forEach((channel: string) => {
-          // Tentar com channelKey em maiúsculo e original
+         
           const channelKeyUpper = channel.toUpperCase();
           const channelKeyOriginal = channel;
           const quantityKeys = [
@@ -80,8 +80,7 @@ export const useBriefingReview = (): BriefingHookReturn => {
         console.log('[DEBUG useBriefingReview] Canais construídos:', JSON.stringify(campaign_channels, null, 2));
       }
 
-      // Campos de lista: manter como array (vazio [] ou preenchido)
-      // Campos single: string
+      
       const additionalInfo = {
         base_origin: String(
           Array.isArray(campaignData.base_origin)
@@ -125,7 +124,7 @@ export const useBriefingReview = (): BriefingHookReturn => {
         throw new Error(audienceError);
       }
 
-      // Prepare data for API call seguindo o padrão do backend
+      
       const briefingPayload: BriefingPayload = {
         campaign_name: campaignData.campaign_name || campaignData.campaignName || 'teste',
         campaign_code: campaignData.campaignCode || '',
@@ -168,8 +167,8 @@ export const useBriefingReview = (): BriefingHookReturn => {
               : typeof campaignData.status_vestibular === 'string' && campaignData.status_vestibular && (campaignData.status_vestibular as string).trim() !== ''
                 ? [campaignData.status_vestibular]
                 : undefined,
-        age_range: campaignData.ageRange || [],
-        last_interaction: campaignData.lastInteraction || 0,
+       
+        
         remove_from_master_regua: campaignData.removeFromMasterRegua || false,
         main_documentation_sent: campaignData.mainDocumentationSent || false,
         entry_form: campaignData.entryForm || campaignData.forma_ingresso || [],
@@ -290,8 +289,8 @@ export const useBriefingReview = (): BriefingHookReturn => {
       nom_curso_exclude: 'Cursos Excluídos (Nome)',
       atl_niveldeensino_c: 'Nível de Ensino',
       vestibularStatus: 'Status do Vestibular',
-      ageRange: 'Faixa Etária',
-      lastInteraction: 'Última Interação (dias)',
+     
+     
       removeFromMasterRegua: 'Remover da Régua Master',
       mainDocumentationSent: 'Documentação Principal Enviada',
       dispatchTypes: 'Tipos de Disparo',
@@ -364,8 +363,8 @@ export const useBriefingReview = (): BriefingHookReturn => {
         nom_curso_exclude: campaignData.nom_curso_exclude,
         atl_niveldeensino_c: campaignData.atl_niveldeensino__c,
         vestibularStatus: campaignData.vestibularStatus,
-        ageRange: campaignData.ageRange,
-        lastInteraction: campaignData.lastInteraction,
+       
+       
         removeFromMasterRegua: campaignData.removeFromMasterRegua,
         mainDocumentationSent: campaignData.mainDocumentationSent,
         entryForm: campaignData.entryForm,
