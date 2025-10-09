@@ -40,11 +40,11 @@ export const useBriefingReview = (): BriefingHookReturn => {
       setIsGenerating(true);
       setError(null);
 
-      // Construir channels dinamicamente
+     
       const campaign_channels: Record<string, number> = {};
       if (Array.isArray(campaignData.channel)) {
         campaignData.channel.forEach((channel: string) => {
-          // Tentar com channelKey em maiúsculo e original
+         
           const channelKeyUpper = channel.toUpperCase();
           const channelKeyOriginal = channel;
           const quantityKeys = [
@@ -80,8 +80,7 @@ export const useBriefingReview = (): BriefingHookReturn => {
         console.log('[DEBUG useBriefingReview] Canais construídos:', JSON.stringify(campaign_channels, null, 2));
       }
 
-      // Campos de lista: manter como array (vazio [] ou preenchido)
-      // Campos single: string
+      
       const additionalInfo = {
         base_origin: String(
           Array.isArray(campaignData.base_origin)
@@ -125,7 +124,7 @@ export const useBriefingReview = (): BriefingHookReturn => {
         throw new Error(audienceError);
       }
 
-      // Prepare data for API call seguindo o padrão do backend
+      
       const briefingPayload: BriefingPayload = {
         campaign_name: campaignData.campaign_name || campaignData.campaignName || 'teste',
         campaign_code: campaignData.campaignCode || '',
