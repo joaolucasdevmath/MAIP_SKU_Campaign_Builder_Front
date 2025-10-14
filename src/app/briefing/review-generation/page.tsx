@@ -286,7 +286,7 @@ export default function ReviewGeneration() {
         )}
 
         <Stack spacing={3} sx={{ mt: 4 }}>
-          <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+          <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} sx={{ mt: 2 }}>
             <Button
               variant="outlined"
               type="button"
@@ -304,147 +304,148 @@ export default function ReviewGeneration() {
                   borderColor: '#093366',
                 },
               }}
+              fullWidth
             >
               Voltar ao Início
             </Button>
-
-            <Box sx={{ display: 'flex', gap: 2 }}>
-              <LoadingButton
-                variant="contained"
-                type="button"
-                loading={isGeneratingQuery}
-                loadingIndicator={
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                    <CircularProgress size={20} sx={{ color: 'white' }} />
-                    <Typography variant="body2" sx={{ color: 'white' }}>
-                      Gerando Query...
-                    </Typography>
-                  </Box>
-                }
-                onClick={handleGenerateQuery}
-                disabled={
-                  !reviewData.basicInfo.data.campaignName || isGenerating || !!generatedQuery
-                }
-                sx={{
-                  backgroundColor: '#093366',
-                  color: 'white',
-                  height: 48,
-                  minHeight: 48,
-                  '&:hover': {
-                    backgroundColor: '#07264d',
-                  },
-                }}
-              >
-                Gerar Query da Audiência
-              </LoadingButton>
-
-              {(generatedQuery || campaignData.generated_query) && (
-                <Box sx={{ display: 'flex', justifyContent: 'center', gap: 2 }}>
-                  <LoadingButton
-                    variant="contained"
-                    color="primary"
-                    type="button"
-                    size="large"
-                    loading={isGenerating}
-                    loadingIndicator={
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                        <CircularProgress size={20} sx={{ color: 'white' }} />
-                        <Typography variant="body2" sx={{ color: 'white' }}>
-                          Salvando e gerando briefing...
-                        </Typography>
-                      </Box>
-                    }
-                    sx={{
-                      backgroundColor: '#093366',
-                      '&:hover': { backgroundColor: '#07264d' },
-                      minWidth: 200,
-                    }}
-                    onClick={async () => {
-                      console.log('DADOS DO CONTEXTO:', campaignData);
-                      const payload = buildArchivePayload({
-                        campaignCore: {
-                          offer: campaignData.offer || '',
-                          code: campaignData.campaign_codes || campaignData.campaignCode || '',
-                          campaign_name: campaignData.campaign_name || campaignData.campaignName || '',
-                          campaign_type: Array.isArray(campaignData.campaign_type)
-                            ? campaignData.campaign_type[0]
-                            : campaignData.campaign_type || campaignData.campaignType || '',
-                          campaign_objective: Array.isArray(campaignData.campaign_objective)
-                            ? campaignData.campaign_objective[0]
-                            : campaignData.campaign_objective || campaignData.campaignObjective || '',
-                          start_date: campaignData.start_date
-                            ? campaignData.start_date.split('T')[0]
-                            : campaignData.campaignStartDate
-                            ? new Date(campaignData.campaignStartDate).toISOString().split('T')[0]
-                            : '',
-                          end_date: campaignData.end_date
-                            ? campaignData.end_date.split('T')[0]
-                            : campaignData.campaignEndDate
-                            ? new Date(campaignData.campaignEndDate).toISOString().split('T')[0]
-                            : '',
-                          segmentation_sql: campaignData.generatedQuery || campaignData.generated_query || '',
-                          audience_snapshot: campaignData.audienceInfo?.audienceSize ?? 0,
-                          status: 'draft',
-                          is_template: false,
-                        },
-                        // @ts-ignore
-                        channels: (campaignData.channel || []).map((type, idx) => ({
-                          id: idx + 1,
-                          quantity: campaignData[`quantity_${type}`] || 0,
-                        })),
-                        briefingCore: {
-                          name: campaignData.journey_name || campaignData.campaign_name || campaignData.campaignName || 'NOME_PADRAO',
-                          segmentation: (campaignData.segmentation || []).join(' AND '),
-                          source_base_id: campaignData.source_base_id || '1',
-                          source_base: (campaignData.base_origin && campaignData.base_origin[0]) || campaignData.source_base || '',
-                        },
-                        briefingFields: [
-                          { name: 'nom_grupo_marca', value: campaignData.nom_grupo_marca || '' },
-                          { name: 'modalidade', value: (campaignData.modalidade || []).join(', ') },
-                          { name: 'atl_niveldeensino__c', value: (campaignData.atl_niveldeensino__c || []).join(', ') },
-                          { name: 'forma_ingresso_enem', value: campaignData.forma_ingresso_enem ? 'true' : 'false' },
-                          { name: 'forma_ingresso_vestibular', value: campaignData.forma_ingresso_vestibular ? 'true' : 'false' },
-                          { name: 'disponibilizacao_call_center_nao', value: campaignData.disponibilizacao_call_center_nao ? 'true' : 'false' },
-                          { name: 'disponibilizacao_call_center_sim', value: campaignData.disponibilizacao_call_center_sim ? 'true' : 'false' },
-                          { name: 'status_funil', value: campaignData.status_funil || '' },
-                          { name: 'outras_exclusoes', value: campaignData.outras_exclusoes || '' },
-                          { name: 'criterios_saida', value: campaignData.criterios_saida || '' },
-                          { name: 'informacoes_extras', value: campaignData.informacoes_extras || '' },
-                          { name: 'base_origin', value: (campaignData.base_origin && campaignData.base_origin[0]) || '' },
-                        ],
-                      });
-                      console.log('Payload a ser salvo histoarico:', payload);
-                      const response = await saveArchive(payload);
-                      if (response?.data?.id) {
-                        sessionStorage.setItem('archiveId', response.data.id);
-                        sessionStorage.setItem('archivePayload', JSON.stringify(payload));
-                      }
-                      await handleGenerateBriefing();
-                      router.push('/audience');
-                    }}
-                    disabled={!generatedQuery}
-                  >
-                    Salvar e Avançar
-                  </LoadingButton>
-                  <Button
-                    variant="contained"
-                    color="primary"
-                    type="button"
-                    size="large"
-                    disabled={isGenerating || isSaving}
-                    onClick={() => handleOpenModal(true)}
-                    sx={{
-                      backgroundColor: '#093366',
-                      '&:hover': { backgroundColor: '#07264d' },
-                      minWidth: 200,
-                    }}
-                  >
-                    Salvar como Template
-                  </Button>
+            <LoadingButton
+              variant="contained"
+              type="button"
+              loading={isGeneratingQuery}
+              loadingIndicator={
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <CircularProgress size={20} sx={{ color: 'white' }} />
+                  <Typography variant="body2" sx={{ color: 'white' }}>
+                    Gerando Query...
+                  </Typography>
                 </Box>
-              )}
-            </Box>
-          </Box>
+              }
+              onClick={handleGenerateQuery}
+              disabled={
+                !reviewData.basicInfo.data.campaignName || isGenerating || !!generatedQuery
+              }
+              sx={{
+                backgroundColor: '#093366',
+                color: 'white',
+                height: 48,
+                minHeight: 48,
+                '&:hover': {
+                  backgroundColor: '#07264d',
+                },
+              }}
+              fullWidth
+            >
+              Gerar Query da Audiência
+            </LoadingButton>
+            {(generatedQuery || campaignData.generated_query) && (
+              <>
+                <LoadingButton
+                  variant="contained"
+                  color="primary"
+                  type="button"
+                  size="large"
+                  loading={isGenerating}
+                  loadingIndicator={
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                      <CircularProgress size={20} sx={{ color: 'white' }} />
+                      <Typography variant="body2" sx={{ color: 'white' }}>
+                        Salvando e gerando briefing...
+                      </Typography>
+                    </Box>
+                  }
+                  sx={{
+                    backgroundColor: '#093366',
+                    '&:hover': { backgroundColor: '#07264d' },
+                    minWidth: 200,
+                  }}
+                  onClick={async () => {
+                    // ...existing code for Salvar e Avançar...
+                    console.log('DADOS DO CONTEXTO:', campaignData);
+                    const payload = buildArchivePayload({
+                      campaignCore: {
+                        offer: campaignData.offer || '',
+                        code: campaignData.campaign_codes || campaignData.campaignCode || '',
+                        campaign_name: campaignData.campaign_name || campaignData.campaignName || '',
+                        campaign_type: Array.isArray(campaignData.campaign_type)
+                          ? campaignData.campaign_type[0]
+                          : campaignData.campaign_type || campaignData.campaignType || '',
+                        campaign_objective: Array.isArray(campaignData.campaign_objective)
+                          ? campaignData.campaign_objective[0]
+                          : campaignData.campaign_objective || campaignData.campaignObjective || '',
+                        start_date: campaignData.start_date
+                          ? campaignData.start_date.split('T')[0]
+                          : campaignData.campaignStartDate
+                          ? new Date(campaignData.campaignStartDate).toISOString().split('T')[0]
+                          : '',
+                        end_date: campaignData.end_date
+                          ? campaignData.end_date.split('T')[0]
+                          : campaignData.campaignEndDate
+                          ? new Date(campaignData.campaignEndDate).toISOString().split('T')[0]
+                          : '',
+                        segmentation_sql: campaignData.generatedQuery || campaignData.generated_query || '',
+                        audience_snapshot: campaignData.audienceInfo?.audienceSize ?? 0,
+                        status: 'draft',
+                        is_template: false,
+                      },
+                      // @ts-ignore
+                      channels: (campaignData.channel || []).map((type, idx) => ({
+                        id: idx + 1,
+                        quantity: campaignData[`quantity_${type}`] || 0,
+                      })),
+                      briefingCore: {
+                        name: campaignData.journey_name || campaignData.campaign_name || campaignData.campaignName || 'NOME_PADRAO',
+                        segmentation: (campaignData.segmentation || []).join(' AND '),
+                        source_base_id: campaignData.source_base_id || '1',
+                        source_base: (campaignData.base_origin && campaignData.base_origin[0]) || campaignData.source_base || '',
+                      },
+                      briefingFields: [
+                        { name: 'nom_grupo_marca', value: campaignData.nom_grupo_marca || '' },
+                        { name: 'modalidade', value: (campaignData.modalidade || []).join(', ') },
+                        { name: 'atl_niveldeensino__c', value: (campaignData.atl_niveldeensino__c || []).join(', ') },
+                        { name: 'forma_ingresso_enem', value: campaignData.forma_ingresso_enem ? 'true' : 'false' },
+                        { name: 'forma_ingresso_vestibular', value: campaignData.forma_ingresso_vestibular ? 'true' : 'false' },
+                        { name: 'disponibilizacao_call_center_nao', value: campaignData.disponibilizacao_call_center_nao ? 'true' : 'false' },
+                        { name: 'disponibilizacao_call_center_sim', value: campaignData.disponibilizacao_call_center_sim ? 'true' : 'false' },
+                        { name: 'status_funil', value: campaignData.status_funil || '' },
+                        { name: 'outras_exclusoes', value: campaignData.outras_exclusoes || '' },
+                        { name: 'criterios_saida', value: campaignData.criterios_saida || '' },
+                        { name: 'informacoes_extras', value: campaignData.informacoes_extras || '' },
+                        { name: 'base_origin', value: (campaignData.base_origin && campaignData.base_origin[0]) || '' },
+                      ],
+                    });
+                    console.log('Payload a ser salvo histoarico:', payload);
+                    const response = await saveArchive(payload);
+                    if (response?.data?.id) {
+                      sessionStorage.setItem('archiveId', response.data.id);
+                      sessionStorage.setItem('archivePayload', JSON.stringify(payload));
+                    }
+                    await handleGenerateBriefing();
+                    router.push('/audience');
+                  }}
+                  disabled={!generatedQuery}
+                  fullWidth
+                >
+                  Salvar e Avançar
+                </LoadingButton>
+                <Button
+                  variant="contained"
+                  color="primary"
+                  type="button"
+                  size="large"
+                  disabled={isGenerating || isSaving}
+                  onClick={() => handleOpenModal(true)}
+                  sx={{
+                    backgroundColor: '#093366',
+                    '&:hover': { backgroundColor: '#07264d' },
+                    minWidth: 200,
+                  }}
+                  fullWidth
+                >
+                  Salvar como Template
+                </Button>
+              </>
+            )}
+          </Stack>
 
        
         </Stack>

@@ -15,6 +15,7 @@ export default function HistoryPage() {
   const { data: templates, loading, error, getArchiveById } = useArchive();
   const router = useRouter();
 
+
   // Função para reutilizar o briefing
   const handleReuse = async (id: string) => {
     const archiveData = await getArchiveById(id);
@@ -22,6 +23,13 @@ export default function HistoryPage() {
       sessionStorage.setItem('briefing_template_data', JSON.stringify(archiveData));
       router.push('/briefing/basic-info');
     }
+  };
+
+  
+  const getStatusLabel = (status: string) => {
+    if (status === 'draft') return 'Em andamento';
+    if (status === 'completed') return 'Completado';
+    return status || 'Sem status';
   };
 
   return (
@@ -52,7 +60,7 @@ export default function HistoryPage() {
                     <CardContent>
                       <Typography variant="h5">{template.campaign_name || 'Sem nome'}</Typography>
                       <Typography variant="body2" color="text.secondary">
-                        {template.description || 'Sem descrição'}
+                        {getStatusLabel(template.status)}
                       </Typography>
                       <Box
                         sx={{
@@ -104,8 +112,8 @@ export default function HistoryPage() {
                           width={18}
                           sx={{ mr: 1, verticalAlign: 'middle' }}
                         />
-                        {template.start_date || 'Não definido'} -{' '}
-                        {template.end_date || 'Não definido'}
+                        {template.created_at}
+                       
                       </Typography>
                       <Typography variant="body2" color="text.secondary">
                         <Iconify
