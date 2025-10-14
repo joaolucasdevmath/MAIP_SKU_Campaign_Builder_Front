@@ -5,12 +5,14 @@ import axiosInstance, { endpoints } from 'src/utils/axios';
 export interface Template {
 	id: string;
 	campaign_name: string;
-	start_date: string;
+	
 	description: string;
-	end_date: string;
+  status: string;
 	offer: string;
 	code: string;
 	channels: string;
+  created_at: string;
+
 }
 
 interface ApiResponse {
@@ -29,7 +31,7 @@ export function useArchive() {
 		useEffect(() => {
 			const fetchData = async () => {
 				try {
-					const response = await axiosInstance.get(endpoints.briefing.getTemplate);
+					const response = await axiosInstance.get(endpoints.briefing.archive);
 					console.log('HISTORICO response:', response.data);
 					const json: ApiResponse = response.data;
 					if (json.success) {
@@ -119,7 +121,7 @@ export function useArchive() {
     setError(null);
     try {
       const response = await axiosInstance.get(endpoints.briefing.archiveId(id));
-      // O retorno esperado é response.data.data
+      
       return response.data.data;
     } catch (err: any) {
       setError(err.message || 'Erro ao buscar dados do archive');

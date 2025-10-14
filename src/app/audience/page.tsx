@@ -9,10 +9,10 @@ import {
   Card,
   Grid,
   Paper,
+  Stack,
   Button,
   Container,
   Typography,
-  
 } from '@mui/material';
 
 import { useAudienceData } from 'src/hooks/useAudienceData';
@@ -366,58 +366,61 @@ export default function AudiencePage() {
         </Grid>
 
         <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 4 }}>
-          <Button
-            variant="outlined"
-            sx={{
-              color: '#093366',
-              borderColor: '#093366',
-              '&:hover': {
-                backgroundColor: '#f8f9fa',
+          <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} sx={{ width: '100%' }}>
+            <Button
+              variant="outlined"
+              sx={{
+                color: '#093366',
                 borderColor: '#093366',
-              },
-            }}
-            onClick={() => router.push('/briefing/review-generation')}
-          >
-            Voltar para Briefing
-          </Button>
-
-          <Button
-            variant="outlined"
-            type="button"
-            onClick={() => {
-              console.log('[AudiencePage] Iniciando voltar ao início...');
-              console.log('[AudiencePage] Estado antes do reset:', JSON.stringify(payload, null, 2));
-              clearAllData();
-              handleBackToBasicInfo();
-              toast.success('Fluxo reiniciado com sucesso!');
-              console.log('[AudiencePage] Estado limpo com clearAllData e handleBackToBasicInfo.');
-            }}
-            disabled={loading}
-            sx={{
-              color: '#093366',
-              backgroundColor: 'white',
-              borderColor: '#093366',
-              '&:hover': {
-                backgroundColor: '#f8f9fa',
+                '&:hover': {
+                  backgroundColor: '#f8f9fa',
+                  borderColor: '#093366',
+                },
+              }}
+              onClick={() => router.push('/briefing/review-generation')}
+              fullWidth
+            >
+              Voltar para Briefing
+            </Button>
+            <Button
+              variant="outlined"
+              type="button"
+              onClick={() => {
+                console.log('[AudiencePage] Iniciando voltar ao início...');
+                console.log('[AudiencePage] Estado antes do reset:', JSON.stringify(payload, null, 2));
+                clearAllData();
+                handleBackToBasicInfo();
+                toast.success('Fluxo reiniciado com sucesso!');
+                console.log('[AudiencePage] Estado limpo com clearAllData e handleBackToBasicInfo.');
+              }}
+              disabled={loading}
+              sx={{
+                color: '#093366',
+                backgroundColor: 'white',
                 borderColor: '#093366',
-              },
-            }}
-          >
-            Voltar ao Início
-          </Button>
-
-          <LoadingButton
-            variant="contained"
-            startIcon={<Iconify icon="eva:external-link-outline" />}
-            loading={loading}
-            onClick={() => router.push('/insights')}
-            sx={{
-              backgroundColor: '#093366',
-              '&:hover': { backgroundColor: '#07264d' },
-            }}
-          >
-            Avançar para Insights
-          </LoadingButton>
+                '&:hover': {
+                  backgroundColor: '#f8f9fa',
+                  borderColor: '#093366',
+                },
+              }}
+              fullWidth
+            >
+              Voltar ao Início
+            </Button>
+            <LoadingButton
+              variant="contained"
+              startIcon={<Iconify icon="eva:external-link-outline" />}
+              loading={loading}
+              onClick={() => router.push('/insights')}
+              sx={{
+                backgroundColor: '#093366',
+                '&:hover': { backgroundColor: '#07264d' },
+              }}
+              fullWidth
+            >
+              Avançar para Insights
+            </LoadingButton>
+          </Stack>
         </Box>
       </Box>
     </Container>

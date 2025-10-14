@@ -1,5 +1,6 @@
 'use client';
 
+import dayjs from 'dayjs';
 import { useState, useEffect } from 'react';
 
 import { Box, Grid, Button, Typography } from '@mui/material';
@@ -266,6 +267,7 @@ useEffect(() => {
               <FieldWithLabel label="Data de Início da Campanha">
                 <RHFDatePicker
                   name="start_date"
+                  minDate={dayjs()}
                   slotProps={{
                     popper: {
                       sx: {
@@ -294,6 +296,7 @@ useEffect(() => {
               <FieldWithLabel label="Data de Fim da Campanha">
                 <RHFDatePicker
                   name="end_date"
+                  minDate={dayjs()}
                   slotProps={{
                     popper: {
                       sx: {
