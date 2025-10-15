@@ -226,7 +226,7 @@ export default function AudiencePage() {
               </Typography>
 
             
-              {/* <Box
+              <Box
                 sx={{
                   bgcolor: '#1a1a1a',
                   color: 'white',
@@ -258,11 +258,11 @@ export default function AudiencePage() {
                   Copiar Query
                 </Button>
               </Box>
-              */}
+             
              
 
               {/* --- BLOCO COM MÁSCARA --- */}
-              <Box
+              {/* <Box
                 sx={{
                   bgcolor: '#1a1a1a',
                   color: 'white',
@@ -295,7 +295,7 @@ export default function AudiencePage() {
                 >
                   Copiar Query
                 </Button>
-              </Box>
+              </Box> */}
               {/* --- FIM BLOCO COM MÁSCARA --- */}
 
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 2 }}>

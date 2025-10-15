@@ -15,9 +15,39 @@ export interface UseAudienceQueryReturn {
   handleSaveAsDraft: () => Promise<void>;
   clearQuery: () => void;
   clearAllData: () => void;
+  generateMarketingCloudFlow: (journey_name: string, query_text: string) => Promise<any>;
+  getCurrentUser: () => Promise<any>;
 }
 
 export const useAudienceQuery = (): UseAudienceQueryReturn => {
+  // Função para buscar dados do usuário logado
+  const getCurrentUser = async (): Promise<any> => {
+    try {
+      const response = await axiosInstance.get('/api/user/me');
+      if (response.data && response.data.success && response.data.data) {
+        return response.data.data;
+      } 
+        throw new Error(response.data.errorMessage || 'Erro ao buscar usuário');
+      
+    } catch (err) {
+      console.error('Erro ao buscar usuário:', err);
+      toast.error('Erro ao buscar usuário');
+      throw err;
+    }
+  };
+  // Função para criar fluxo no Marketing Cloud
+  const generateMarketingCloudFlow = async (journey_name: string, query_text: string): Promise<any> => {
+    try {
+      const payload = { journey_name, query_text };
+      const response = await axiosInstance.post(endpoints.briefing.generateMarketingCloud, payload);
+      toast.success('Fluxo em criação no Marketing Cloud');
+      return response.data;
+    } catch (err) {
+      console.error('Erro ao criar fluxo no Marketing Cloud:', err);
+      toast.error('Erro ao criar fluxo no Marketing Cloud');
+      throw err;
+    }
+  };
   const { state: campaignData, updateCampaignData } = useFormWizard();
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatedQuery, setGeneratedQuery] = useState<string | null>(
@@ -249,5 +279,7 @@ export const useAudienceQuery = (): UseAudienceQueryReturn => {
     handleSaveAsDraft,
     clearQuery,
     clearAllData,
+    generateMarketingCloudFlow,
+    getCurrentUser,
   };
 };

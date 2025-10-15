@@ -56,7 +56,7 @@ export default function Insights() {
     } = useBriefingReview();
   const payload = useAudiencePayload() as AudiencePayload;
   const { loading, error, data, runAudienceFlow } = useAudienceData();
-  const { generatedQuery, clearAllData } = useAudienceQuery();
+  const { generatedQuery, clearAllData, generateMarketingCloudFlow, getCurrentUser } = useAudienceQuery();
   const [pdfLoading, setPdfLoading] = useState(false);
   const { updateArchiveStatus } = useArchive();
   const [blockRedirect, setBlockRedirect] = useState(false);
@@ -107,16 +107,22 @@ export default function Insights() {
   const generatePDF = async () => {
     setPdfLoading(true);
     try {
-      
+      // Buscar o e-mail do usuário logado
+      let userEmail = 'Não definido';
+      try {
+        const user = await getCurrentUser();
+        if (user && user.email) {
+          userEmail = user.email;
+        }
+      } catch (e) {
+        // Se falhar, mantém 'Não definido'
+      }
+
       // eslint-disable-next-line new-cap
       const doc = new jsPDF();
 
-      // Dados dinâmicos
       const campaignName = payload.campaign_name || state.campaign_name || 'Não definido';
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const brand = state.nom_grupo_marca || payload.nom_grupo_marca || 'Não definido';
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  
+      const brand = state.nom_grupo_marca || payload.nom_grupo_marca || 'Não definido';
 
       // Objetivo da campanha
       const campaignObjective = state.campaign_objective
@@ -213,9 +219,11 @@ export default function Insights() {
         50
       );
       doc.text(`Objetivo da Campanha: ${campaignObjective}`, 10, 55);
-      // doc.text(`Marca: ${brand}`, 10, 60);
-      doc.text('Marca: MARCA', 10, 60);
+      doc.text(`Marca: ${brand}`, 10, 60);
+      // doc.text('Marca: MARCA', 10, 60);
       doc.text(`Semestre: ${semester}`, 10, 65);
+      // Adiciona o e-mail do usuário logado
+      doc.text(`Usuário: ${userEmail}`, 10, 70);
 
       // Seção 2: Configurações de Disparo
       doc.setFontSize(12);
@@ -544,7 +552,7 @@ doc.text(
               </Typography>
               <Box sx={{ mb: 2 }}>
                 <Typography variant="body2">
-                  Marca: <b>MARCA</b>
+                  Marca: <b>{payload.nom_grupo_marca || state.nom_grupo_marca || 'Não definido'}</b>
                 </Typography>
                 <Typography variant="body2">
                   Objetivo: <b>{state.campaign_objective}</b>
@@ -623,6 +631,31 @@ doc.text(
                 >
                   Finalizar e Exportar PDF
                 </LoadingButton>
+                <LoadingButton
+                  variant="contained"
+                  startIcon={<Iconify icon="eva:cloud-upload-outline" />}
+                  loading={pdfLoading}
+                  onClick={async () => {
+                    const journeyName = state.journey_name || data?.journey_name || payload.additional_info?.base_origin || '';
+                    const queryText = generatedQuery ?? '';
+                    if (!journeyName || !queryText) {
+                      toast.error('Journey Name e Query são obrigatórios para gerar no Marketing Cloud.');
+                      return;
+                    }
+                    try {
+                      setPdfLoading(true);
+                      await generateMarketingCloudFlow(journeyName, queryText);
+                    } catch (err) {
+                      // erro já tratado no hook
+                    } finally {
+                      setPdfLoading(false);
+                    }
+                  }}
+                  sx={{ backgroundColor: '#093366', '&:hover': { backgroundColor: '#07264d' } }}
+                >
+                  Gerar no Marketing Cloud
+                </LoadingButton>
+                
                <Button
                             variant="outlined"
                             sx={{ color: '#093366', borderColor: '#093366' }}

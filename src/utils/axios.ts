@@ -64,6 +64,8 @@ export const endpoints = {
     archive: '/api/archive/',
     archiveSave: '/api/archive/',
   archiveId: (id: string) => `/api/archive/${id}`,
+  generateMarketingCloud: '/api/generate/marketing_cloud_flow',
+  getUserMe: '/api/user/me',
    
   }
 };
