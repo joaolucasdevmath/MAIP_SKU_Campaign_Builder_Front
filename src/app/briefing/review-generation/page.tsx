@@ -137,11 +137,11 @@ export default function ReviewGeneration() {
         {renderSection(reviewData.segmentation.title, reviewData.segmentation.data)}
         
         
-        {/* {renderSection(reviewData.advancedFilters.title, reviewData.advancedFilters.data)} */}
+        {renderSection(reviewData.advancedFilters.title, reviewData.advancedFilters.data)}
        
        
         {/* --- Seção 3. Configurações Avançadas (Grupo/Marca mockado, resto dinâmico) --- */}
-        <Card sx={{ mb: 3, boxShadow: 2 }}>
+        {/* <Card sx={{ mb: 3, boxShadow: 2 }}>
           <CardContent>
             <Typography variant="h6" gutterBottom>
               3. Configurações Avançadas
@@ -177,17 +177,18 @@ export default function ReviewGeneration() {
               })}
             </Grid>
           </CardContent>
-        </Card>
+        </Card> */}
 
         {/* Generated Query Display */}
         {generatedQuery && (
           <Paper sx={{ p: 4, mb: 4, borderRadius: 2 }}>
-            {/* <Typography variant="h6" gutterBottom>
+            <Typography variant="h6" gutterBottom>
               Query da Audiência Gerada
             </Typography>
             <Box sx={{ position: 'relative' }}>
               
             
+
               <Typography
                 variant="body2"
                 sx={{
@@ -219,11 +220,12 @@ export default function ReviewGeneration() {
                 sx={{ mt: 1 }}
               >
                 Copiar Query
-              </Button> */}
+              </Button>
+            </Box>
               
              
               {/* --- BLOCO COM MÁSCARA --- */}
-               {(() => {
+               {/* {(() => {
                 const rawQuery = typeof generatedQuery === 'string'
                   ? generatedQuery
                   : JSON.stringify(generatedQuery, null, 2);
@@ -260,7 +262,7 @@ export default function ReviewGeneration() {
                 sx={{ mt: 1 }}
               >
                 Copiar Query
-              </Button>
+              </Button> */}
               {/* --- FIM BLOCO COM MÁSCARA --- */}
             
           </Paper>
