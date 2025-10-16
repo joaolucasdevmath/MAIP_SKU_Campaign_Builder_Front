@@ -43,11 +43,7 @@ export const advancedFilterSchema = z
     remover_regua_master: z.boolean().default(false).optional(),
     documentacao_principal_enviada: z.boolean().default(false).optional(),
     atualizacao_automatica: z.boolean().default(false).optional(),
-    outras_exclusoes: z.string().optional(),
-    criterios_saida: z.string().optional(),
-    disponibilizacao_call_center_sim: z.boolean().default(false).optional(),
-    disponibilizacao_call_center_nao: z.boolean().default(false).optional(),
-    informacoes_extras: z.string().optional(),
+  criterios_saida: z.string().optional(),
     nivel_escolaridade: z
       .array(z.string()).optional(),
     id_contato: z.string().optional(),

@@ -168,8 +168,8 @@ export default function Insights() {
             ? new Date(payload.end_date).toLocaleDateString('pt-BR')
             : 'Não definido';
 
-      // Etapas do funil
-      const funnelStage = state.etapa_funil || 'Não definido';
+  // Etapas do funil
+  const funnelStage = state.status_funil || state.etapa_funil || 'Não definido';
 
       // Nível de ensino
       const courseLevel = state.atl_niveldeensino__c
@@ -255,7 +255,7 @@ export default function Insights() {
         10,
         110
       );
-      doc.text(`Etapas do Funil: ${funnelStage}`, 10, 115);
+      doc.text(`Etapas do Funil: ${funnelStagee}`, 10, 115);
 
       // Seção 4: Filtros Avançados
       doc.setFontSize(12);

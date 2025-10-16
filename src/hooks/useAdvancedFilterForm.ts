@@ -25,11 +25,7 @@ export function useAdvancedFilterForm(state: Partial<DynamicAdvancedFilterFormVa
   const form = useForm<DynamicAdvancedFilterFormValues>({
     resolver: zodResolver(advancedFilterSchema),
     defaultValues: {
-      outras_exclusoes: state.outras_exclusoes || '',
       criterios_saida: state.criterios_saida || '',
-      disponibilizacao_call_center_sim: state.disponibilizacao_call_center_sim || false,
-      disponibilizacao_call_center_nao: state.disponibilizacao_call_center_nao || false,
-      informacoes_extras: state.informacoes_extras || '',
     },
     mode: 'onSubmit',
   });
@@ -138,11 +134,7 @@ export function useAdvancedFilterForm(state: Partial<DynamicAdvancedFilterFormVa
           form.reset({
             ...form.getValues(), 
             ...initialDynamicValues,
-            outras_exclusoes: state.outras_exclusoes || '',
             criterios_saida: state.criterios_saida || '',
-            disponibilizacao_call_center_sim: state.disponibilizacao_call_center_sim || false,
-            disponibilizacao_call_center_nao: state.disponibilizacao_call_center_nao || false,
-            informacoes_extras: state.informacoes_extras || '',
           });
         } else {
           setError(res.data.errorMessage || 'Erro ao carregar campos do backend.');
