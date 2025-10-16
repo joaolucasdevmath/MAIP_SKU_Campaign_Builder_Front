@@ -416,22 +416,6 @@ export default function AdvancedFilterPage() {
             {renderFormaIngressoSection()}
             {renderStatusVestibularSection()}
 
-            <Grid item xs={12}>
-              <FieldWithLabel
-                label="Outras Exclusões"
-               
-              >
-                <RHFTextField
-                  name="outras_exclusoes"
-                  placeholder="Descreva outras exclusões..."
-                  variant="outlined"
-                  multiline
-                  rows={4}
-                  error={!!methods.formState.errors.outras_exclusoes}
-                  helperText={methods.formState.errors.outras_exclusoes?.message}
-                />
-              </FieldWithLabel>
-            </Grid>
 
             <Grid item xs={12}>
               <FieldWithLabel
@@ -450,57 +434,9 @@ export default function AdvancedFilterPage() {
               </FieldWithLabel>
             </Grid>
 
-            <Grid item xs={12}>
-              <FieldWithLabel
-                label="Disponibilização para Call Center?"
-                
-              >
-                <Box>
-                  <RHFCheckbox
-                    name="disponibilizacao_call_center_sim"
-                    label="Sim"
-                    sx={{
-                      '& .MuiCheckbox-root': {
-                        color: '#093366',
-                        '&.Mui-checked': {
-                          color: '#093366',
-                        },
-                      },
-                    }}
-                  />
-                  <RHFCheckbox
-                    name="disponibilizacao_call_center_nao"
-                    label="Não"
-                    sx={{
-                      '& .MuiCheckbox-root': {
-                        color: '#093366',
-                        '&.Mui-checked': {
-                          color: '#093366',
-                        },
-                      },
-                    }}
-                  />
-                </Box>
-              </FieldWithLabel>
-            </Grid>
+           
 
-            <Grid item xs={12}>
-              <FieldWithLabel
-                label="Informações Extras"
-               
-              >
-                <RHFTextField
-                  name="informacoes_extras"
-                  placeholder="Informações adicionais..."
-                  variant="outlined"
-                  multiline
-                  rows={4}
-                  error={!!methods.formState.errors.informacoes_extras}
-                  helperText={methods.formState.errors.informacoes_extras?.message}
-                />
-              </FieldWithLabel>
-            </Grid>
-
+          
             <Grid item xs={12}>
               <Box display="flex" justifyContent="space-between" mt={4}>
                 <Button

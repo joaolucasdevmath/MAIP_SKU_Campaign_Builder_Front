@@ -104,38 +104,51 @@ export const useAudienceQuery = (): UseAudienceQueryReturn => {
       // Determinar filtros com base no base_origin
       const baseOrigin = String(campaignData.base_origin?.[0] || campaignData.source_base || "").toUpperCase();
       let segmentations = "";
+      // Priorizar segmentation/segmentations do contexto, seja array ou string
+      if (Array.isArray(campaignData.segmentation) && campaignData.segmentation.length > 0) {
+        segmentations = campaignData.segmentation.join(" AND ");
+      } else if (typeof campaignData.segmentation === 'string' && campaignData.segmentation) {
+        segmentations = campaignData.segmentation;
+      } else if (Array.isArray(campaignData.segmentations) && campaignData.segmentations.length > 0) {
+        segmentations = campaignData.segmentations.join(" AND ");
+      } else if (typeof campaignData.segmentations === 'string' && campaignData.segmentations) {
+        const { segmentations: segmentationsValue } = campaignData;
+        segmentations = segmentationsValue;
+      }
       let nom_periodo_academico = [];
       let status_funil: string[] = [];
       let modalidade: string[] = [];
       let atl_niveldeensino_c = [];
       let forma_ingresso = [];
 
-      if (baseOrigin === 'DE_GERAL_LEADS') {
-        // Para DE_GERAL_LEADS: usar modalidade, atl_niveldeensino_c, forma_ingresso
-        const modalidadeStr = Array.isArray(campaignData.modalidade) && campaignData.modalidade.length > 0
-          ? `modalidade IN (${campaignData.modalidade.map((m: string) => `'${m}'`).join(',')})`
-          : "";
-        const atl_niveldeensinoStr = Array.isArray(campaignData.atl_niveldeensino__c) && campaignData.atl_niveldeensino__c.length > 0
-          ? `atl_niveldeensino_c = '${campaignData.atl_niveldeensino__c[0]}'`
-          : "";
-        const forma_ingressoStr = Array.isArray(campaignData.forma_ingresso) && campaignData.forma_ingresso.length > 0
-          ? `forma_ingresso = '${campaignData.forma_ingresso[0]}'`
-          : "";
-        segmentations = [modalidadeStr, atl_niveldeensinoStr, forma_ingressoStr].filter(Boolean).join(" AND ");
-        modalidade = Array.isArray(campaignData.modalidade) ? campaignData.modalidade : [];
-        atl_niveldeensino_c = Array.isArray(campaignData.atl_niveldeensino__c) ? campaignData.atl_niveldeensino__c : [];
-        forma_ingresso = Array.isArray(campaignData.forma_ingresso) ? campaignData.forma_ingresso : [];
-      } else {
-        // Para DE_GERAL_OPORTUNIDADE: usar nom_periodo_academico e status_funil
-        const nom_periodoStr = Array.isArray(campaignData.nom_periodo_academico) && campaignData.nom_periodo_academico.length > 0
-          ? `nom_periodo_academico IN (${campaignData.nom_periodo_academico.map((p: string) => `'${p}'`).join(',')})`
-          : "";
-        const status_funilStr = campaignData.status_funil || "";
-        segmentations = [nom_periodoStr, status_funilStr].filter(Boolean).join(" AND ");
-        nom_periodo_academico = Array.isArray(campaignData.nom_periodo_academico) ? campaignData.nom_periodo_academico : [''];
-        status_funil = Array.isArray(campaignData.status_funil)
-          ? campaignData.status_funil
-          : (typeof campaignData.status_funil === 'string' && campaignData.status_funil ? [campaignData.status_funil] : []);
+      if (!segmentations) {
+        if (baseOrigin === 'DE_GERAL_LEADS') {
+          // Para DE_GERAL_LEADS: usar modalidade, atl_niveldeensino_c, forma_ingresso
+          const modalidadeStr = Array.isArray(campaignData.modalidade) && campaignData.modalidade.length > 0
+            ? `modalidade IN (${campaignData.modalidade.map((m: string) => `'${m}'`).join(',')})`
+            : "";
+          const atl_niveldeensinoStr = Array.isArray(campaignData.atl_niveldeensino__c) && campaignData.atl_niveldeensino__c.length > 0
+            ? `atl_niveldeensino_c = '${campaignData.atl_niveldeensino__c[0]}'`
+            : "";
+          const forma_ingressoStr = Array.isArray(campaignData.forma_ingresso) && campaignData.forma_ingresso.length > 0
+            ? `forma_ingresso = '${campaignData.forma_ingresso[0]}'`
+            : "";
+          segmentations = [modalidadeStr, atl_niveldeensinoStr, forma_ingressoStr].filter(Boolean).join(" AND ");
+          modalidade = Array.isArray(campaignData.modalidade) ? campaignData.modalidade : [];
+          atl_niveldeensino_c = Array.isArray(campaignData.atl_niveldeensino__c) ? campaignData.atl_niveldeensino__c : [];
+          forma_ingresso = Array.isArray(campaignData.forma_ingresso) ? campaignData.forma_ingresso : [];
+        } else {
+          // Para DE_GERAL_OPORTUNIDADE: usar nom_periodo_academico e status_funil
+          const nom_periodoStr = Array.isArray(campaignData.nom_periodo_academico) && campaignData.nom_periodo_academico.length > 0
+            ? `nom_periodo_academico IN (${campaignData.nom_periodo_academico.map((p: string) => `'${p}'`).join(',')})`
+            : "";
+          const status_funilStr = campaignData.status_funil || "";
+          segmentations = [nom_periodoStr, status_funilStr].filter(Boolean).join(" AND ");
+          nom_periodo_academico = Array.isArray(campaignData.nom_periodo_academico) ? campaignData.nom_periodo_academico : [''];
+          status_funil = Array.isArray(campaignData.status_funil)
+            ? campaignData.status_funil
+            : (typeof campaignData.status_funil === 'string' && campaignData.status_funil ? [campaignData.status_funil] : []);
+        }
       }
 
       // Construir filters

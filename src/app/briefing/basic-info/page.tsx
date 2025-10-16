@@ -245,18 +245,19 @@ useEffect(() => {
                       const channelLabel =
                         channelOption?.label || channelOption?.value || channelValue;
 
-                      return (
-                        <Grid item xs={12} md={6} key={channelValue}>
-                          <FieldWithLabel label={channelLabel}>
-                            <RHFTextField
-                              name={`quantity_${channelValue}`}
-                              placeholder="Quantidade"
-                              type="number"
-                              helperText={`Quantidade de disparos para ${channelLabel}`}
-                            />
-                          </FieldWithLabel>
-                        </Grid>
-                      );
+                          return (
+                            <Grid item xs={12} md={6} key={channelValue}>
+                              <FieldWithLabel label={channelLabel}>
+                                <RHFTextField
+                                  name={`quantity_${channelValue}`}
+                                  placeholder="Quantidade"
+                                  type="number"
+                                  inputProps={{ min: 0 }}
+                                  helperText={`Quantidade de disparos para ${channelLabel}`}
+                                />
+                              </FieldWithLabel>
+                            </Grid>
+                          );
                     })}
                   </Grid>
                 </Box>
@@ -321,31 +322,72 @@ useEffect(() => {
               </FieldWithLabel>
             </Grid>
 
-            <Grid item xs={12}>
+
+            {/* <Grid item xs={12}>
               <RHFCheckbox
                 name="is_continuous"
                 label="Campanha Contínua"
                 helperText="Marque esta opção para campanhas de relacionamento ou transacionais sem data de fim prevista."
+                  sx={{
+                      '& .MuiCheckbox-root': {
+                        color: '#093366',
+                        '&.Mui-checked': {
+                          color: '#093366',
+                        },
+                      },
+                    }}
               />
-            </Grid>
+            </Grid> */}
+
+           
 
             <Grid item xs={12}>
-              <Box display="flex" justifyContent="space-between" mt={3}>
-                <Button
+              <FieldWithLabel label="Disponibilização para Call Center?">
+                <Box>
+                  <RHFCheckbox
+                    name="disponibilizacao_call_center_sim"
+                    label="Sim"
+                    sx={{
+                      '& .MuiCheckbox-root': {
+                        color: '#093366',
+                        '&.Mui-checked': {
+                          color: '#093366',
+                        },
+                      },
+                    }}
+                  />
+                  <RHFCheckbox
+                    name="disponibilizacao_call_center_nao"
+                    label="Não"
+                    sx={{
+                      '& .MuiCheckbox-root': {
+                        color: '#093366',
+                        '&.Mui-checked': {
+                          color: '#093366',
+                        },
+                      },
+                    }}
+                  />
+                </Box>
+              </FieldWithLabel>
+            </Grid>
+
+            {/* <Grid item xs={12}>
+              <FieldWithLabel label="Informações Extras">
+                <RHFTextField
+                  name="informacoes_extras"
+                  placeholder="Informações adicionais..."
                   variant="outlined"
-                  type="button"
-                  sx={{
-                    color: '#093366',
-                    backgroundColor: 'white',
-                    borderColor: '#093366',
-                    '&:hover': {
-                      backgroundColor: '#f8f9fa',
-                      borderColor: '#093366',
-                    },
-                  }}
-                >
-                  Limpar
-                </Button>
+                  multiline
+                  rows={4}
+                  error={!!methods.formState?.errors?.informacoes_extras}
+                  
+                />
+              </FieldWithLabel>
+            </Grid> */}
+
+            <Grid item xs={12}>
+              <Box display="flex" justifyContent="flex-end" mt={3}>
                 <Button
                   variant="contained"
                   color="primary"

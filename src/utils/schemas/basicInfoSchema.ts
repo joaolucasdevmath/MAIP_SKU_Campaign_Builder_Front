@@ -10,6 +10,21 @@ export const canais = [
 ];
 
 
+
+
+function getQuantityFieldsSchema(channelList: Array<{ label: string }>): Record<string, z.ZodTypeAny> {
+  const fields: Record<string, z.ZodTypeAny> = {};
+  channelList.forEach((c: { label: string }) => {
+    
+    const key = `quantity_${c.label}`;
+    fields[key] = z
+      .number({ invalid_type_error: 'Informe um número válido.' })
+      .min(0, 'O valor não pode ser negativo.')
+      .optional();
+  });
+  return fields;
+}
+
 export const basicInfoSchema = z.object({
   campaign_name: z.string().min(1, 'Nome da campanha é obrigatório'),
   campaign_objective: z.union([z.string().min(1, 'Objetivo obrigatório'), z.array(z.string()).min(1, 'Objetivo obrigatório')]),
@@ -20,7 +35,11 @@ export const basicInfoSchema = z.object({
   start_date: z.any(),
   end_date: z.any(),
   is_continuous: z.boolean().optional(),
-}).passthrough(); 
+  disponibilizacao_call_center_sim: z.boolean().default(false).optional(),
+  disponibilizacao_call_center_nao: z.boolean().default(false).optional(),
+  informacoes_extras: z.string().optional(),
+  ...getQuantityFieldsSchema(canais),
+}).passthrough();
 
 // Schema legacy para compatibilidade
 export const legacyBasicInfoSchema = z.object({
