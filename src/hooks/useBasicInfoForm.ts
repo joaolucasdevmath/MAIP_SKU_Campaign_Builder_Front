@@ -84,10 +84,10 @@ export function useBasicInfoForm(state: Partial<DynamicFormValues>) {
     router.push('/briefing/audience-definition');
   };
 
-  // Watch para observar mudanças no campo channel
+  
   const selectedChannels = form.watch('channel') || [];
 
-  // Buscar campos específicos do backend
+  
   const campaignObjectiveField = fields.find((f) => f.name === 'campaign_objective');
   const campaignTypeField = fields.find((f) => f.name === 'campaign_type');
   const channelField = fields.find((f) => f.name === 'channel');
