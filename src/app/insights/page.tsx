@@ -56,7 +56,7 @@ export default function Insights() {
     } = useBriefingReview();
   const payload = useAudiencePayload() as AudiencePayload;
   const { loading, error, data, runAudienceFlow } = useAudienceData();
-  const { generatedQuery, clearAllData, generateMarketingCloudFlow, getCurrentUser } = useAudienceQuery();
+  const { generatedQuery, clearAllData, generateMarketingCloudFlow, getCurrentUser, handleGenerateInsight } = useAudienceQuery();
   const [pdfLoading, setPdfLoading] = useState(false);
   const { updateArchiveStatus } = useArchive();
   const [blockRedirect, setBlockRedirect] = useState(false);
@@ -621,7 +621,7 @@ doc.text(
                     : 'R$ 0,00'}
                 </b>
               </Typography>
-              <Box sx={{ mt: 2, display: 'flex', gap: 2 }}>
+              <Box sx={{ mt: 2, display: 'flex', gap: 2, flexWrap: 'wrap' }}>
                 <LoadingButton
                   variant="contained"
                   startIcon={<Iconify icon="eva:download-outline" />}
@@ -630,6 +630,25 @@ doc.text(
                   sx={{ backgroundColor: '#093366', '&:hover': { backgroundColor: '#07264d' } }}
                 >
                   Finalizar e Exportar PDF
+                </LoadingButton>
+
+                <LoadingButton
+                  variant="contained"
+                  startIcon={<Iconify icon="eva:bulb-outline" />}
+                  loading={pdfLoading}
+                  onClick={async () => {
+                    try {
+                      setPdfLoading(true);
+                      await handleGenerateInsight();
+                    } catch (err) {
+                      // erro já tratado no hook
+                    } finally {
+                      setPdfLoading(false);
+                    }
+                  }}
+                  sx={{ backgroundColor: '#093366', '&:hover': { backgroundColor: '#07264d' } }}
+                >
+                  Gerar Insights
                 </LoadingButton>
                 <LoadingButton
                   variant="contained"
