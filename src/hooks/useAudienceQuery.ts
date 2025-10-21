@@ -17,9 +17,70 @@ export interface UseAudienceQueryReturn {
   clearAllData: () => void;
   generateMarketingCloudFlow: (journey_name: string, query_text: string) => Promise<any>;
   getCurrentUser: () => Promise<any>;
+  handleGenerateInsight: () => Promise<any>;
 }
 
 export const useAudienceQuery = (): UseAudienceQueryReturn => {
+  // Função para gerar insights
+  const handleGenerateInsight = async (): Promise<any> => {
+    try {
+      // Monta campaign_info
+      // audience_volume pode estar em campaignData.audience_volume ou audienceInfo.audience_volume
+      let audience_snapshot = 0;
+      if (typeof campaignData.audience_volume === 'number') {
+        audience_snapshot = campaignData.audience_volume;
+      } else if (campaignData.audienceInfo && typeof campaignData.audienceInfo.audienceSize === 'number') {
+        audience_snapshot = campaignData.audienceInfo.audienceSize;
+      }
+
+      const campaign_info = {
+        campaign_name: campaignData.journey_name || campaignData.journeyName || campaignData.campaign_name || campaignData.campaignName || '',
+        campaign_type: Array.isArray(campaignData.campaign_type)
+          ? campaignData.campaign_type[0] || ''
+          : (campaignData.campaign_type || campaignData.campaignType || ''),
+        campaign_objective: Array.isArray(campaignData.campaign_objective)
+          ? campaignData.campaign_objective[0] || ''
+          : (campaignData.campaign_objective || campaignData.campaignObjective || ''),
+        start_date: campaignData.start_date || '',
+        end_date: campaignData.end_date || '',
+        offer: campaignData.offer || '',
+        code: campaignData.code || '',
+        segmentation_sql:
+          (Array.isArray(campaignData.segmentation) && campaignData.segmentation.length > 0)
+            ? campaignData.segmentation.join(' AND ')
+            : (typeof campaignData.segmentation === 'string' && campaignData.segmentation)
+              ? campaignData.segmentation
+              : (campaignData.generated_query || campaignData.generatedQuery || campaignData.segmentation_sql || ''),
+  audience_snapshot,
+        channels: Array.isArray(campaignData.channel) ? campaignData.channel : [],
+      };
+
+      // Monta additional_info
+      const additional_info: Array<{ name: string; value: string }> = [];
+      const infoFields = [
+        'nom_grupo_marca', 'status_funil', 'modalidade', 'nom_curso', 'tipo_captacao',
+        'nom_curso_exclude', 'nom_tipo_curso', 'status_prova', 'nom_periodo_academico'
+      ];
+      infoFields.forEach((field) => {
+        if (campaignData[field] !== undefined) {
+          additional_info.push({
+            name: field,
+            value: Array.isArray(campaignData[field]) ? campaignData[field].join(',') : campaignData[field]
+          });
+        }
+      });
+
+      const payload = { campaign_info, additional_info };
+      console.log('🚀 Enviando payload para geração de insight:', JSON.stringify(payload, null, 2));
+      const response = await axiosInstance.post('/api/generate/insight', payload);
+      toast.success('Insight gerado com sucesso!');
+      return response.data;
+    } catch (err) {
+      console.error('Erro ao gerar insight:', err);
+      toast.error('Erro ao gerar insight');
+      throw err;
+    }
+  };
   // Função para buscar dados do usuário logado
   const getCurrentUser = async (): Promise<any> => {
     try {
@@ -104,7 +165,7 @@ export const useAudienceQuery = (): UseAudienceQueryReturn => {
       // Determinar filtros com base no base_origin
       const baseOrigin = String(campaignData.base_origin?.[0] || campaignData.source_base || "").toUpperCase();
       let segmentations = "";
-      // Priorizar segmentation/segmentations do contexto, seja array ou string
+      
       if (Array.isArray(campaignData.segmentation) && campaignData.segmentation.length > 0) {
         segmentations = campaignData.segmentation.join(" AND ");
       } else if (typeof campaignData.segmentation === 'string' && campaignData.segmentation) {
@@ -123,7 +184,7 @@ export const useAudienceQuery = (): UseAudienceQueryReturn => {
 
       if (!segmentations) {
         if (baseOrigin === 'DE_GERAL_LEADS') {
-          // Para DE_GERAL_LEADS: usar modalidade, atl_niveldeensino_c, forma_ingresso
+          // Para DE_GERAL_LEADS: usar modalidade, atl_niveldeensino_c, forma_ingresso, status_funil
           const modalidadeStr = Array.isArray(campaignData.modalidade) && campaignData.modalidade.length > 0
             ? `modalidade IN (${campaignData.modalidade.map((m: string) => `'${m}'`).join(',')})`
             : "";
@@ -133,10 +194,14 @@ export const useAudienceQuery = (): UseAudienceQueryReturn => {
           const forma_ingressoStr = Array.isArray(campaignData.forma_ingresso) && campaignData.forma_ingresso.length > 0
             ? `forma_ingresso = '${campaignData.forma_ingresso[0]}'`
             : "";
-          segmentations = [modalidadeStr, atl_niveldeensinoStr, forma_ingressoStr].filter(Boolean).join(" AND ");
+          const status_funilStr = campaignData.status_funil || "";
+          segmentations = [modalidadeStr, atl_niveldeensinoStr, forma_ingressoStr, status_funilStr].filter(Boolean).join(" AND ");
           modalidade = Array.isArray(campaignData.modalidade) ? campaignData.modalidade : [];
           atl_niveldeensino_c = Array.isArray(campaignData.atl_niveldeensino__c) ? campaignData.atl_niveldeensino__c : [];
           forma_ingresso = Array.isArray(campaignData.forma_ingresso) ? campaignData.forma_ingresso : [];
+          status_funil = Array.isArray(campaignData.status_funil)
+            ? campaignData.status_funil
+            : (typeof campaignData.status_funil === 'string' && campaignData.status_funil ? [campaignData.status_funil] : []);
         } else {
           // Para DE_GERAL_OPORTUNIDADE: usar nom_periodo_academico e status_funil
           const nom_periodoStr = Array.isArray(campaignData.nom_periodo_academico) && campaignData.nom_periodo_academico.length > 0
@@ -218,13 +283,19 @@ export const useAudienceQuery = (): UseAudienceQueryReturn => {
           throw new Error('A query gerada não é uma string válida.');
         }
 
-        const maskedQuery = apiGeneratedQueryText.replace(/(nom_grupo_marca\s*=\s*')([^']*)(')/g, '$1MARCA$3');
-        setGeneratedQuery(maskedQuery);
+      
+      
+
+        // Captura o audience_volume da resposta
+        const audienceVolume = typeof result.data === 'object' && 'audience_volume' in result.data
+          ? (result.data as any).audience_volume
+          : undefined;
 
         updateCampaignData({
           generated_query: apiGeneratedQueryText,
           generatedQuery: apiGeneratedQueryText,
           journey_name: journeyName || '',
+          audience_volume: typeof audienceVolume === 'number' ? audienceVolume : undefined,
         });
         toast.success('Query da audiência gerada com sucesso!');
       } else {
@@ -286,13 +357,14 @@ export const useAudienceQuery = (): UseAudienceQueryReturn => {
   };
 
   return {
-    isGenerating,
-    generatedQuery,
-    handleGenerateQuery,
-    handleSaveAsDraft,
-    clearQuery,
-    clearAllData,
-    generateMarketingCloudFlow,
-    getCurrentUser,
+  isGenerating,
+  generatedQuery,
+  handleGenerateQuery,
+  handleSaveAsDraft,
+  clearQuery,
+  clearAllData,
+  generateMarketingCloudFlow,
+  getCurrentUser,
+  handleGenerateInsight,
   };
 };

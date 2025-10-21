@@ -28,6 +28,7 @@ import { SplashScreen } from 'src/components/loading-screen';
 
 
 export default function AudiencePage() {
+  const { updateCampaignData } = useFormWizard();
   const router = useRouter();
   const { resetCampaignData} = useFormWizard();
   const payload = useAudiencePayload();
@@ -68,6 +69,17 @@ export default function AudiencePage() {
       runAudienceFlow(payload);
     }
   }, [payload, data, loading, error, runAudienceFlow, contextReady]);
+
+  useEffect(() => {
+    // Atualiza o contexto só quando data muda
+    if (data && typeof data.audience_volume === 'number') {
+      updateCampaignData({
+        audience_volume: data.audience_volume,
+        journey_name: data.journey_name || '',
+      });
+    }
+     // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [data]);
 
   const formatCurrency = (value: number): string =>
     new Intl.NumberFormat('pt-BR', {
