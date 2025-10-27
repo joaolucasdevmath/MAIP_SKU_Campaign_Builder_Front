@@ -2,6 +2,7 @@
 
 import dayjs from 'dayjs';
 import { useState, useEffect } from 'react';
+import { Controller } from 'react-hook-form';
 
 import { Box, Grid, Button, Typography } from '@mui/material';
 
@@ -31,10 +32,10 @@ const extractFormValues = (data: any, channelOptions: any[]) => {
 
   const core = data.campaign?.core || {};
 
-  const initialValues = {
-    campaign_name: core.campaign_name || '',
-    campaign_objective: core.campaign_objective ? [core.campaign_objective] : [],
-    campaign_type: core.campaign_type ? [core.campaign_type] : [],
+    const initialValues = {
+      campaign_name: core.campaign_name || '',
+      campaign_objective: core.campaign_objective ? [core.campaign_objective] : [],
+      campaign_type: core.campaign_type ? [core.campaign_type] : [],
 
     offer: core.offer || '',
     campaign_codes: core.code || '',
@@ -133,7 +134,15 @@ useEffect(() => {
       <FormStepper />
       <Box sx={{ mt: 4 }}>
         {/* @ts-ignore */}
-        <Form methods={{ control, handleSubmit, ...methods }} onSubmit={handleSubmit(onSubmit)}>
+        <Form methods={{ control, handleSubmit, ...methods }} onSubmit={handleSubmit((data) => {
+  if (typeof data.campaign_objective === 'string') {
+    data.campaign_objective = data.campaign_objective
+      .split(/\r?\n/)
+      .map(s => s.trim())
+      .filter(Boolean);
+  }
+  onSubmit(data);
+})}>
           <Grid container spacing={3}>
             <Grid item xs={12}>
               <FieldWithLabel label="Nome da Campanha" required>
@@ -168,18 +177,14 @@ useEffect(() => {
             <Grid item xs={12} md={6}>
               {campaignObjectiveField && (
                 <FieldWithLabel label={campaignObjectiveField.label}>
-                  <RHFMultiSelect
+                  <RHFTextField
                     name={campaignObjectiveField.name}
-                    placeholder="Selecione o objetivo da campanha"
-                    options={
-                      campaignObjectiveField.values?.map((item: any) => ({
-                        label: item.label || item.value || item,
-                        value: item.value || item.id || item,
-                      })) || []
-                    }
-                    chip
-                    helperText="Objetivo específico da campanha."
+                    placeholder="Digite um ou mais objetivos, um por linha"
+                    helperText="Digite cada objetivo em uma linha separada."
+                    multiline
+                    rows={3}
                     variant="outlined"
+                    type="text"
                   />
                 </FieldWithLabel>
               )}

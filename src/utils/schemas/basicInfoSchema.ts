@@ -27,7 +27,10 @@ function getQuantityFieldsSchema(channelList: Array<{ label: string }>): Record<
 
 export const basicInfoSchema = z.object({
   campaign_name: z.string().min(1, 'Nome da campanha é obrigatório'),
-  campaign_objective: z.union([z.string().min(1, 'Objetivo obrigatório'), z.array(z.string()).min(1, 'Objetivo obrigatório')]),
+  campaign_objective: z.union([
+    z.string().min(1, 'Objetivo obrigatório'),
+    z.array(z.string().min(1, 'Objetivo obrigatório')).min(1, 'Objetivo obrigatório')
+  ]),
   campaign_type: z.union([z.string().min(1, 'Tipo obrigatório'), z.array(z.string()).min(1, 'Tipo obrigatório')]),
   channel: z.union([z.string().min(1, 'Canal obrigatório'), z.array(z.string()).min(1, 'Canal obrigatório')]),
   offer: z.string().optional(),

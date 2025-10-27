@@ -15,6 +15,7 @@ import { getInitColorSchemeScript } from 'src/theme/color-scheme-script';
 
 import { Snackbar } from 'src/components/snackbar';
 import { ProgressBar } from 'src/components/progress-bar';
+import SiteFooter from 'src/components/footer/SiteFooter';
 import { MotionLazy } from 'src/components/animate/motion-lazy';
 import { detectSettings } from 'src/components/settings/server';
 import NavbarWrapper from 'src/components/NavbarWrapper/NavbarWrapper';
@@ -63,6 +64,7 @@ export default async function RootLayout({ children }: Props) {
                         <Snackbar />
                         <ProgressBar />
                         {children}
+                        <SiteFooter />
                       </MotionLazy>
                     </ThemeProvider>
                   </SettingsProvider>
