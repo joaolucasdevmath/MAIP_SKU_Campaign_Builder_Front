@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 
 import Box from '@mui/material/Box';
@@ -12,6 +12,8 @@ import Typography from '@mui/material/Typography';
 import IconButton from '@mui/material/IconButton';
 
 import { paths } from 'src/routes/paths';
+
+import axiosInstance, { endpoints } from 'src/utils/axios';
 
 import { useFormWizard } from 'src/context/FormWizardContext';
 
@@ -25,18 +27,34 @@ export default function Navbar() {
   const theme = useTheme();
   const pathname = usePathname()?.replace(/\/$/, '') || '';
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const { state } = useFormWizard();
+  const { state, role, setRole } = useFormWizard();
 
-  // Considera que a audiência foi gerada se existe generatedQuery ou generated_query
+  useEffect(() => {
+    axiosInstance.get(endpoints.briefing.getUserMe).then((res) => {
+      const userRole = res.data?.data?.role;
+      if (userRole) setRole(userRole);
+    });
+  }, [setRole]);
+
   const hasAudience = !!(state.generatedQuery || state.generated_query);
 
-  // Permite acessar "Insights" só se já gerou audiência
   const canAccessInsights = hasAudience;
-  // Permite acessar "Audiência" só se já gerou segmentação (query)
+
   const canAccessAudience = hasAudience;
 
   const handleDrawerOpen = () => setDrawerOpen(true);
   const handleDrawerClose = () => setDrawerOpen(false);
+
+  // Adiciona a tab Admin ao lado das outras, só para admin
+  const stepsWithAdmin =
+    role === 'admin'
+      ? [
+          { name: 'Briefing', path: paths.briefing.basicInfo },
+          { name: 'Audiência', path: paths.audience },
+          { name: 'Insights', path: paths.insights },
+          { name: 'Admin', path: paths.admin },
+        ]
+      : steps;
 
   return (
     <Box
@@ -81,7 +99,7 @@ export default function Navbar() {
         </Box>
         {/* Desktop links */}
         <Box sx={{ display: { xs: 'none', md: 'flex' }, gap: 4 }}>
-          {steps.map((step) => {
+          {stepsWithAdmin.map((step) => {
             const isActive = pathname === step.path.replace(/\/$/, '');
             let isDisabled = false;
             if (step.name === 'Audiência') {
@@ -101,12 +119,16 @@ export default function Navbar() {
                     py: 2,
                     fontWeight: 600,
                     fontSize: 16,
-                    color: isDisabled ? theme.palette.grey[300] : (isActive ? '#000' : theme.palette.grey[500]),
+                    color: isDisabled
+                      ? theme.palette.grey[300]
+                      : isActive
+                        ? '#000'
+                        : theme.palette.grey[500],
                     transition: 'color 0.2s',
                     cursor: isDisabled ? 'not-allowed' : 'pointer',
                     pointerEvents: isDisabled ? 'none' : 'auto',
                   }}
-                  onClick={e => {
+                  onClick={(e) => {
                     if (isDisabled) {
                       e.preventDefault();
                     }
@@ -127,7 +149,7 @@ export default function Navbar() {
         </Box>
         <Drawer anchor="right" open={drawerOpen} onClose={handleDrawerClose}>
           <Box sx={{ width: 220, p: 2 }} role="presentation" onClick={handleDrawerClose}>
-            {steps.map((step) => {
+            {stepsWithAdmin.map((step) => {
               const isActive = pathname === step.path.replace(/\/$/, '');
               let isDisabled = false;
               if (step.name === 'Audiência') {
@@ -145,12 +167,16 @@ export default function Navbar() {
                     py: 2,
                     fontWeight: 600,
                     fontSize: 18,
-                    color: isDisabled ? theme.palette.grey[300] : (isActive ? '#000' : theme.palette.grey[500]),
+                    color: isDisabled
+                      ? theme.palette.grey[300]
+                      : isActive
+                        ? '#000'
+                        : theme.palette.grey[500],
                     transition: 'color 0.2s',
                     cursor: isDisabled ? 'not-allowed' : 'pointer',
                     pointerEvents: isDisabled ? 'none' : 'auto',
                   }}
-                  onClick={e => {
+                  onClick={(e) => {
                     if (isDisabled) {
                       e.preventDefault();
                     }

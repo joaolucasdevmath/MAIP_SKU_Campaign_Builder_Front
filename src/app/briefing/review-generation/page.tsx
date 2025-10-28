@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState } from 'react';
@@ -126,7 +125,7 @@ export default function ReviewGeneration() {
   );
 
   return (
-     <Container maxWidth="lg">
+    <Container maxWidth="lg">
       <Box sx={{ py: 4 }}>
         <FormStepper currentStep={4} />
 
@@ -135,11 +134,9 @@ export default function ReviewGeneration() {
         {/* Seções organizadas pelos dados do hook */}
         {renderSection(reviewData.basicInfo.title, reviewData.basicInfo.data)}
         {renderSection(reviewData.segmentation.title, reviewData.segmentation.data)}
-        
-        
+
         {renderSection(reviewData.advancedFilters.title, reviewData.advancedFilters.data)}
-       
-       
+
         {/* --- Seção 3. Configurações Avançadas (Grupo/Marca mockado, resto dinâmico) --- */}
         {/* <Card sx={{ mb: 3, boxShadow: 2 }}>
           <CardContent>
@@ -186,9 +183,6 @@ export default function ReviewGeneration() {
               Query da Audiência Gerada
             </Typography>
             <Box sx={{ position: 'relative' }}>
-              
-            
-
               <Typography
                 variant="body2"
                 sx={{
@@ -222,10 +216,9 @@ export default function ReviewGeneration() {
                 Copiar Query
               </Button>
             </Box>
-              
-             
-              {/* --- BLOCO COM MÁSCARA --- */}
-               {/* {(() => {
+
+            {/* --- BLOCO COM MÁSCARA --- */}
+            {/* {(() => {
                 const rawQuery = typeof generatedQuery === 'string'
                   ? generatedQuery
                   : JSON.stringify(generatedQuery, null, 2);
@@ -263,12 +256,9 @@ export default function ReviewGeneration() {
               >
                 Copiar Query
               </Button> */}
-              {/* --- FIM BLOCO COM MÁSCARA --- */}
-            
+            {/* --- FIM BLOCO COM MÁSCARA --- */}
           </Paper>
-          
         )}
-
 
         {generatedBriefing && (
           <Paper sx={{ p: 4, mb: 4, bgcolor: '#f8f9fa', borderRadius: 2 }}>
@@ -323,9 +313,7 @@ export default function ReviewGeneration() {
                 </Box>
               }
               onClick={handleGenerateQuery}
-              disabled={
-                !reviewData.basicInfo.data.campaignName || isGenerating || !!generatedQuery
-              }
+              disabled={!reviewData.basicInfo.data.campaignName || isGenerating || !!generatedQuery}
               sx={{
                 backgroundColor: '#093366',
                 color: 'white',
@@ -367,7 +355,8 @@ export default function ReviewGeneration() {
                       campaignCore: {
                         offer: campaignData.offer || '',
                         code: campaignData.campaign_codes || campaignData.campaignCode || '',
-                        campaign_name: campaignData.campaign_name || campaignData.campaignName || '',
+                        campaign_name:
+                          campaignData.campaign_name || campaignData.campaignName || '',
                         campaign_type: Array.isArray(campaignData.campaign_type)
                           ? campaignData.campaign_type[0]
                           : campaignData.campaign_type || campaignData.campaignType || '',
@@ -377,14 +366,15 @@ export default function ReviewGeneration() {
                         start_date: campaignData.start_date
                           ? campaignData.start_date.split('T')[0]
                           : campaignData.campaignStartDate
-                          ? new Date(campaignData.campaignStartDate).toISOString().split('T')[0]
-                          : '',
+                            ? new Date(campaignData.campaignStartDate).toISOString().split('T')[0]
+                            : '',
                         end_date: campaignData.end_date
                           ? campaignData.end_date.split('T')[0]
                           : campaignData.campaignEndDate
-                          ? new Date(campaignData.campaignEndDate).toISOString().split('T')[0]
-                          : '',
-                        segmentation_sql: campaignData.generatedQuery || campaignData.generated_query || '',
+                            ? new Date(campaignData.campaignEndDate).toISOString().split('T')[0]
+                            : '',
+                        segmentation_sql:
+                          campaignData.generatedQuery || campaignData.generated_query || '',
                         audience_snapshot: campaignData.audienceInfo?.audienceSize ?? 0,
                         status: 'draft',
                         is_template: false,
@@ -395,24 +385,52 @@ export default function ReviewGeneration() {
                         quantity: campaignData[`quantity_${type}`] || 0,
                       })),
                       briefingCore: {
-                        name: campaignData.journey_name || campaignData.campaign_name || campaignData.campaignName || 'NOME_PADRAO',
+                        name:
+                          campaignData.journey_name ||
+                          campaignData.campaign_name ||
+                          campaignData.campaignName ||
+                          'NOME_PADRAO',
                         segmentation: (campaignData.segmentation || []).join(' AND '),
                         source_base_id: campaignData.source_base_id || '1',
-                        source_base: (campaignData.base_origin && campaignData.base_origin[0]) || campaignData.source_base || '',
+                        source_base:
+                          (campaignData.base_origin && campaignData.base_origin[0]) ||
+                          campaignData.source_base ||
+                          '',
                       },
                       briefingFields: [
                         { name: 'nom_grupo_marca', value: campaignData.nom_grupo_marca || '' },
                         { name: 'modalidade', value: (campaignData.modalidade || []).join(', ') },
-                        { name: 'atl_niveldeensino__c', value: (campaignData.atl_niveldeensino__c || []).join(', ') },
-                        { name: 'forma_ingresso_enem', value: campaignData.forma_ingresso_enem ? 'true' : 'false' },
-                        { name: 'forma_ingresso_vestibular', value: campaignData.forma_ingresso_vestibular ? 'true' : 'false' },
-                        { name: 'disponibilizacao_call_center_nao', value: campaignData.disponibilizacao_call_center_nao ? 'true' : 'false' },
-                        { name: 'disponibilizacao_call_center_sim', value: campaignData.disponibilizacao_call_center_sim ? 'true' : 'false' },
+                        {
+                          name: 'atl_niveldeensino__c',
+                          value: (campaignData.atl_niveldeensino__c || []).join(', '),
+                        },
+                        {
+                          name: 'forma_ingresso_enem',
+                          value: campaignData.forma_ingresso_enem ? 'true' : 'false',
+                        },
+                        {
+                          name: 'forma_ingresso_vestibular',
+                          value: campaignData.forma_ingresso_vestibular ? 'true' : 'false',
+                        },
+                        {
+                          name: 'disponibilizacao_call_center_nao',
+                          value: campaignData.disponibilizacao_call_center_nao ? 'true' : 'false',
+                        },
+                        {
+                          name: 'disponibilizacao_call_center_sim',
+                          value: campaignData.disponibilizacao_call_center_sim ? 'true' : 'false',
+                        },
                         { name: 'status_funil', value: campaignData.status_funil || '' },
                         { name: 'outras_exclusoes', value: campaignData.outras_exclusoes || '' },
                         { name: 'criterios_saida', value: campaignData.criterios_saida || '' },
-                        { name: 'informacoes_extras', value: campaignData.informacoes_extras || '' },
-                        { name: 'base_origin', value: (campaignData.base_origin && campaignData.base_origin[0]) || '' },
+                        {
+                          name: 'informacoes_extras',
+                          value: campaignData.informacoes_extras || '',
+                        },
+                        {
+                          name: 'base_origin',
+                          value: (campaignData.base_origin && campaignData.base_origin[0]) || '',
+                        },
                       ],
                     });
                     console.log('Payload a ser salvo histoarico:', payload);
@@ -448,11 +466,9 @@ export default function ReviewGeneration() {
               </>
             )}
           </Stack>
-
-       
         </Stack>
 
- <Dialog
+        <Dialog
           open={openModal}
           onClose={handleCloseModal}
           aria-labelledby="save-dialog-title"

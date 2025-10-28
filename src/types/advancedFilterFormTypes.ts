@@ -1,5 +1,5 @@
 export interface DynamicAdvancedFilterFormValues {
-  nom_grupo_marca?: string; 
+  nom_grupo_marca?: string;
   atl_niveldeensino__c?: string[];
   modalidade?: string[];
   nom_curso?: string[];
@@ -8,7 +8,7 @@ export interface DynamicAdvancedFilterFormValues {
   forma_ingresso_transferencia_externa?: boolean;
   forma_ingresso_vestibular?: boolean;
   forma_ingresso_ingresso_simplificado?: boolean;
-  etapa_funil: any[]; 
+  etapa_funil: any[];
   status_vestibular: any[];
   faixa_etaria?: {
     min: number;

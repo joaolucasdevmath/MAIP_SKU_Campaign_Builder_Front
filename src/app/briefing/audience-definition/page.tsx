@@ -28,20 +28,27 @@ export default function AudienceDefinitionPage() {
 
   if (loading || fields.length === 0) {
     return (
-       <Box>
-              
-              <Box sx={{ mt: 4, minHeight: '400px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <SplashScreen portal={false} />
-              </Box>
-              <Typography variant="h6" color="text.secondary" align="center" sx={{ mt: 2 }}>
-                Carregando campos do formulário...
-              </Typography>
-              <Typography variant="body2" color="text.secondary" align="center">
-                Aguarde enquanto buscamos as configurações.
-              </Typography>
-            </Box>
-          );
-        }
+      <Box>
+        <Box
+          sx={{
+            mt: 4,
+            minHeight: '400px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
+          <SplashScreen portal={false} />
+        </Box>
+        <Typography variant="h6" color="text.secondary" align="center" sx={{ mt: 2 }}>
+          Carregando campos do formulário...
+        </Typography>
+        <Typography variant="body2" color="text.secondary" align="center">
+          Aguarde enquanto buscamos as configurações.
+        </Typography>
+      </Box>
+    );
+  }
 
   return (
     <Box>

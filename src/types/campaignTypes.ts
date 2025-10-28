@@ -3,12 +3,12 @@
 export interface RecommendationItem {
   title: string;
   description: string;
-  priority?: "high" | "medium" | "low";
-  category?: "content" | "audience" | "timing" | "channel" | "general";
+  priority?: 'high' | 'medium' | 'low';
+  category?: 'content' | 'audience' | 'timing' | 'channel' | 'general';
 }
 
 export interface AudienceInfo {
-  volumetriaEsperada?: "Alta" | "Média" | "Baixa";
+  volumetriaEsperada?: 'Alta' | 'Média' | 'Baixa';
   audienceSize?: number;
   openRate?: number;
   clickRate?: number;
@@ -26,7 +26,6 @@ export interface QueryData {
   baseOrigem: string;
   sql: string;
 }
-
 
 export interface CampaignData {
   // Etapa 1: Informações básicas
@@ -100,16 +99,16 @@ export interface CampaignData {
 }
 
 export const initialCleanCampaignData: CampaignData = {
-  campaignName: "",
-  campaignCode: "",
-  journeyName: "",
-  brand: "",
+  campaignName: '',
+  campaignCode: '',
+  journeyName: '',
+  brand: '',
   subBrands: [],
-  semester: "",
-  offers: "",
-  campaignOrigin: "DE",
-  campaignType: "",
-  campaignObjective: "",
+  semester: '',
+  offers: '',
+  campaignOrigin: 'DE',
+  campaignType: '',
+  campaignObjective: '',
   funnelStage: [],
   baseOrigin: [],
   modality: [],
@@ -121,7 +120,7 @@ export const initialCleanCampaignData: CampaignData = {
   lastInteraction: 30,
   removeFromMasterRegua: false,
   mainDocumentationSent: false,
-  offer: "",
+  offer: '',
   allowedEntryForms: [],
   excludedEntryForms: [],
   automatedUpdate: false,

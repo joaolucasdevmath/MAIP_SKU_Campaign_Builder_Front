@@ -29,43 +29,63 @@ export const useAudienceQuery = (): UseAudienceQueryReturn => {
       let audience_snapshot = 0;
       if (typeof campaignData.audience_volume === 'number') {
         audience_snapshot = campaignData.audience_volume;
-      } else if (campaignData.audienceInfo && typeof campaignData.audienceInfo.audienceSize === 'number') {
+      } else if (
+        campaignData.audienceInfo &&
+        typeof campaignData.audienceInfo.audienceSize === 'number'
+      ) {
         audience_snapshot = campaignData.audienceInfo.audienceSize;
       }
 
       const campaign_info = {
-        campaign_name: campaignData.journey_name || campaignData.journeyName || campaignData.campaign_name || campaignData.campaignName || '',
+        campaign_name:
+          campaignData.journey_name ||
+          campaignData.journeyName ||
+          campaignData.campaign_name ||
+          campaignData.campaignName ||
+          '',
         campaign_type: Array.isArray(campaignData.campaign_type)
           ? campaignData.campaign_type[0] || ''
-          : (campaignData.campaign_type || campaignData.campaignType || ''),
+          : campaignData.campaign_type || campaignData.campaignType || '',
         campaign_objective: Array.isArray(campaignData.campaign_objective)
           ? campaignData.campaign_objective[0] || ''
-          : (campaignData.campaign_objective || campaignData.campaignObjective || ''),
+          : campaignData.campaign_objective || campaignData.campaignObjective || '',
         start_date: campaignData.start_date || '',
         end_date: campaignData.end_date || '',
         offer: campaignData.offer || '',
         code: campaignData.code || '',
         segmentation_sql:
-          (Array.isArray(campaignData.segmentation) && campaignData.segmentation.length > 0)
+          Array.isArray(campaignData.segmentation) && campaignData.segmentation.length > 0
             ? campaignData.segmentation.join(' AND ')
-            : (typeof campaignData.segmentation === 'string' && campaignData.segmentation)
+            : typeof campaignData.segmentation === 'string' && campaignData.segmentation
               ? campaignData.segmentation
-              : (campaignData.generated_query || campaignData.generatedQuery || campaignData.segmentation_sql || ''),
-  audience_snapshot,
+              : campaignData.generated_query ||
+                campaignData.generatedQuery ||
+                campaignData.segmentation_sql ||
+                '',
+        audience_snapshot,
         channels: Array.isArray(campaignData.channel) ? campaignData.channel : [],
       };
 
       // Monta additional_info
       const additional_info: Array<{ name: string; value: string }> = [];
       const infoFields = [
-        'nom_grupo_marca', 'status_funil', 'modalidade', 'nom_curso', 'tipo_captacao',
-        'nom_curso_exclude', 'nom_tipo_curso', 'status_prova', 'nom_periodo_academico'
+        'nom_grupo_marca',
+        'status_funil',
+        'modalidade',
+        'nom_curso',
+        'tipo_captacao',
+        'nom_curso_exclude',
+        'nom_tipo_curso',
+        'status_prova',
+        'nom_periodo_academico',
       ];
       infoFields.forEach((field) => {
         if (campaignData[field] !== undefined) {
           additional_info.push({
             name: field,
-            value: Array.isArray(campaignData[field]) ? campaignData[field].join(',') : campaignData[field]
+            value: Array.isArray(campaignData[field])
+              ? campaignData[field].join(',')
+              : campaignData[field],
           });
         }
       });
@@ -87,9 +107,8 @@ export const useAudienceQuery = (): UseAudienceQueryReturn => {
       const response = await axiosInstance.get('/api/user/me');
       if (response.data && response.data.success && response.data.data) {
         return response.data.data;
-      } 
-        throw new Error(response.data.errorMessage || 'Erro ao buscar usuário');
-      
+      }
+      throw new Error(response.data.errorMessage || 'Erro ao buscar usuário');
     } catch (err) {
       console.error('Erro ao buscar usuário:', err);
       toast.error('Erro ao buscar usuário');
@@ -97,7 +116,10 @@ export const useAudienceQuery = (): UseAudienceQueryReturn => {
     }
   };
   // Função para criar fluxo no Marketing Cloud
-  const generateMarketingCloudFlow = async (journey_name: string, query_text: string): Promise<any> => {
+  const generateMarketingCloudFlow = async (
+    journey_name: string,
+    query_text: string
+  ): Promise<any> => {
     try {
       const payload = { journey_name, query_text };
       const response = await axiosInstance.post(endpoints.briefing.generateMarketingCloud, payload);
@@ -125,7 +147,6 @@ export const useAudienceQuery = (): UseAudienceQueryReturn => {
   const handleGenerateQuery = async (): Promise<void> => {
     setIsGenerating(true);
     try {
-      
       const campaign_channels: Record<string, number> = {};
       if (Array.isArray(campaignData.channel)) {
         campaignData.channel.forEach((channel: string) => {
@@ -140,7 +161,7 @@ export const useAudienceQuery = (): UseAudienceQueryReturn => {
           // eslint-disable-next-line no-restricted-syntax
           for (const quantityKey of quantityKeys) {
             quantity = campaignData[quantityKey];
-            
+
             if (
               quantity !== undefined &&
               quantity !== null &&
@@ -152,7 +173,9 @@ export const useAudienceQuery = (): UseAudienceQueryReturn => {
             }
           }
           if (!campaign_channels[channelKeyUpper]) {
-            console.warn(`[DEBUG useAudienceQuery] Canal ${channel} ignorado: valor inválido (${quantity})`);
+            console.warn(
+              `[DEBUG useAudienceQuery] Canal ${channel} ignorado: valor inválido (${quantity})`
+            );
           }
         });
       }
@@ -163,15 +186,20 @@ export const useAudienceQuery = (): UseAudienceQueryReturn => {
       }
 
       // Determinar filtros com base no base_origin
-      const baseOrigin = String(campaignData.base_origin?.[0] || campaignData.source_base || "").toUpperCase();
-      let segmentations = "";
-      
+      const baseOrigin = String(
+        campaignData.base_origin?.[0] || campaignData.source_base || ''
+      ).toUpperCase();
+      let segmentations = '';
+
       if (Array.isArray(campaignData.segmentation) && campaignData.segmentation.length > 0) {
-        segmentations = campaignData.segmentation.join(" AND ");
+        segmentations = campaignData.segmentation.join(' AND ');
       } else if (typeof campaignData.segmentation === 'string' && campaignData.segmentation) {
         segmentations = campaignData.segmentation;
-      } else if (Array.isArray(campaignData.segmentations) && campaignData.segmentations.length > 0) {
-        segmentations = campaignData.segmentations.join(" AND ");
+      } else if (
+        Array.isArray(campaignData.segmentations) &&
+        campaignData.segmentations.length > 0
+      ) {
+        segmentations = campaignData.segmentations.join(' AND ');
       } else if (typeof campaignData.segmentations === 'string' && campaignData.segmentations) {
         const { segmentations: segmentationsValue } = campaignData;
         segmentations = segmentationsValue;
@@ -185,34 +213,52 @@ export const useAudienceQuery = (): UseAudienceQueryReturn => {
       if (!segmentations) {
         if (baseOrigin === 'DE_GERAL_LEADS') {
           // Para DE_GERAL_LEADS: usar modalidade, atl_niveldeensino_c, forma_ingresso, status_funil
-          const modalidadeStr = Array.isArray(campaignData.modalidade) && campaignData.modalidade.length > 0
-            ? `modalidade IN (${campaignData.modalidade.map((m: string) => `'${m}'`).join(',')})`
-            : "";
-          const atl_niveldeensinoStr = Array.isArray(campaignData.atl_niveldeensino__c) && campaignData.atl_niveldeensino__c.length > 0
-            ? `atl_niveldeensino_c = '${campaignData.atl_niveldeensino__c[0]}'`
-            : "";
-          const forma_ingressoStr = Array.isArray(campaignData.forma_ingresso) && campaignData.forma_ingresso.length > 0
-            ? `forma_ingresso = '${campaignData.forma_ingresso[0]}'`
-            : "";
-          const status_funilStr = campaignData.status_funil || "";
-          segmentations = [modalidadeStr, atl_niveldeensinoStr, forma_ingressoStr, status_funilStr].filter(Boolean).join(" AND ");
+          const modalidadeStr =
+            Array.isArray(campaignData.modalidade) && campaignData.modalidade.length > 0
+              ? `modalidade IN (${campaignData.modalidade.map((m: string) => `'${m}'`).join(',')})`
+              : '';
+          const atl_niveldeensinoStr =
+            Array.isArray(campaignData.atl_niveldeensino__c) &&
+            campaignData.atl_niveldeensino__c.length > 0
+              ? `atl_niveldeensino_c = '${campaignData.atl_niveldeensino__c[0]}'`
+              : '';
+          const forma_ingressoStr =
+            Array.isArray(campaignData.forma_ingresso) && campaignData.forma_ingresso.length > 0
+              ? `forma_ingresso = '${campaignData.forma_ingresso[0]}'`
+              : '';
+          const status_funilStr = campaignData.status_funil || '';
+          segmentations = [modalidadeStr, atl_niveldeensinoStr, forma_ingressoStr, status_funilStr]
+            .filter(Boolean)
+            .join(' AND ');
           modalidade = Array.isArray(campaignData.modalidade) ? campaignData.modalidade : [];
-          atl_niveldeensino_c = Array.isArray(campaignData.atl_niveldeensino__c) ? campaignData.atl_niveldeensino__c : [];
-          forma_ingresso = Array.isArray(campaignData.forma_ingresso) ? campaignData.forma_ingresso : [];
+          atl_niveldeensino_c = Array.isArray(campaignData.atl_niveldeensino__c)
+            ? campaignData.atl_niveldeensino__c
+            : [];
+          forma_ingresso = Array.isArray(campaignData.forma_ingresso)
+            ? campaignData.forma_ingresso
+            : [];
           status_funil = Array.isArray(campaignData.status_funil)
             ? campaignData.status_funil
-            : (typeof campaignData.status_funil === 'string' && campaignData.status_funil ? [campaignData.status_funil] : []);
+            : typeof campaignData.status_funil === 'string' && campaignData.status_funil
+              ? [campaignData.status_funil]
+              : [];
         } else {
           // Para DE_GERAL_OPORTUNIDADE: usar nom_periodo_academico e status_funil
-          const nom_periodoStr = Array.isArray(campaignData.nom_periodo_academico) && campaignData.nom_periodo_academico.length > 0
-            ? `nom_periodo_academico IN (${campaignData.nom_periodo_academico.map((p: string) => `'${p}'`).join(',')})`
-            : "";
-          const status_funilStr = campaignData.status_funil || "";
-          segmentations = [nom_periodoStr, status_funilStr].filter(Boolean).join(" AND ");
-          nom_periodo_academico = Array.isArray(campaignData.nom_periodo_academico) ? campaignData.nom_periodo_academico : [''];
+          const nom_periodoStr =
+            Array.isArray(campaignData.nom_periodo_academico) &&
+            campaignData.nom_periodo_academico.length > 0
+              ? `nom_periodo_academico IN (${campaignData.nom_periodo_academico.map((p: string) => `'${p}'`).join(',')})`
+              : '';
+          const status_funilStr = campaignData.status_funil || '';
+          segmentations = [nom_periodoStr, status_funilStr].filter(Boolean).join(' AND ');
+          nom_periodo_academico = Array.isArray(campaignData.nom_periodo_academico)
+            ? campaignData.nom_periodo_academico
+            : [''];
           status_funil = Array.isArray(campaignData.status_funil)
             ? campaignData.status_funil
-            : (typeof campaignData.status_funil === 'string' && campaignData.status_funil ? [campaignData.status_funil] : []);
+            : typeof campaignData.status_funil === 'string' && campaignData.status_funil
+              ? [campaignData.status_funil]
+              : [];
         }
       }
 
@@ -221,11 +267,15 @@ export const useAudienceQuery = (): UseAudienceQueryReturn => {
         base_origin: baseOrigin,
         nom_grupo_marca: campaignData.nom_grupo_marca || campaignData.brand || '',
         segmentations,
-        nom_tipo_curso: Array.isArray(campaignData.nom_tipo_curso) ? campaignData.nom_tipo_curso : [],
+        nom_tipo_curso: Array.isArray(campaignData.nom_tipo_curso)
+          ? campaignData.nom_tipo_curso
+          : [],
         tipo_captacao: Array.isArray(campaignData.tipo_captacao) ? campaignData.tipo_captacao : [],
         modalidade,
         nom_curso: Array.isArray(campaignData.nom_curso) ? campaignData.nom_curso : [],
-        nom_curso_exclude: Array.isArray(campaignData.nom_curso_exclude) ? campaignData.nom_curso_exclude : [],
+        nom_curso_exclude: Array.isArray(campaignData.nom_curso_exclude)
+          ? campaignData.nom_curso_exclude
+          : [],
         nom_periodo_academico,
         status_funil,
         atl_niveldeensino_c,
@@ -242,18 +292,21 @@ export const useAudienceQuery = (): UseAudienceQueryReturn => {
 
       // Construir payload simplificado
       const queryPayload: GenerateQueryPayload = {
-        campaign_name: campaignData.campaign_name || "teste",
+        campaign_name: campaignData.campaign_name || 'teste',
         campaign_type: Array.isArray(campaignData.campaign_type)
-          ? campaignData.campaign_type[0] || "CAPTAÇÃO"
-          : campaignData.campaign_type || campaignData.campaignType || "CAPTAÇÃO",
+          ? campaignData.campaign_type[0] || 'CAPTAÇÃO'
+          : campaignData.campaign_type || campaignData.campaignType || 'CAPTAÇÃO',
         campaign_objective: Array.isArray(campaignData.campaign_objective)
-          ? campaignData.campaign_objective[0] || "INSCRIÇÃO"
-          : campaignData.campaign_objective || campaignData.campaignObjective || "INSCRIÇÃO",
+          ? campaignData.campaign_objective[0] || 'INSCRIÇÃO'
+          : campaignData.campaign_objective || campaignData.campaignObjective || 'INSCRIÇÃO',
         campaign_channels,
         filters,
       };
 
-      console.log('🚀 Enviando payload para geração de query:', JSON.stringify(queryPayload, null, 2));
+      console.log(
+        '🚀 Enviando payload para geração de query:',
+        JSON.stringify(queryPayload, null, 2)
+      );
 
       // Enviar requisição para a API
       const response = await axiosInstance.post<GenerateQueryResponse>(
@@ -271,9 +324,10 @@ export const useAudienceQuery = (): UseAudienceQueryReturn => {
             : result.data;
 
         // Captura o journey_name da resposta
-        const journeyName = typeof result.data === 'object' && 'journey_name' in result.data
-          ? (result.data as any).journey_name
-          : undefined;
+        const journeyName =
+          typeof result.data === 'object' && 'journey_name' in result.data
+            ? (result.data as any).journey_name
+            : undefined;
 
         console.log('Query gerada:', apiGeneratedQueryText);
         console.log('Journey Name:', journeyName);
@@ -283,13 +337,11 @@ export const useAudienceQuery = (): UseAudienceQueryReturn => {
           throw new Error('A query gerada não é uma string válida.');
         }
 
-      
-      
-
         // Captura o audience_volume da resposta
-        const audienceVolume = typeof result.data === 'object' && 'audience_volume' in result.data
-          ? (result.data as any).audience_volume
-          : undefined;
+        const audienceVolume =
+          typeof result.data === 'object' && 'audience_volume' in result.data
+            ? (result.data as any).audience_volume
+            : undefined;
 
         updateCampaignData({
           generated_query: apiGeneratedQueryText,
@@ -303,7 +355,9 @@ export const useAudienceQuery = (): UseAudienceQueryReturn => {
       }
     } catch (err) {
       console.error('Erro ao gerar query da audiência:', err);
-      toast.error(`Erro ao gerar query: ${err instanceof Error ? err.message : 'Erro desconhecido'}`);
+      toast.error(
+        `Erro ao gerar query: ${err instanceof Error ? err.message : 'Erro desconhecido'}`
+      );
     } finally {
       setIsGenerating(false);
     }
@@ -357,14 +411,14 @@ export const useAudienceQuery = (): UseAudienceQueryReturn => {
   };
 
   return {
-  isGenerating,
-  generatedQuery,
-  handleGenerateQuery,
-  handleSaveAsDraft,
-  clearQuery,
-  clearAllData,
-  generateMarketingCloudFlow,
-  getCurrentUser,
-  handleGenerateInsight,
+    isGenerating,
+    generatedQuery,
+    handleGenerateQuery,
+    handleSaveAsDraft,
+    clearQuery,
+    clearAllData,
+    generateMarketingCloudFlow,
+    getCurrentUser,
+    handleGenerateInsight,
   };
 };

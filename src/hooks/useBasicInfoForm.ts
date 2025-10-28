@@ -1,4 +1,3 @@
-
 import type { DynamicFormValues } from 'src/types/basicInfoFormTypes';
 
 import { useForm } from 'react-hook-form';
@@ -48,16 +47,14 @@ export function useBasicInfoForm(state: Partial<DynamicFormValues>) {
     mode: 'onSubmit',
   });
 
-  
   useEffect(() => {
     const loadBackendData = async () => {
       setLoading(true);
       setError(null);
-      
+
       try {
         const res = await axiosInstance.get(endpoints.briefing.step1);
-        
-        
+
         if (res.data.success && Array.isArray(res.data.data)) {
           setFields(res.data.data);
         } else {
@@ -74,7 +71,6 @@ export function useBasicInfoForm(state: Partial<DynamicFormValues>) {
     loadBackendData();
   }, []);
 
-  
   const onSubmit = (data: DynamicFormValues) => {
     updateCampaignData(data);
   };
@@ -84,10 +80,8 @@ export function useBasicInfoForm(state: Partial<DynamicFormValues>) {
     router.push('/briefing/audience-definition');
   };
 
-  
   const selectedChannels = form.watch('channel') || [];
 
-  
   const campaignObjectiveField = fields.find((f) => f.name === 'campaign_objective');
   const campaignTypeField = fields.find((f) => f.name === 'campaign_type');
   const channelField = fields.find((f) => f.name === 'channel');

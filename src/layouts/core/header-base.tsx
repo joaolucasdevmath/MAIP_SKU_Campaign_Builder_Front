@@ -142,7 +142,6 @@ export function HeaderBase({
                 gap: { xs: 1, sm: 1.5 },
               }}
             >
-           
               {/* -- Account drawer -- */}
               {account && <AccountDrawer data-slot="account" data={data?.account} />}
 

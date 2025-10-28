@@ -38,23 +38,23 @@ export const Logo = forwardRef<HTMLDivElement, LogoProps>(
      * const logo = ( <Box alt="logo" component="img" src={`${CONFIG.site.basePath}/logo/logo-single.svg`} width={width} height={height} /> );
      */
 
-  const logo = (
-    <Box
-      alt="logo"
-      component="img"
-      src={`${CONFIG.site.basePath}/assets/illustrations/math.png`}
-      sx={{ 
-        display: 'block', 
-        width, 
-        height, 
-        aspectRatio: '4/3', 
-        objectFit: 'contain', 
-        p: 0.5, 
-        background: 'transparent',
-        borderRadius: 2
-      }}
-    />
-  );
+    const logo = (
+      <Box
+        alt="logo"
+        component="img"
+        src={`${CONFIG.site.basePath}/assets/illustrations/math.png`}
+        sx={{
+          display: 'block',
+          width,
+          height,
+          aspectRatio: '4/3',
+          objectFit: 'contain',
+          p: 0.5,
+          background: 'transparent',
+          borderRadius: 2,
+        }}
+      />
+    );
 
     return (
       <NoSsr

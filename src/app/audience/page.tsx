@@ -4,16 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 
 import { LoadingButton } from '@mui/lab';
-import {
-  Box,
-  Card,
-  Grid,
-  Paper,
-  Stack,
-  Button,
-  Container,
-  Typography,
-} from '@mui/material';
+import { Box, Card, Grid, Paper, Stack, Button, Container, Typography } from '@mui/material';
 
 import { useAudienceData } from 'src/hooks/useAudienceData';
 import { useAudienceQuery } from 'src/hooks/useAudienceQuery';
@@ -26,31 +17,28 @@ import { toast } from 'src/components/snackbar';
 import { Iconify } from 'src/components/iconify';
 import { SplashScreen } from 'src/components/loading-screen';
 
-
 export default function AudiencePage() {
   const { updateCampaignData } = useFormWizard();
   const router = useRouter();
-  const { resetCampaignData} = useFormWizard();
+  const { resetCampaignData } = useFormWizard();
   const payload = useAudiencePayload();
   const { loading, error, data, runAudienceFlow } = useAudienceData();
   const { clearAllData } = useAudienceQuery();
   const { handleBackToBasicInfo } = useBriefingReview();
   const [contextReady, setContextReady] = useState(false);
 
- 
   useEffect(() => {
-    
     if (typeof window !== 'undefined') {
       const stored = sessionStorage.getItem('formWizardData');
       if (stored) {
         try {
           const parsed = JSON.parse(stored);
-          
+
           if (parsed && Object.keys(parsed).length > 0) {
             setContextReady(true);
           }
         } catch {
-          setContextReady(true); 
+          setContextReady(true);
         }
       } else {
         setContextReady(true);
@@ -78,7 +66,7 @@ export default function AudiencePage() {
         journey_name: data.journey_name || '',
       });
     }
-     // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data]);
 
   const formatCurrency = (value: number): string =>
@@ -108,7 +96,16 @@ export default function AudiencePage() {
   if (!contextReady) {
     return (
       <Container maxWidth="lg">
-        <Box sx={{ py: 8, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: 400 }}>
+        <Box
+          sx={{
+            py: 8,
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            minHeight: 400,
+          }}
+        >
           <SplashScreen portal={false} />
           <Typography variant="body2" color="text.secondary" align="center" sx={{ mt: 2 }}>
             Carregando contexto da campanha...
@@ -144,9 +141,18 @@ export default function AudiencePage() {
   if (loading && !data) {
     return (
       <Container maxWidth="lg">
-        <Box sx={{ py: 4, minHeight: '400px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+        <Box
+          sx={{
+            py: 4,
+            minHeight: '400px',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
           <SplashScreen portal={false} />
-          
+
           <Typography variant="body2" color="text.secondary" align="center">
             Segmentação: {payload.query_text ? 'Encontrada' : 'Não encontrada'}
           </Typography>
@@ -218,10 +224,9 @@ export default function AudiencePage() {
       <Box sx={{ py: 4 }}>
         <Box sx={{ display: 'flex', alignItems: 'center', mb: 4 }}>
           <Box>
-           <Typography variant="h4" gutterBottom sx={{ mb: 3, color: '#000' }}>
+            <Typography variant="h4" gutterBottom sx={{ mb: 3, color: '#000' }}>
               2. Audiência da Campanha
             </Typography>
-           
           </Box>
         </Box>
 
@@ -237,7 +242,6 @@ export default function AudiencePage() {
                 | Base: {payload.additional_info.base_origin}
               </Typography>
 
-            
               <Box
                 sx={{
                   bgcolor: '#1a1a1a',
@@ -270,8 +274,6 @@ export default function AudiencePage() {
                   Copiar Query
                 </Button>
               </Box>
-             
-             
 
               {/* --- BLOCO COM MÁSCARA --- */}
               {/* <Box
@@ -399,11 +401,16 @@ export default function AudiencePage() {
               type="button"
               onClick={() => {
                 console.log('[AudiencePage] Iniciando voltar ao início...');
-                console.log('[AudiencePage] Estado antes do reset:', JSON.stringify(payload, null, 2));
+                console.log(
+                  '[AudiencePage] Estado antes do reset:',
+                  JSON.stringify(payload, null, 2)
+                );
                 clearAllData();
                 handleBackToBasicInfo();
                 toast.success('Fluxo reiniciado com sucesso!');
-                console.log('[AudiencePage] Estado limpo com clearAllData e handleBackToBasicInfo.');
+                console.log(
+                  '[AudiencePage] Estado limpo com clearAllData e handleBackToBasicInfo.'
+                );
               }}
               disabled={loading}
               sx={{

@@ -3,59 +3,57 @@ import { useState, useEffect } from 'react';
 import axiosInstance, { endpoints } from 'src/utils/axios';
 
 export interface Template {
-	id: string;
-	campaign_name: string;
-	
-	description: string;
-  status: string;
-	offer: string;
-	code: string;
-	channels: string;
-  created_at: string;
+  id: string;
+  campaign_name: string;
 
+  description: string;
+  status: string;
+  offer: string;
+  code: string;
+  channels: string;
+  created_at: string;
 }
 
 interface ApiResponse {
-	success: boolean;
-	errorMessage?: string;
-	code: number;
-	data: Template[];
+  success: boolean;
+  errorMessage?: string;
+  code: number;
+  data: Template[];
 }
 
 export function useArchive() {
-	const [data, setData] = useState<Template[]>([]);
-	const [loading, setLoading] = useState(true);
-	const [error, setError] = useState<string | null>(null);
+  const [data, setData] = useState<Template[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await axiosInstance.get(endpoints.briefing.archive);
+        console.log('HISTORICO response:', response.data);
+        const json: ApiResponse = response.data;
+        if (json.success) {
+          setData(json.data);
+        } else {
+          setError(json.errorMessage || 'Erro desconhecido');
+        }
+      } catch (err: any) {
+        setError(err.message || 'Erro ao buscar dados');
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
+  }, []);
 
-		useEffect(() => {
-			const fetchData = async () => {
-				try {
-					const response = await axiosInstance.get(endpoints.briefing.archive);
-					console.log('HISTORICO response:', response.data);
-					const json: ApiResponse = response.data;
-					if (json.success) {
-						setData(json.data);
-					} else {
-						setError(json.errorMessage || 'Erro desconhecido');
-					}
-				} catch (err: any) {
-					setError(err.message || 'Erro ao buscar dados');
-				} finally {
-					setLoading(false);
-				}
-			};
-			fetchData();
-		}, []);
-
-	  const buildArchivePayload = ({
+  const buildArchivePayload = ({
     campaignCore,
     channels,
     briefingCore,
     briefingFields,
   }: {
     campaignCore: {
-      id?: string; 
+      id?: string;
       offer: string;
       code: string;
       campaign_name: string;
@@ -67,7 +65,6 @@ export function useArchive() {
       audience_snapshot: number;
       status: string;
       is_template: boolean;
-     
     };
     channels: Array<{ id: number; quantity: number }>;
     briefingCore: {
@@ -87,7 +84,6 @@ export function useArchive() {
       fields: briefingFields,
     },
   });
-
 
   const saveArchive = async (payload: any) => {
     try {
@@ -121,7 +117,7 @@ export function useArchive() {
     setError(null);
     try {
       const response = await axiosInstance.get(endpoints.briefing.archiveId(id));
-      
+
       return response.data.data;
     } catch (err: any) {
       setError(err.message || 'Erro ao buscar dados do archive');
@@ -131,5 +127,13 @@ export function useArchive() {
     }
   };
 
-  return { data, loading, error, saveArchive, buildArchivePayload, updateArchiveStatus, getArchiveById };
+  return {
+    data,
+    loading,
+    error,
+    saveArchive,
+    buildArchivePayload,
+    updateArchiveStatus,
+    getArchiveById,
+  };
 }

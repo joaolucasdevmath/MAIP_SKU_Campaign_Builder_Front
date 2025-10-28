@@ -19,7 +19,9 @@ export function useAudiencePayload() {
       // eslint-disable-next-line no-restricted-syntax
       for (const quantityKey of quantityKeys) {
         value = campaignData[quantityKey];
-        console.log(`[DEBUG useAudiencePayload] Processando canal: ${channel}, quantityKey: ${quantityKey}, value: ${value}`);
+        console.log(
+          `[DEBUG useAudiencePayload] Processando canal: ${channel}, quantityKey: ${quantityKey}, value: ${value}`
+        );
         if (
           value !== undefined &&
           value !== null &&
@@ -31,7 +33,9 @@ export function useAudiencePayload() {
         }
       }
       if (!campaign_channels[channelKeyUpper]) {
-        console.warn(`[DEBUG useAudiencePayload] Canal ${channel} ignorado: valor inválido (${value})`);
+        console.warn(
+          `[DEBUG useAudiencePayload] Canal ${channel} ignorado: valor inválido (${value})`
+        );
       }
     });
   }
@@ -40,7 +44,10 @@ export function useAudiencePayload() {
   if (Object.keys(campaign_channels).length === 0) {
     console.warn('[useAudiencePayload] Nenhum canal válido encontrado em campaign_channels');
   } else {
-    console.log('[DEBUG useAudiencePayload] Canais construídos:', JSON.stringify(campaign_channels, null, 2));
+    console.log(
+      '[DEBUG useAudiencePayload] Canais construídos:',
+      JSON.stringify(campaign_channels, null, 2)
+    );
   }
 
   const campaignName = campaignData.campaign_name || campaignData.campaignName || 'teste';
@@ -55,8 +62,12 @@ export function useAudiencePayload() {
       ? campaignData.base_origin[0] || ''
       : campaignData.base_origin || campaignData.baseOrigin || ''
   ).toUpperCase();
-  const nom_periodo_academico = baseOrigin === 'DE_GERAL_LEADS' ? [] : 
-    Array.isArray(campaignData.nom_periodo_academico) ? campaignData.nom_periodo_academico : ["2025.1"];
+  const nom_periodo_academico =
+    baseOrigin === 'DE_GERAL_LEADS'
+      ? []
+      : Array.isArray(campaignData.nom_periodo_academico)
+        ? campaignData.nom_periodo_academico
+        : ['2025.1'];
 
   const additionalInfo = {
     base_origin: baseOrigin,
@@ -66,13 +77,21 @@ export function useAudiencePayload() {
       : String(campaignData.segmentation || campaignData.segmentations || ''),
     nom_tipo_curso: Array.isArray(campaignData.nom_tipo_curso) ? campaignData.nom_tipo_curso : [],
     tipo_captacao: Array.isArray(campaignData.tipo_captacao) ? campaignData.tipo_captacao : [],
-    modalidade: [], 
+    modalidade: [],
     nom_curso: Array.isArray(campaignData.nom_curso) ? campaignData.nom_curso : [],
-    nom_curso_exclude: Array.isArray(campaignData.nom_curso_exclude) ? campaignData.nom_curso_exclude : [],
+    nom_curso_exclude: Array.isArray(campaignData.nom_curso_exclude)
+      ? campaignData.nom_curso_exclude
+      : [],
     nom_periodo_academico,
-    status_funil: Array.isArray(campaignData.status_funil) ? campaignData.status_funil : campaignData.status_funil || [],
-    atl_niveldeensino__c: [], 
-    forma_ingresso: Array.isArray(campaignData.forma_ingresso) ? campaignData.forma_ingresso : Array.isArray(campaignData.entryForm) ? campaignData.entryForm : [],
+    status_funil: Array.isArray(campaignData.status_funil)
+      ? campaignData.status_funil
+      : campaignData.status_funil || [],
+    atl_niveldeensino__c: [],
+    forma_ingresso: Array.isArray(campaignData.forma_ingresso)
+      ? campaignData.forma_ingresso
+      : Array.isArray(campaignData.entryForm)
+        ? campaignData.entryForm
+        : [],
   };
 
   const campaignPayload = {
@@ -83,7 +102,10 @@ export function useAudiencePayload() {
     additional_info: additionalInfo,
   };
 
-  console.log('[DEBUG useAudiencePayload] campaignPayload:', JSON.stringify(campaignPayload, null, 2));
+  console.log(
+    '[DEBUG useAudiencePayload] campaignPayload:',
+    JSON.stringify(campaignPayload, null, 2)
+  );
 
   return campaignPayload;
 }

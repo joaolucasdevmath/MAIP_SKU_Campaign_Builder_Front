@@ -6,5 +6,5 @@ export default interface Template {
   offer: string;
   code: string;
   channels: string;
-  description: string; 
+  description: string;
 }

@@ -1,5 +1,3 @@
-
-
 import { Box } from '@mui/material';
 
 import { BriefingMainTabs } from 'src/components/briefing';

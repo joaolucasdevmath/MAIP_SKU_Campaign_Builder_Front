@@ -65,8 +65,6 @@ export function SettingsDrawer({
           </Badge>
         </IconButton>
       </Tooltip>
-
-    
     </Box>
   );
 

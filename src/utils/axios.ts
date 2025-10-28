@@ -6,9 +6,7 @@ import { CONFIG } from 'src/config-global';
 
 // ----------------------------------------------------------------------
 
-
 const axiosInstance = axios.create({ baseURL: CONFIG.site.serverUrl });
-
 
 axiosInstance.interceptors.request.use(
   (config) => {
@@ -47,8 +45,7 @@ export const fetcher = async (args: string | [string, AxiosRequestConfig]) => {
 // ----------------------------------------------------------------------
 
 export const endpoints = {
- 
-   briefing: {
+  briefing: {
     step1: '/api/briefing/step/1',
     step2: '/api/briefing/step/2',
     step2Segment: (source_base_id: string) => `/api/briefing/step/2/${source_base_id}`,
@@ -63,11 +60,9 @@ export const endpoints = {
     loginAzure: '/api/auth/azure/',
     archive: '/api/archive/',
     archiveSave: '/api/archive/',
-  archiveId: (id: string) => `/api/archive/${id}`,
-  generateMarketingCloud: '/api/generate/marketing_cloud_flow',
-  getUserMe: '/api/user/me',
-  generateInsight: '/api/generate/insight'
-   
-  }
+    archiveId: (id: string) => `/api/archive/${id}`,
+    generateMarketingCloud: '/api/generate/marketing_cloud_flow',
+    getUserMe: '/api/user/me',
+    generateInsight: '/api/generate/insight',
+  },
 };
-   

@@ -8,13 +8,13 @@ interface FieldWithLabelProps {
 
 export const FieldWithLabel = ({ label, required = false, children }: FieldWithLabelProps) => (
   <Box>
-    <Typography 
-      variant="body2" 
-      sx={{ 
-        mb: 1, 
-        fontWeight: 500, 
+    <Typography
+      variant="body2"
+      sx={{
+        mb: 1,
+        fontWeight: 500,
         color: 'text.primary',
-        fontSize: '0.875rem'
+        fontSize: '0.875rem',
       }}
     >
       {label} {required && <span style={{ color: '#d32f2f' }}>*</span>}
