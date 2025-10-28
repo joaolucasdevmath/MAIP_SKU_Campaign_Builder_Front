@@ -110,20 +110,15 @@ export function useAudienceDefinitionForm(state: Partial<DynamicAudienceFormValu
   };
 
   const handleNext = async (data: DynamicAudienceFormValues) => {
-    
     const sourceBaseField = fields.find((f) => f.name === 'source_base');
-    const selectedOption = sourceBaseField?.values?.find(
-      (item) => item.value === data.source_base
-    );
+    const selectedOption = sourceBaseField?.values?.find((item) => item.value === data.source_base);
 
-    
     const dataToSave = {
       ...data,
       source_base_id: selectedOption?.ids?.toString() || '',
       base_origin: data.source_base ? [data.source_base] : [],
     };
 
-    
     updateCampaignData(dataToSave);
     router.push('/briefing/advanced-filter');
   };

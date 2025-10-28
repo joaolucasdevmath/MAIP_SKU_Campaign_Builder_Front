@@ -43,12 +43,10 @@ export const SignInSchema = zod.object({
 // ----------------------------------------------------------------------
 
 export function JwtSignInView() {
- 
   useEffect(() => {
     sessionStorage.removeItem('jwt_access_token');
-    
   }, []);
-  
+
   const router = useRouter();
   const { login, loading: basicLoading } = useBasicAuth();
   const { loginWithMicrosoft, loading: msLoading, error: msError } = useMicrosoftLogin();
@@ -69,11 +67,9 @@ export function JwtSignInView() {
     formState: { isSubmitting },
   } = methods;
 
-  
   const onSubmit = handleSubmit(async (data) => {
     const result = await login({ email: data.email, password: data.password });
     if (result && result.success && result.data?.token) {
-      
       sessionStorage.setItem('jwt_access_token', result.data.token);
       router.push(paths.briefing.basicInfo);
     } else {
@@ -81,22 +77,20 @@ export function JwtSignInView() {
     }
   });
 
-  
- const handleMicrosoftLogin = async () => {
-  const msAccessToken = await loginWithMicrosoft();
-  if (msAccessToken) {
-    
-    const backendResult = await authenticate(msAccessToken);
-    if (backendResult && backendResult.success && backendResult.data?.token) {
-      sessionStorage.setItem('jwt_access_token', backendResult.data.token); 
-      router.push(paths.briefing.basicInfo);
+  const handleMicrosoftLogin = async () => {
+    const msAccessToken = await loginWithMicrosoft();
+    if (msAccessToken) {
+      const backendResult = await authenticate(msAccessToken);
+      if (backendResult && backendResult.success && backendResult.data?.token) {
+        sessionStorage.setItem('jwt_access_token', backendResult.data.token);
+        router.push(paths.briefing.basicInfo);
+      } else {
+        setErrorMsg(backendResult?.errorMessage || 'Erro na autenticação Microsoft');
+      }
     } else {
-      setErrorMsg(backendResult?.errorMessage || 'Erro na autenticação Microsoft');
+      setErrorMsg(msError || 'Erro ao autenticar com Microsoft');
     }
-  } else {
-    setErrorMsg(msError || 'Erro ao autenticar com Microsoft');
-  }
-};
+  };
 
   const renderForm = (
     <Stack spacing={3}>

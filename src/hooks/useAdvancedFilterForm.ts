@@ -39,11 +39,11 @@ export function useAdvancedFilterForm(state: Partial<DynamicAdvancedFilterFormVa
       setError(null);
       try {
         const res = await axiosInstance.get(endpoints.briefing.step3Segment(sourceBaseId));
-        console.log('Dados brutos do backend:', res.data); 
+        console.log('Dados brutos do backend:', res.data);
         if (res.data.success && Array.isArray(res.data.data)) {
           const dynamicFields = res.data.data
             .map((field: any) => {
-              console.log('Processando campo:', field); 
+              console.log('Processando campo:', field);
               if (field.name === 'nivel_escolaridade' && Array.isArray(field.values)) {
                 // Mapear nivel_escolaridade como checkboxes
                 return field.values.map((option: any) => ({
@@ -69,7 +69,6 @@ export function useAdvancedFilterForm(state: Partial<DynamicAdvancedFilterFormVa
                 };
               }
               if (field.name === 'nom_tipo_curso' && Array.isArray(field.values)) {
-                
                 return field.values.map((option: any) => ({
                   name: `nom_tipo_curso_${option.value.toLowerCase().replace(/\s+/g, '_')}`,
                   label: option.label || option.value,
@@ -132,7 +131,7 @@ export function useAdvancedFilterForm(state: Partial<DynamicAdvancedFilterFormVa
             ])
           );
           form.reset({
-            ...form.getValues(), 
+            ...form.getValues(),
             ...initialDynamicValues,
             criterios_saida: state.criterios_saida || '',
           });
@@ -148,9 +147,9 @@ export function useAdvancedFilterForm(state: Partial<DynamicAdvancedFilterFormVa
     };
 
     loadBackendData();
-    
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  },  [formWizardState.source_base_id, form.reset, form.getValues, state, isInitialized]);
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [formWizardState.source_base_id, form.reset, form.getValues, state, isInitialized]);
 
   const transformFormData = (formValues: DynamicAdvancedFilterFormValues) => {
     const transformed = { ...formValues };

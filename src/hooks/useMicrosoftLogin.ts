@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useState } from 'react';
 // eslint-disable-next-line import/no-extraneous-dependencies
-import { useMsal } from "@azure/msal-react";
+import { useMsal } from '@azure/msal-react';
 
 export function useMicrosoftLogin() {
   const { instance } = useMsal();
@@ -13,12 +13,12 @@ export function useMicrosoftLogin() {
     setError(null);
     try {
       const loginResponse = await instance.loginPopup({
-        scopes: ["api://ba8940c2-b699-4e6f-ba23-652bddf5f4c5/openid"],
+        scopes: ['api://ba8940c2-b699-4e6f-ba23-652bddf5f4c5/openid'],
       });
       setToken(loginResponse.accessToken);
       return loginResponse.accessToken;
     } catch (err: any) {
-      setError(err.message || "Erro ao autenticar com Microsoft");
+      setError(err.message || 'Erro ao autenticar com Microsoft');
       return null;
     } finally {
       setLoading(false);

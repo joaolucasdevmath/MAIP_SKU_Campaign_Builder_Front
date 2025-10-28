@@ -127,9 +127,7 @@ export function RHFMultiSelect({
             label={label}
             renderValue={(selected) => {
               const selectedArray = Array.isArray(selected) ? selected : [];
-              const selectedItems = options.filter((item) =>
-                selectedArray.includes(item.value)
-              );
+              const selectedItems = options.filter((item) => selectedArray.includes(item.value));
 
               if (!selectedItems.length) {
                 return <Box sx={{ color: 'text.disabled' }}>{placeholder || ''}</Box>;

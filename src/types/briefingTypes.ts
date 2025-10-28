@@ -31,7 +31,7 @@ export interface CampaignDataPayload {
     campaign_objective?: string;
     [key: string]: any;
   };
-  query_text: string; 
+  query_text: string;
   channels: Record<string, number>;
 }
 

@@ -1,7 +1,5 @@
 'use client';
 
-
-
 import { useRouter } from 'next/navigation';
 
 import { Box, Card, Grid, Button, Container, Typography, CardContent } from '@mui/material';
@@ -15,7 +13,6 @@ export default function HistoryPage() {
   const { data: templates, loading, error, getArchiveById } = useArchive();
   const router = useRouter();
 
-
   // Função para reutilizar o briefing
   const handleReuse = async (id: string) => {
     const archiveData = await getArchiveById(id);
@@ -25,7 +22,6 @@ export default function HistoryPage() {
     }
   };
 
-  
   const getStatusLabel = (status: string) => {
     if (status === 'draft') return 'Em andamento';
     if (status === 'completed') return 'Completado';
@@ -113,7 +109,6 @@ export default function HistoryPage() {
                           sx={{ mr: 1, verticalAlign: 'middle' }}
                         />
                         {template.created_at}
-                       
                       </Typography>
                       <Typography variant="body2" color="text.secondary">
                         <Iconify

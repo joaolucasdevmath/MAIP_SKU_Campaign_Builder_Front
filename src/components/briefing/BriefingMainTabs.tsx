@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import { useState, useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
@@ -19,7 +19,7 @@ const mainTabs = [
 export default function BriefingMainTabs() {
   const router = useRouter();
   const pathname = usePathname()?.replace(/\/$/, '') || '';
-  const activeTabIndex = mainTabs.findIndex(tab => pathname === tab.path.replace(/\/$/, ''));
+  const activeTabIndex = mainTabs.findIndex((tab) => pathname === tab.path.replace(/\/$/, ''));
   const [currentTab, setCurrentTab] = useState(activeTabIndex === -1 ? 0 : activeTabIndex);
 
   useEffect(() => {
@@ -76,7 +76,11 @@ export default function BriefingMainTabs() {
             <ArrowBackIosIcon />
           </IconButton>
           <Tab
-            label={<span style={{ textAlign: 'center', whiteSpace: 'nowrap' }}>{mainTabs[currentTab].label}</span>}
+            label={
+              <span style={{ textAlign: 'center', whiteSpace: 'nowrap' }}>
+                {mainTabs[currentTab].label}
+              </span>
+            }
             sx={{
               minHeight: 36,
               height: 36,
@@ -96,11 +100,7 @@ export default function BriefingMainTabs() {
               py: 0.25,
             }}
           />
-          <IconButton
-            onClick={goToNextTab}
-            sx={{ color: '#003768', p: 0.5 }}
-            aria-label="Next tab"
-          >
+          <IconButton onClick={goToNextTab} sx={{ color: '#003768', p: 0.5 }} aria-label="Next tab">
             <ArrowForwardIosIcon />
           </IconButton>
         </Box>
@@ -129,7 +129,9 @@ export default function BriefingMainTabs() {
             return (
               <Tab
                 key={tab.value}
-                label={<span style={{ textAlign: 'center', whiteSpace: 'nowrap' }}>{tab.label}</span>}
+                label={
+                  <span style={{ textAlign: 'center', whiteSpace: 'nowrap' }}>{tab.label}</span>
+                }
                 sx={{
                   minHeight: 44,
                   height: 48,

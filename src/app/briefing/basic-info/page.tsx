@@ -32,10 +32,10 @@ const extractFormValues = (data: any, channelOptions: any[]) => {
 
   const core = data.campaign?.core || {};
 
-    const initialValues = {
-      campaign_name: core.campaign_name || '',
-      campaign_objective: core.campaign_objective ? [core.campaign_objective] : [],
-      campaign_type: core.campaign_type ? [core.campaign_type] : [],
+  const initialValues = {
+    campaign_name: core.campaign_name || '',
+    campaign_objective: core.campaign_objective ? [core.campaign_objective] : [],
+    campaign_type: core.campaign_type ? [core.campaign_type] : [],
 
     offer: core.offer || '',
     campaign_codes: core.code || '',
@@ -48,16 +48,14 @@ const extractFormValues = (data: any, channelOptions: any[]) => {
   return initialValues;
 };
 
-
 export default function BasicInfoPage() {
-  
   const { clearAllData } = useAudienceQuery();
 
-useEffect(() => {
-  clearAllData();
-  
-// eslint-disable-next-line react-hooks/exhaustive-deps
-}, []);
+  useEffect(() => {
+    clearAllData();
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const [templateData, setTemplateData] = useState<any | null>(null);
 
@@ -67,7 +65,7 @@ useEffect(() => {
     if (stored) {
       try {
         const parsed = JSON.parse(stored);
-        console.log('Dados do sessionStorage:', parsed); 
+        console.log('Dados do sessionStorage:', parsed);
         setTemplateData(parsed);
       } catch (error) {
         console.error('Erro ao parsear dados do template:', error);
@@ -134,15 +132,18 @@ useEffect(() => {
       <FormStepper />
       <Box sx={{ mt: 4 }}>
         {/* @ts-ignore */}
-        <Form methods={{ control, handleSubmit, ...methods }} onSubmit={handleSubmit((data) => {
-  if (typeof data.campaign_objective === 'string') {
-    data.campaign_objective = data.campaign_objective
-      .split(/\r?\n/)
-      .map(s => s.trim())
-      .filter(Boolean);
-  }
-  onSubmit(data);
-})}>
+        <Form
+          methods={{ control, handleSubmit, ...methods }}
+          onSubmit={handleSubmit((data) => {
+            if (typeof data.campaign_objective === 'string') {
+              data.campaign_objective = data.campaign_objective
+                .split(/\r?\n/)
+                .map((s) => s.trim())
+                .filter(Boolean);
+            }
+            onSubmit(data);
+          })}
+        >
           <Grid container spacing={3}>
             <Grid item xs={12}>
               <FieldWithLabel label="Nome da Campanha" required>
@@ -250,19 +251,19 @@ useEffect(() => {
                       const channelLabel =
                         channelOption?.label || channelOption?.value || channelValue;
 
-                          return (
-                            <Grid item xs={12} md={6} key={channelValue}>
-                              <FieldWithLabel label={channelLabel}>
-                                <RHFTextField
-                                  name={`quantity_${channelValue}`}
-                                  placeholder="Quantidade"
-                                  type="number"
-                                  inputProps={{ min: 0 }}
-                                  helperText={`Quantidade de disparos para ${channelLabel}`}
-                                />
-                              </FieldWithLabel>
-                            </Grid>
-                          );
+                      return (
+                        <Grid item xs={12} md={6} key={channelValue}>
+                          <FieldWithLabel label={channelLabel}>
+                            <RHFTextField
+                              name={`quantity_${channelValue}`}
+                              placeholder="Quantidade"
+                              type="number"
+                              inputProps={{ min: 0 }}
+                              helperText={`Quantidade de disparos para ${channelLabel}`}
+                            />
+                          </FieldWithLabel>
+                        </Grid>
+                      );
                     })}
                   </Grid>
                 </Box>
@@ -327,7 +328,6 @@ useEffect(() => {
               </FieldWithLabel>
             </Grid>
 
-
             {/* <Grid item xs={12}>
               <RHFCheckbox
                 name="is_continuous"
@@ -343,8 +343,6 @@ useEffect(() => {
                     }}
               />
             </Grid> */}
-
-           
 
             <Grid item xs={12}>
               <FieldWithLabel label="Disponibilização para Call Center?">

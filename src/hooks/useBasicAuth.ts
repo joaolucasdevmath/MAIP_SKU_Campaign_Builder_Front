@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState } from 'react';
 
 import axiosInstance, { endpoints } from 'src/utils/axios';
 
@@ -27,25 +27,31 @@ export function useBasicAuth() {
     setData(null);
     try {
       const basicAuth = btoa(`${credentials.email}:${credentials.password}`);
-      const res = await axiosInstance.post(endpoints.briefing.loginBasic, {}, {
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Basic ${basicAuth}`
-        },
-        
-        transformRequest: [(requestData, headers) => {
-          headers.set('Authorization', `Basic ${basicAuth}`);
-          return requestData;
-        }],
-      });
+      const res = await axiosInstance.post(
+        endpoints.briefing.loginBasic,
+        {},
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Basic ${basicAuth}`,
+          },
+
+          transformRequest: [
+            (requestData, headers) => {
+              headers.set('Authorization', `Basic ${basicAuth}`);
+              return requestData;
+            },
+          ],
+        }
+      );
       const json: BasicAuthResponse = res.data;
       setData(json);
       if (!json.success) {
-        setError(json.errorMessage || "Erro de autenticação");
+        setError(json.errorMessage || 'Erro de autenticação');
       }
       return json;
     } catch (e: any) {
-      const errorMessage = e.message || "Erro de conexão";
+      const errorMessage = e.message || 'Erro de conexão';
       setError(errorMessage);
       return null;
     } finally {
@@ -57,11 +63,11 @@ export function useBasicAuth() {
     setError(null);
   };
 
-  return { 
-    login, 
-    loading, 
-    error, 
-    data, 
-    clearError 
+  return {
+    login,
+    loading,
+    error,
+    data,
+    clearError,
   };
 }

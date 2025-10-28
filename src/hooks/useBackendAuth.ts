@@ -1,8 +1,6 @@
-import { useState } from "react";
+import { useState } from 'react';
 
 import axiosInstance, { endpoints } from 'src/utils/axios';
-
-
 
 export interface BackendAuthResponse {
   success: boolean;
@@ -21,16 +19,20 @@ export function useBackendAuth() {
     setError(null);
     setData(null);
     try {
-      const res = await axiosInstance.post(endpoints.briefing.loginAzure, {}, {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const res = await axiosInstance.post(
+        endpoints.briefing.loginAzure,
+        {},
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
       const json = res.data;
       setData(json);
       if (!json.success) {
-        setError(json.errorMessage || "Erro desconhecido");
+        setError(json.errorMessage || 'Erro desconhecido');
       }
       return json;
     } catch (e: any) {

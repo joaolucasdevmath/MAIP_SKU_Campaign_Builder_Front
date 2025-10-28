@@ -14,8 +14,6 @@ import axiosInstance, { endpoints } from 'src/utils/axios';
 
 import { useFormWizard } from 'src/context/FormWizardContext';
 
-
-
 export const useBriefingReview = (): BriefingHookReturn => {
   const { state: campaignData } = useFormWizard();
   const router = useRouter();
@@ -28,9 +26,6 @@ export const useBriefingReview = (): BriefingHookReturn => {
     error: audienceError,
   } = useAudienceData();
 
- 
-
-
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [generatedBriefing, setGeneratedBriefing] = useState<string | null>(null);
@@ -40,11 +35,9 @@ export const useBriefingReview = (): BriefingHookReturn => {
       setIsGenerating(true);
       setError(null);
 
-     
       const campaign_channels: Record<string, number> = {};
       if (Array.isArray(campaignData.channel)) {
         campaignData.channel.forEach((channel: string) => {
-         
           const channelKeyUpper = channel.toUpperCase();
           const channelKeyOriginal = channel;
           const quantityKeys = [
@@ -56,7 +49,7 @@ export const useBriefingReview = (): BriefingHookReturn => {
           // eslint-disable-next-line no-restricted-syntax
           for (const quantityKey of quantityKeys) {
             value = campaignData[quantityKey];
-            
+
             if (
               value !== undefined &&
               value !== null &&
@@ -68,19 +61,25 @@ export const useBriefingReview = (): BriefingHookReturn => {
             }
           }
           if (!campaign_channels[channelKeyUpper]) {
-            console.warn(`[DEBUG useBriefingReview] Canal ${channel} ignorado: valor inválido (${value})`);
+            console.warn(
+              `[DEBUG useBriefingReview] Canal ${channel} ignorado: valor inválido (${value})`
+            );
           }
         });
       }
 
       // Validação de channels
       if (Object.keys(campaign_channels).length === 0) {
-        console.warn('[DEBUG useBriefingReview] Nenhum canal válido encontrado em campaign_channels');
+        console.warn(
+          '[DEBUG useBriefingReview] Nenhum canal válido encontrado em campaign_channels'
+        );
       } else {
-        console.log('[DEBUG useBriefingReview] Canais construídos:', JSON.stringify(campaign_channels, null, 2));
+        console.log(
+          '[DEBUG useBriefingReview] Canais construídos:',
+          JSON.stringify(campaign_channels, null, 2)
+        );
       }
 
-      
       const additionalInfo = {
         base_origin: String(
           Array.isArray(campaignData.base_origin)
@@ -91,22 +90,35 @@ export const useBriefingReview = (): BriefingHookReturn => {
         segmentations: Array.isArray(campaignData.segmentation)
           ? campaignData.segmentation.join(' AND ')
           : String(campaignData.segmentation || campaignData.segmentations || ''),
-        nom_tipo_curso: Array.isArray(campaignData.nom_tipo_curso) ? campaignData.nom_tipo_curso : [],
+        nom_tipo_curso: Array.isArray(campaignData.nom_tipo_curso)
+          ? campaignData.nom_tipo_curso
+          : [],
         tipo_captacao: Array.isArray(campaignData.tipo_captacao) ? campaignData.tipo_captacao : [],
         modalidade: Array.isArray(campaignData.modalidade) ? campaignData.modalidade : [],
         nom_curso: Array.isArray(campaignData.nom_curso) ? campaignData.nom_curso : [],
-        nom_curso_exclude: Array.isArray(campaignData.nom_curso_exclude) ? campaignData.nom_curso_exclude : [],
-        nom_periodo_academico: Array.isArray(campaignData.nom_periodo_academico) ? campaignData.nom_periodo_academico : Array.isArray(campaignData.semester) ? campaignData.semester : [],
+        nom_curso_exclude: Array.isArray(campaignData.nom_curso_exclude)
+          ? campaignData.nom_curso_exclude
+          : [],
+        nom_periodo_academico: Array.isArray(campaignData.nom_periodo_academico)
+          ? campaignData.nom_periodo_academico
+          : Array.isArray(campaignData.semester)
+            ? campaignData.semester
+            : [],
         status_funil: Array.isArray(campaignData.status_funil)
           ? campaignData.status_funil.length === 1
             ? String(campaignData.status_funil[0])
             : campaignData.status_funil.join(', ')
           : String(campaignData.status_funil || ''),
-        atl_niveldeensino__c: Array.isArray(campaignData.atl_niveldeensino__c) ? campaignData.atl_niveldeensino__c : [],
-        forma_ingresso: Array.isArray(campaignData.forma_ingresso) ? campaignData.forma_ingresso : Array.isArray(campaignData.entryForm) ? campaignData.entryForm : [],
+        atl_niveldeensino__c: Array.isArray(campaignData.atl_niveldeensino__c)
+          ? campaignData.atl_niveldeensino__c
+          : [],
+        forma_ingresso: Array.isArray(campaignData.forma_ingresso)
+          ? campaignData.forma_ingresso
+          : Array.isArray(campaignData.entryForm)
+            ? campaignData.entryForm
+            : [],
       };
 
-      
       const campaignPayload = {
         campaign_name: campaignData.campaign_name || campaignData.campaignName || 'teste',
         campaign_type: Array.isArray(campaignData.campaign_type)
@@ -124,7 +136,6 @@ export const useBriefingReview = (): BriefingHookReturn => {
         throw new Error(audienceError);
       }
 
-      
       const briefingPayload: BriefingPayload = {
         campaign_name: campaignData.campaign_name || campaignData.campaignName || 'teste',
         campaign_code: campaignData.campaignCode || '',
@@ -160,22 +171,26 @@ export const useBriefingReview = (): BriefingHookReturn => {
         course_level: campaignData.atl_niveldeensino__c || campaignData.courseLevel || [],
         vestibular_status: Array.isArray(campaignData.vestibularStatus)
           ? campaignData.vestibularStatus
-          : typeof campaignData.vestibularStatus === 'string' && campaignData.vestibularStatus && (campaignData.vestibularStatus as string).trim() !== ''
+          : typeof campaignData.vestibularStatus === 'string' &&
+              campaignData.vestibularStatus &&
+              (campaignData.vestibularStatus as string).trim() !== ''
             ? [campaignData.vestibularStatus]
             : Array.isArray(campaignData.status_vestibular)
               ? campaignData.status_vestibular
-              : typeof campaignData.status_vestibular === 'string' && campaignData.status_vestibular && (campaignData.status_vestibular as string).trim() !== ''
+              : typeof campaignData.status_vestibular === 'string' &&
+                  campaignData.status_vestibular &&
+                  (campaignData.status_vestibular as string).trim() !== ''
                 ? [campaignData.status_vestibular]
                 : undefined,
-       
-        
+
         remove_from_master_regua: campaignData.removeFromMasterRegua || false,
         main_documentation_sent: campaignData.mainDocumentationSent || false,
         entry_form: campaignData.entryForm || campaignData.forma_ingresso || [],
         allowed_entry_forms: campaignData.allowedEntryForms || [],
         excluded_entry_forms: campaignData.excludedEntryForms || [],
         dispatch_types: campaignData.dispatchTypes || [],
-        queries: campaignData.queries?.map((q) => (typeof q === 'string' ? q : JSON.stringify(q))) || [],
+        queries:
+          campaignData.queries?.map((q) => (typeof q === 'string' ? q : JSON.stringify(q))) || [],
         automated_update: campaignData.automatedUpdate || false,
         call_center_available: campaignData.disponibilizacao_call_center_sim
           ? 'Sim'
@@ -189,21 +204,27 @@ export const useBriefingReview = (): BriefingHookReturn => {
         nom_tipo_curso: campaignData.nom_tipo_curso || [],
         doc_pend: Array.isArray(campaignData.doc_pend)
           ? campaignData.doc_pend
-          : typeof campaignData.doc_pend === 'string' && campaignData.doc_pend && (campaignData.doc_pend as string).trim() !== ''
+          : typeof campaignData.doc_pend === 'string' &&
+              campaignData.doc_pend &&
+              (campaignData.doc_pend as string).trim() !== ''
             ? [campaignData.doc_pend]
             : undefined,
         tipo_captacao: campaignData.tipo_captacao || [],
         status_vestibular: campaignData.status_vestibular || '',
-        interacao_oportunidade: campaignData.interacao_oportunidade !== undefined && campaignData.interacao_oportunidade !== null
-          ? Number(campaignData.interacao_oportunidade)
-          : undefined,
+        interacao_oportunidade:
+          campaignData.interacao_oportunidade !== undefined &&
+          campaignData.interacao_oportunidade !== null
+            ? Number(campaignData.interacao_oportunidade)
+            : undefined,
         documentation_sent: campaignData.documentationSent || false,
         outras_exclusoes: campaignData.outras_exclusoes || '',
         criterios_saida: campaignData.criterios_saida || '',
         forma_ingresso_enem: campaignData.forma_ingresso_enem || false,
-        forma_ingresso_transferencia_externa: campaignData.forma_ingresso_transferencia_externa || false,
+        forma_ingresso_transferencia_externa:
+          campaignData.forma_ingresso_transferencia_externa || false,
         forma_ingresso_vestibular: campaignData.forma_ingresso_vestibular || false,
-        forma_ingresso_ingresso_simplificado: campaignData.forma_ingresso_ingresso_simplificado || false,
+        forma_ingresso_ingresso_simplificado:
+          campaignData.forma_ingresso_ingresso_simplificado || false,
       };
 
       console.log('🚀 Enviando payload para API:', JSON.stringify(briefingPayload, null, 2));
@@ -216,8 +237,8 @@ export const useBriefingReview = (): BriefingHookReturn => {
       const result = response.data;
       setGeneratedBriefing(result.briefing || result.message || 'Briefing gerado com sucesso!');
 
-  // Toast de sucesso
-  // toast.success('Briefing gerado com sucesso!');
+      // Toast de sucesso
+      // toast.success('Briefing gerado com sucesso!');
     } catch (err) {
       console.error('Erro ao gerar briefing:', err);
 
@@ -229,8 +250,8 @@ export const useBriefingReview = (): BriefingHookReturn => {
         errorMessage = `Erro ao gerar briefing: ${err.message}`;
       }
 
-  setError(errorMessage);
-  // toast.error(errorMessage);
+      setError(errorMessage);
+      // toast.error(errorMessage);
     } finally {
       setIsGenerating(false);
     }
@@ -289,8 +310,7 @@ export const useBriefingReview = (): BriefingHookReturn => {
       nom_curso_exclude: 'Cursos Excluídos (Nome)',
       atl_niveldeensino_c: 'Nível de Ensino',
       vestibularStatus: 'Status do Vestibular',
-     
-     
+
       removeFromMasterRegua: 'Remover da Régua Master',
       mainDocumentationSent: 'Documentação Principal Enviada',
       dispatchTypes: 'Tipos de Disparo',
@@ -363,8 +383,7 @@ export const useBriefingReview = (): BriefingHookReturn => {
         nom_curso_exclude: campaignData.nom_curso_exclude,
         atl_niveldeensino_c: campaignData.atl_niveldeensino__c,
         vestibularStatus: campaignData.vestibularStatus,
-       
-       
+
         removeFromMasterRegua: campaignData.removeFromMasterRegua,
         mainDocumentationSent: campaignData.mainDocumentationSent,
         entryForm: campaignData.entryForm,

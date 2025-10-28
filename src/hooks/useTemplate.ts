@@ -1,4 +1,3 @@
-
 import type Template from 'src/types/templatesTypes';
 
 import { useState } from 'react';
@@ -9,14 +8,11 @@ import { useFormWizard } from 'src/context/FormWizardContext';
 
 import { toast } from 'src/components/snackbar';
 
-
 const formatDateToYYYYMMDD = (dateStr: string | undefined): string => {
-  if (!dateStr) return ''; 
+  if (!dateStr) return '';
   const date = new Date(dateStr);
-  return date.toISOString().split('T')[0]; 
+  return date.toISOString().split('T')[0];
 };
-
-
 
 interface UseTemplateReturn {
   templates: Template[];
@@ -24,11 +20,11 @@ interface UseTemplateReturn {
   isSaving: boolean;
   fetchTemplates: () => Promise<void>;
   saveTemplate: (isTemplate: boolean, description: string) => Promise<void>;
-  }
+}
 
 export const useTemplate = (): UseTemplateReturn => {
   const { state: campaignData, updateCampaignData } = useFormWizard();
-  
+
   const [templates, setTemplates] = useState<Template[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -42,13 +38,14 @@ export const useTemplate = (): UseTemplateReturn => {
       if (response.data.success && Array.isArray(response.data.data)) {
         setTemplates(response.data.data);
       } else {
-        
-        setTemplates([]); 
+        setTemplates([]);
         toast.error(`Erro ao carregar templates: Dados inválidos recebidos do servidor`);
       }
     } catch (error) {
       console.error('Erro ao buscar templates:', error);
-      toast.error(`Erro ao carregar templates: ${error.response?.data?.errorMessage || 'Erro de conexão com o servidor'}`);
+      toast.error(
+        `Erro ao carregar templates: ${error.response?.data?.errorMessage || 'Erro de conexão com o servidor'}`
+      );
     } finally {
       setIsLoading(false);
     }
@@ -67,15 +64,21 @@ export const useTemplate = (): UseTemplateReturn => {
       const briefingFields = [
         { name: 'nom_grupo_marca', value: campaignData.nom_grupo_marca || '' },
         { name: 'modalidade', value: campaignData.modalidade?.join(', ') || '' },
-        { name: 'atl_niveldeensino__c', value: campaignData.atl_niveldeensino__c?.join(', ') || '' },
+        {
+          name: 'atl_niveldeensino__c',
+          value: campaignData.atl_niveldeensino__c?.join(', ') || '',
+        },
         {
           name: 'forma_ingresso',
-          value: [
-            campaignData.forma_ingresso_enem ? '' : '',
-            campaignData.forma_ingresso_ingresso_simplificado ? '' : '',
-            campaignData.forma_ingresso_transferencia_externa ? '' : '',
-            campaignData.forma_ingresso_vestibular ? '' : '',
-          ].filter(Boolean).join(', ') || '',
+          value:
+            [
+              campaignData.forma_ingresso_enem ? '' : '',
+              campaignData.forma_ingresso_ingresso_simplificado ? '' : '',
+              campaignData.forma_ingresso_transferencia_externa ? '' : '',
+              campaignData.forma_ingresso_vestibular ? '' : '',
+            ]
+              .filter(Boolean)
+              .join(', ') || '',
         },
         { name: 'ultima_interacao', value: campaignData.ultima_interacao ?? '' },
         { name: 'remover_regua_master', value: campaignData.remover_regua_master ?? '' },
@@ -105,7 +108,7 @@ export const useTemplate = (): UseTemplateReturn => {
             audience_snapshot: campaignData.audienceInfo?.audienceSize ?? 0,
             status: isTemplate ? 'draft' : 'complete',
             is_template: isTemplate,
-            description, 
+            description,
           },
           channels,
         },
@@ -132,11 +135,15 @@ export const useTemplate = (): UseTemplateReturn => {
           template_name: response.data.data.campaign_name,
         });
       } else {
-        toast.error(`Erro ao salvar template: ${response.data.errorMessage || 'Erro desconhecido'}`);
+        toast.error(
+          `Erro ao salvar template: ${response.data.errorMessage || 'Erro desconhecido'}`
+        );
       }
     } catch (error) {
       console.error('Erro ao salvar template:', error);
-      toast.error(`Erro ao salvar template: ${error.response?.data?.errorMessage || 'Erro de conexão com o servidor'}`);
+      toast.error(
+        `Erro ao salvar template: ${error.response?.data?.errorMessage || 'Erro de conexão com o servidor'}`
+      );
     } finally {
       setIsSaving(false);
     }

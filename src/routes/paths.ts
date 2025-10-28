@@ -9,7 +9,8 @@ const ROOTS = {
   AUDIENCE: '/audience',
   INSIGHTS: '/insights',
   TEMPLATES: '/briefing/templates-campanha',
-  HISTORY: '/briefing/history', 
+  HISTORY: '/briefing/history',
+  ADMIN: '/admin',
 };
 
 // ----------------------------------------------------------------------
@@ -54,4 +55,5 @@ export const paths = {
   insights: ROOTS.INSIGHTS,
   templates: ROOTS.TEMPLATES,
   history: ROOTS.HISTORY,
+  admin: ROOTS.ADMIN, // <-- Adicionado
 };

@@ -6,15 +6,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 
 import { LoadingButton } from '@mui/lab';
-import {
-  Box,
-  Card,
-  Grid,
-  Chip,
-  Button,
-  Typography,
-  CardContent,
-} from '@mui/material';
+import { Box, Card, Grid, Chip, Button, Typography, CardContent } from '@mui/material';
 
 import { useArchive } from 'src/hooks/useArchive';
 import { useAudienceData } from 'src/hooks/useAudienceData';
@@ -45,23 +37,23 @@ interface AudiencePayload {
   nom_grupo_marca?: string;
 }
 
-
 export default function Insights() {
   const router = useRouter();
   const { state } = useFormWizard();
-  const {
-     
-      handleBackToBasicInfo,
-     
-    } = useBriefingReview();
+  const { handleBackToBasicInfo } = useBriefingReview();
   const payload = useAudiencePayload() as AudiencePayload;
   const { loading, error, data, runAudienceFlow } = useAudienceData();
-  const { generatedQuery, clearAllData, generateMarketingCloudFlow, getCurrentUser, handleGenerateInsight } = useAudienceQuery();
+  const {
+    generatedQuery,
+    clearAllData,
+    generateMarketingCloudFlow,
+    getCurrentUser,
+    handleGenerateInsight,
+  } = useAudienceQuery();
   const [pdfLoading, setPdfLoading] = useState(false);
   const { updateArchiveStatus } = useArchive();
   const [blockRedirect, setBlockRedirect] = useState(false);
 
- 
   useEffect(() => {
     if (blockRedirect) return;
     const hasAudience = !!(state.generatedQuery || state.generated_query);
@@ -168,8 +160,8 @@ export default function Insights() {
             ? new Date(payload.end_date).toLocaleDateString('pt-BR')
             : 'Não definido';
 
-  // Etapas do funil
-  const funnelStage = state.status_funil || state.etapa_funil || 'Não definido';
+      // Etapas do funil
+      const funnelStage = state.status_funil || state.etapa_funil || 'Não definido';
 
       // Nível de ensino
       const courseLevel = state.atl_niveldeensino__c
@@ -209,7 +201,11 @@ export default function Insights() {
       doc.setFontSize(10);
       doc.text(`Nome da Campanha: ${campaignName}`, 10, 30);
       // Nome da Jornada: prioriza state.journey_name, senão data.journey_name, senão base_origin
-      const journeyName = state.journey_name || data?.journey_name || payload.additional_info?.base_origin || 'Não definido';
+      const journeyName =
+        state.journey_name ||
+        data?.journey_name ||
+        payload.additional_info?.base_origin ||
+        'Não definido';
       doc.text(`Nome da Jornada: ${journeyName}`, 10, 35);
       doc.text(`Código da Campanha: ${campaignCode}`, 10, 40);
       doc.text(`Ofertas: ${offers}`, 10, 45);
@@ -302,48 +298,47 @@ export default function Insights() {
         220
       );
 
-     // Seção 8: Queries Geradas
-doc.setFontSize(12);
-doc.text('8. QUERIES GERADAS', 10, 230);
-doc.setFontSize(10);
-doc.text('Query 1:', 10, 235);
-doc.text(
-  `Etapa: ${payload.additional_info?.base_origin === 'DE_GERAL_LEADS' ? 'LEAD' : 'OPORTUNIDADE'}`,
-  15,
-  240
-);
-doc.text(`Base: ${payload.additional_info?.base_origin || 'Não definido'}`, 15, 245);
-doc.text(`Contatos: ${data?.audience_volume || 'Não definido'}`, 15, 250);
+      // Seção 8: Queries Geradas
+      doc.setFontSize(12);
+      doc.text('8. QUERIES GERADAS', 10, 230);
+      doc.setFontSize(10);
+      doc.text('Query 1:', 10, 235);
+      doc.text(
+        `Etapa: ${payload.additional_info?.base_origin === 'DE_GERAL_LEADS' ? 'LEAD' : 'OPORTUNIDADE'}`,
+        15,
+        240
+      );
+      doc.text(`Base: ${payload.additional_info?.base_origin || 'Não definido'}`, 15, 245);
+      doc.text(`Contatos: ${data?.audience_volume || 'Não definido'}`, 15, 250);
 
+      const sqlLines = doc.splitTextToSize(`SQL: ${generatedQuery || 'Nenhuma query gerada'}`, 180);
+      doc.text(sqlLines, 15, 255);
 
+      // Calcula a próxima posição Y após a query para dar respiro antes da seção 9
+      let yAfterQuery = 255 + sqlLines.length * 5;
+      if (yAfterQuery < 265)
+        yAfterQuery = 265; // nunca deixa colar na seção 9
+      else yAfterQuery += 8; // se for maior, dá um respiro extra
 
-const sqlLines = doc.splitTextToSize(`SQL: ${generatedQuery || 'Nenhuma query gerada'}`, 180);
-doc.text(sqlLines, 15, 255);
-
-// Calcula a próxima posição Y após a query para dar respiro antes da seção 9
-let yAfterQuery = 255 + sqlLines.length * 5;
-if (yAfterQuery < 265) yAfterQuery = 265; // nunca deixa colar na seção 9
-else yAfterQuery += 8; // se for maior, dá um respiro extra
-
-// Seção 9: Análise de Custo-Benefício
-doc.setFontSize(12);
-doc.text('9. ANÁLISE DE CUSTO-BENEFÍCIO', 10, yAfterQuery);
-doc.setFontSize(10);
-doc.text(
-  `Custo por Contato: ${data?.estimated_costs?.Total && data.audience_volume ? formatCurrency(parseCurrency(data.estimated_costs.Total) / data.audience_volume) : 'Não definido'}`,
-  10,
-  yAfterQuery + 5
-);
-doc.text(
-  `Custo Total Estimado: ${data?.estimated_costs?.Total ? formatCurrency(parseCurrency(data.estimated_costs.Total)) : 'Não definido'}`,
-  10,
-  yAfterQuery + 10
-);
-doc.text(
-  `Tamanho da Audiência: ${data?.audience_volume ? `${formatNumber(data.audience_volume)} contatos` : 'Não definido'}`,
-  10,
-  yAfterQuery + 15
-);
+      // Seção 9: Análise de Custo-Benefício
+      doc.setFontSize(12);
+      doc.text('9. ANÁLISE DE CUSTO-BENEFÍCIO', 10, yAfterQuery);
+      doc.setFontSize(10);
+      doc.text(
+        `Custo por Contato: ${data?.estimated_costs?.Total && data.audience_volume ? formatCurrency(parseCurrency(data.estimated_costs.Total) / data.audience_volume) : 'Não definido'}`,
+        10,
+        yAfterQuery + 5
+      );
+      doc.text(
+        `Custo Total Estimado: ${data?.estimated_costs?.Total ? formatCurrency(parseCurrency(data.estimated_costs.Total)) : 'Não definido'}`,
+        10,
+        yAfterQuery + 10
+      );
+      doc.text(
+        `Tamanho da Audiência: ${data?.audience_volume ? `${formatNumber(data.audience_volume)} contatos` : 'Não definido'}`,
+        10,
+        yAfterQuery + 15
+      );
 
       // Salva o PDF
       doc.save('relatorio_campanha.pdf');
@@ -351,23 +346,33 @@ doc.text(
 
       // --- Atualização do status para completed ---
       let payloadToSend = null;
-      const archivePayload = typeof window !== 'undefined' ? sessionStorage.getItem('archivePayload') : null;
+      const archivePayload =
+        typeof window !== 'undefined' ? sessionStorage.getItem('archivePayload') : null;
       if (archivePayload) {
         payloadToSend = JSON.parse(archivePayload);
       } else {
-        
-        
-       
         payloadToSend = {
           campaign: {
             core: {
               offer: state.offer || '',
               code: state.campaign_codes || state.campaignCode || '',
               campaign_name: state.campaign_name || state.campaignName || '',
-              campaign_type: Array.isArray(state.campaign_type) ? state.campaign_type[0] : state.campaign_type || state.campaignType || '',
-              campaign_objective: Array.isArray(state.campaign_objective) ? state.campaign_objective[0] : state.campaign_objective || state.campaignObjective || '',
-              start_date: state.start_date ? state.start_date.split('T')[0] : state.campaignStartDate ? new Date(state.campaignStartDate).toISOString().split('T')[0] : '',
-              end_date: state.end_date ? state.end_date.split('T')[0] : state.campaignEndDate ? new Date(state.campaignEndDate).toISOString().split('T')[0] : '',
+              campaign_type: Array.isArray(state.campaign_type)
+                ? state.campaign_type[0]
+                : state.campaign_type || state.campaignType || '',
+              campaign_objective: Array.isArray(state.campaign_objective)
+                ? state.campaign_objective[0]
+                : state.campaign_objective || state.campaignObjective || '',
+              start_date: state.start_date
+                ? state.start_date.split('T')[0]
+                : state.campaignStartDate
+                  ? new Date(state.campaignStartDate).toISOString().split('T')[0]
+                  : '',
+              end_date: state.end_date
+                ? state.end_date.split('T')[0]
+                : state.campaignEndDate
+                  ? new Date(state.campaignEndDate).toISOString().split('T')[0]
+                  : '',
               segmentation_sql: state.generatedQuery || state.generated_query || '',
               audience_snapshot: state.audienceInfo?.audienceSize ?? 0,
               status: 'completed',
@@ -380,7 +385,7 @@ doc.text(
           },
           briefing: {
             core: {
-              name: (state.journey_name || '-'),
+              name: state.journey_name || '-',
               segmentation: (state.segmentation || []).join(' AND '),
               source_base_id: state.source_base_id || '1',
               source_base: (state.base_origin && state.base_origin[0]) || state.source_base || '',
@@ -388,11 +393,23 @@ doc.text(
             fields: [
               { name: 'nom_grupo_marca', value: state.nom_grupo_marca || '' },
               { name: 'modalidade', value: (state.modalidade || []).join(', ') },
-              { name: 'atl_niveldeensino__c', value: (state.atl_niveldeensino__c || []).join(', ') },
+              {
+                name: 'atl_niveldeensino__c',
+                value: (state.atl_niveldeensino__c || []).join(', '),
+              },
               { name: 'forma_ingresso_enem', value: state.forma_ingresso_enem ? 'true' : 'false' },
-              { name: 'forma_ingresso_vestibular', value: state.forma_ingresso_vestibular ? 'true' : 'false' },
-              { name: 'disponibilizacao_call_center_nao', value: state.disponibilizacao_call_center_nao ? 'true' : 'false' },
-              { name: 'disponibilizacao_call_center_sim', value: state.disponibilizacao_call_center_sim ? 'true' : 'false' },
+              {
+                name: 'forma_ingresso_vestibular',
+                value: state.forma_ingresso_vestibular ? 'true' : 'false',
+              },
+              {
+                name: 'disponibilizacao_call_center_nao',
+                value: state.disponibilizacao_call_center_nao ? 'true' : 'false',
+              },
+              {
+                name: 'disponibilizacao_call_center_sim',
+                value: state.disponibilizacao_call_center_sim ? 'true' : 'false',
+              },
               { name: 'status_funil', value: state.status_funil || '' },
               { name: 'outras_exclusoes', value: state.outras_exclusoes || '' },
               { name: 'criterios_saida', value: state.criterios_saida || '' },
@@ -407,7 +424,7 @@ doc.text(
       if (archiveId) {
         payloadToSend.campaign.core.id = archiveId;
       }
-      
+
       try {
         const resp = await updateArchiveStatus(payloadToSend, 'completed');
         console.log('Resposta updateArchiveStatus:', resp);
@@ -425,9 +442,20 @@ doc.text(
 
   if (loading && !data) {
     return (
-      <Box sx={{ py: 4, minHeight: '400px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+      <Box
+        sx={{
+          py: 4,
+          minHeight: '400px',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+      >
         <SplashScreen portal={false} />
-        <Typography variant="h6" align="center" sx={{ mt: 2 }}>Carregando dados da audiência...</Typography>
+        <Typography variant="h6" align="center" sx={{ mt: 2 }}>
+          Carregando dados da audiência...
+        </Typography>
       </Box>
     );
   }
@@ -458,7 +486,6 @@ doc.text(
         3. Insights e Benchmark da Campanha
       </Typography>
       <Grid container spacing={3}>
-       
         <Grid item xs={12} md={8}>
           <Card sx={{ boxShadow: 2, borderRadius: 2, mb: 3 }}>
             <CardContent>
@@ -520,7 +547,16 @@ doc.text(
                   {Object.entries(data.estimated_costs)
                     .filter(([canal]) => canal.toLowerCase() !== 'total')
                     .map(([canal, valor]) => (
-                      <Box key={canal} sx={{ border: '1px solid #e0e0e0', borderRadius: 2, p: 2, minWidth: 180, mb: 2 }}>
+                      <Box
+                        key={canal}
+                        sx={{
+                          border: '1px solid #e0e0e0',
+                          borderRadius: 2,
+                          p: 2,
+                          minWidth: 180,
+                          mb: 2,
+                        }}
+                      >
                         <Typography variant="body2" color="text.secondary">
                           Canal
                         </Typography>
@@ -537,7 +573,9 @@ doc.text(
                     ))}
                 </Box>
               ) : (
-                <Typography variant="body2" color="text.secondary">Nenhum custo por canal disponível</Typography>
+                <Typography variant="body2" color="text.secondary">
+                  Nenhum custo por canal disponível
+                </Typography>
               )}
             </CardContent>
           </Card>
@@ -573,7 +611,10 @@ doc.text(
                 Nome da Régua/Jornada
               </Typography>
               <Typography variant="body2" sx={{ fontSize: '0.9rem', color: 'text.secondary' }}>
-                {state.journey_name || data?.journey_name || payload.additional_info?.base_origin || '-'}
+                {state.journey_name ||
+                  data?.journey_name ||
+                  payload.additional_info?.base_origin ||
+                  '-'}
               </Typography>
             </CardContent>
           </Card>
@@ -655,10 +696,16 @@ doc.text(
                   startIcon={<Iconify icon="eva:cloud-upload-outline" />}
                   loading={pdfLoading}
                   onClick={async () => {
-                    const journeyName = state.journey_name || data?.journey_name || payload.additional_info?.base_origin || '';
+                    const journeyName =
+                      state.journey_name ||
+                      data?.journey_name ||
+                      payload.additional_info?.base_origin ||
+                      '';
                     const queryText = generatedQuery ?? '';
                     if (!journeyName || !queryText) {
-                      toast.error('Journey Name e Query são obrigatórios para gerar no Marketing Cloud.');
+                      toast.error(
+                        'Journey Name e Query são obrigatórios para gerar no Marketing Cloud.'
+                      );
                       return;
                     }
                     try {
@@ -674,19 +721,19 @@ doc.text(
                 >
                   Gerar no Marketing Cloud
                 </LoadingButton>
-                
-               <Button
-                            variant="outlined"
-                            sx={{ color: '#093366', borderColor: '#093366' }}
-                            onClick={() => {
-                              clearAllData();
-                              setBlockRedirect(true);
-                              if (typeof handleBackToBasicInfo === 'function') {
-                                handleBackToBasicInfo();
-                              } else {
-                                router.replace('/briefing/basic-info');
-                              }
-                            }}
+
+                <Button
+                  variant="outlined"
+                  sx={{ color: '#093366', borderColor: '#093366' }}
+                  onClick={() => {
+                    clearAllData();
+                    setBlockRedirect(true);
+                    if (typeof handleBackToBasicInfo === 'function') {
+                      handleBackToBasicInfo();
+                    } else {
+                      router.replace('/briefing/basic-info');
+                    }
+                  }}
                 >
                   Voltar para Início
                 </Button>

@@ -43,7 +43,15 @@ export default function AdvancedFilterPage() {
     return (
       <Box>
         <FormStepper />
-        <Box sx={{ mt: 4, minHeight: '400px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <Box
+          sx={{
+            mt: 4,
+            minHeight: '400px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
           <SplashScreen portal={false} />
         </Box>
         <Typography variant="h6" color="text.secondary" align="center" sx={{ mt: 2 }}>
@@ -103,14 +111,14 @@ export default function AdvancedFilterPage() {
                 disableCloseOnSelect
                 options={options}
                 getOptionLabel={(option) => option.label || option.toString()}
-                isOptionEqualToValue={(option, value) => option.value === value.value || option === value}
+                isOptionEqualToValue={(option, value) =>
+                  option.value === value.value || option === value
+                }
                 value={fieldProps.value || []}
                 onChange={(_, newValue) => fieldProps.onChange(newValue)}
                 renderInput={(params) => (
                   <TextField
                     {...params}
-                  
-                    
                     placeholder={`Selecione ${field.label.toLowerCase()}`}
                     variant="outlined"
                     error={!!methods.formState.errors[field.name]}
@@ -122,7 +130,7 @@ export default function AdvancedFilterPage() {
                     <Chip
                       label={option.label || option.toString()}
                       {...getTagProps({ index })}
-                      sx={{ bgcolor: '#f1f1f1', color: '#093366' }} 
+                      sx={{ bgcolor: '#f1f1f1', color: '#093366' }}
                     />
                   ))
                 }
@@ -130,7 +138,7 @@ export default function AdvancedFilterPage() {
                   <Box
                     {...props}
                     sx={{
-                      bgcolor: '#f8f9fa', 
+                      bgcolor: '#f8f9fa',
                       boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
                       borderRadius: 1,
                     }}
@@ -145,7 +153,6 @@ export default function AdvancedFilterPage() {
         <RHFTextField
           name={field.name}
           select
-         
           variant="outlined"
           error={!!methods.formState.errors[field.name]}
         >
@@ -180,7 +187,6 @@ export default function AdvancedFilterPage() {
         <RHFTextField
           name={field.name}
           type="number"
-         
           variant="outlined"
           error={!!methods.formState.errors[field.name]}
         />
@@ -216,7 +222,6 @@ export default function AdvancedFilterPage() {
     return (
       <RHFTextField
         name={field.name}
-       
         variant="outlined"
         multiline={field.name === 'informacoes_extras' || field.name === 'outras_exclusoes'}
         rows={4}
@@ -226,18 +231,16 @@ export default function AdvancedFilterPage() {
   };
 
   const renderFormaIngressoSection = () => {
-    const formaIngressoFields = fields.filter((field) =>
-      field.name.startsWith('forma_ingresso_') ||
-      field.name === 'tipo_captacao_transf._externa' ||
-      field.name === 'tipo_captacao_vestibular_(ingresso_simplificado)'
+    const formaIngressoFields = fields.filter(
+      (field) =>
+        field.name.startsWith('forma_ingresso_') ||
+        field.name === 'tipo_captacao_transf._externa' ||
+        field.name === 'tipo_captacao_vestibular_(ingresso_simplificado)'
     );
     if (formaIngressoFields.length > 0) {
       return (
         <Grid item xs={12}>
-          <FieldWithLabel
-            label="Forma de Ingresso"
-            
-          >
+          <FieldWithLabel label="Forma de Ingresso">
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5, ml: 1 }}>
               {formaIngressoFields.map((field, index) => (
                 <RHFCheckbox
@@ -267,10 +270,7 @@ export default function AdvancedFilterPage() {
     if (statusVestibularFields.length > 0) {
       return (
         <Grid item xs={12}>
-          <FieldWithLabel
-            label="Status do Vestibular"
-           
-          >
+          <FieldWithLabel label="Status do Vestibular">
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5, ml: 1 }}>
               {statusVestibularFields.map((field, index) => (
                 <RHFCheckbox
@@ -297,13 +297,14 @@ export default function AdvancedFilterPage() {
 
   const renderNivelEnsinoSection = () => {
     const nivelEnsinoField = fields.find((field) => field.name === 'nom_tipo_curso');
-    if (nivelEnsinoField && nivelEnsinoField.type === 'checkbox' && Array.isArray(nivelEnsinoField.values)) {
+    if (
+      nivelEnsinoField &&
+      nivelEnsinoField.type === 'checkbox' &&
+      Array.isArray(nivelEnsinoField.values)
+    ) {
       return (
         <Grid item xs={12}>
-          <FieldWithLabel
-            label="Nível de Ensino"
-            
-          >
+          <FieldWithLabel label="Nível de Ensino">
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5, ml: 1 }}>
               {nivelEnsinoField.values.map((option, index) => (
                 <RHFCheckbox
@@ -329,7 +330,9 @@ export default function AdvancedFilterPage() {
   };
 
   const renderNivelEscolaridadeSection = () => {
-    const nivelEscolaridadeFields = fields.filter((field) => field.name.startsWith('nivel_escolaridade_'));
+    const nivelEscolaridadeFields = fields.filter((field) =>
+      field.name.startsWith('nivel_escolaridade_')
+    );
     if (nivelEscolaridadeFields.length > 0) {
       return (
         <Grid item xs={12}>
@@ -392,21 +395,18 @@ export default function AdvancedFilterPage() {
         <Form methods={{ control, handleSubmit, ...methods }} onSubmit={handleSubmit(onSubmit)}>
           <Grid container spacing={3}>
             {fields
-              .filter((field) =>
-                !field.name.startsWith('forma_ingresso_') &&
-                !field.name.startsWith('status_prova_') &&
-                !field.name.startsWith('nom_tipo_curso_') &&
-                !field.name.startsWith('nivel_escolaridade_') &&
-                field.name !== 'tipo_captacao_transf._externa' &&
-                field.name !== 'tipo_captacao_vestibular_(ingresso_simplificado)'
+              .filter(
+                (field) =>
+                  !field.name.startsWith('forma_ingresso_') &&
+                  !field.name.startsWith('status_prova_') &&
+                  !field.name.startsWith('nom_tipo_curso_') &&
+                  !field.name.startsWith('nivel_escolaridade_') &&
+                  field.name !== 'tipo_captacao_transf._externa' &&
+                  field.name !== 'tipo_captacao_vestibular_(ingresso_simplificado)'
               )
               .map((field, index) => (
                 <Grid item xs={12} key={index}>
-                  <FieldWithLabel
-                    label={field.label}
-                    required={field.required}
-                   
-                  >
+                  <FieldWithLabel label={field.label} required={field.required}>
                     {renderField(field)}
                   </FieldWithLabel>
                 </Grid>
@@ -416,12 +416,8 @@ export default function AdvancedFilterPage() {
             {renderFormaIngressoSection()}
             {renderStatusVestibularSection()}
 
-
             <Grid item xs={12}>
-              <FieldWithLabel
-                label="Critérios de Saída"
-                
-              >
+              <FieldWithLabel label="Critérios de Saída">
                 <RHFTextField
                   name="criterios_saida"
                   placeholder="Descreva critérios de saída..."
@@ -434,9 +430,6 @@ export default function AdvancedFilterPage() {
               </FieldWithLabel>
             </Grid>
 
-           
-
-          
             <Grid item xs={12}>
               <Box display="flex" justifyContent="space-between" mt={4}>
                 <Button
