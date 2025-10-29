@@ -123,8 +123,8 @@ export function RHFMultiCheckbox({
                 key={option.value}
                 control={
                   <Checkbox
-                    checked={field.value.includes(option.value)}
-                    onChange={() => field.onChange(getSelected(field.value, option.value))}
+                    checked={Array.isArray(field.value) && field.value.includes(option.value)}
+                    onChange={() => field.onChange(getSelected(Array.isArray(field.value) ? field.value : [], option.value))}
                     name={accessibility(option.label)}
                     {...slotProps?.checkbox}
                     inputProps={{

@@ -1,127 +1,100 @@
+
 'use client';
 
 import dayjs from 'dayjs';
-import { useState, useEffect } from 'react';
-import { Controller } from 'react-hook-form';
+import { useRef, useState, useEffect } from 'react';
 
+import MenuItem from '@mui/material/MenuItem';
 import { Box, Grid, Button, Typography } from '@mui/material';
 
-import { useBasicInfoForm } from 'src/hooks/useBasicInfoForm';
 import { useAudienceQuery } from 'src/hooks/useAudienceQuery';
+import { useBasicInfoForm } from 'src/hooks/useBasicInfoForm';
 
-import { toast } from 'src/components/snackbar';
+import { Field } from 'src/components/hook-form';
 import { FormStepper } from 'src/components/form-stepper';
 import { SplashScreen } from 'src/components/loading-screen';
 import { Form } from 'src/components/hook-form/form-provider';
 import { FieldWithLabel } from 'src/components/field-with-label';
-import { RHFCheckbox } from 'src/components/hook-form/rhf-checkbox';
-import { RHFMultiSelect } from 'src/components/hook-form/rhf-select';
-import { RHFTextField } from 'src/components/hook-form/rhf-text-field';
-import { RHFDatePicker } from 'src/components/hook-form/rhf-date-picker';
 
+/* ---------- UTILIDADES ---------- */
 const parseDate = (dateStr: string | undefined): string | null => {
   if (!dateStr) return null;
   const [day, month, year] = dateStr.split('/').map(Number);
-  const parsedDate = new Date(year, month - 1, day);
-  if (Number.isNaN(parsedDate.getTime())) return null;
-  return parsedDate.toISOString().replace('Z', '-03:00');
+  const d = new Date(year, month - 1, day);
+  return Number.isNaN(d.getTime()) ? null : d.toISOString().replace('Z', '-03:00');
 };
 
 const extractFormValues = (data: any, channelOptions: any[]) => {
   if (!data) return {};
-
   const core = data.campaign?.core || {};
-
-  const initialValues = {
+  return {
     campaign_name: core.campaign_name || '',
     campaign_objective: core.campaign_objective ? [core.campaign_objective] : [],
     campaign_type: core.campaign_type ? [core.campaign_type] : [],
-
     offer: core.offer || '',
     campaign_codes: core.code || '',
     start_date: parseDate(core.start_date) || null,
     end_date: parseDate(core.end_date) || null,
     is_continuous: core.is_template === false,
   };
-
-  console.log('Valores iniciais mapeados:', initialValues);
-  return initialValues;
 };
 
+/* ---------- COMPONENTE ---------- */
 export default function BasicInfoPage() {
   const { clearAllData } = useAudienceQuery();
-
-  useEffect(() => {
-    clearAllData();
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [templateData, setTemplateData] = useState<any | null>(null);
+  const hasInitialized = useRef(false);
 
-  // Carregar dados do sessionStorage
-  useEffect(() => {
-    const stored = sessionStorage.getItem('briefing_template_data');
-    if (stored) {
-      try {
-        const parsed = JSON.parse(stored);
-        console.log('Dados do sessionStorage:', parsed);
-        setTemplateData(parsed);
-      } catch (error) {
-        console.error('Erro ao parsear dados do template:', error);
-        toast.error('Erro ao carregar dados do template.');
-        setTemplateData(null);
-      }
-    }
-  }, []);
-
+  /* ---- Hook do formulário ---- */
+  const formMethods = useBasicInfoForm({});
   const {
     fields,
     loading,
-    control,
     handleSubmit,
     onSubmit,
     handleNext,
     selectedChannels,
-    campaignObjectiveField,
-    campaignTypeField,
     channelField,
-    offerField,
-    campaignCodesField,
     reset,
-    ...methods
-  } = useBasicInfoForm({});
+    getFieldComponent,
+  } = formMethods;
 
+  const fixedFieldNames = [
+    'campaign_name',
+    'start_date',
+    'end_date',
+    'disponibilizacao_call_center_sim',
+    'disponibilizacao_call_center_nao',
+  ];
+  const dynamicFields = fields.filter((f: any) => !fixedFieldNames.includes(f.name));
+
+  
   useEffect(() => {
-    if (templateData && channelField) {
-      const initialValues = extractFormValues(templateData, channelField.values || []);
-      console.log('Atualizando formulário com valores:', initialValues);
-      reset(initialValues);
+    clearAllData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
+  /* ---- Preenche com template (uma única vez) ---- */
+  useEffect(() => {
+    if (templateData && channelField && !hasInitialized.current) {
+      const vals = extractFormValues(templateData, channelField.values || []);
+      reset(vals);
       sessionStorage.removeItem('briefing_template_data');
+      hasInitialized.current = true;
     }
   }, [templateData, channelField, reset]);
 
+  /* ---- Loading ---- */
   if (loading || fields.length === 0) {
     return (
       <Box>
         <FormStepper />
-        <Box
-          sx={{
-            mt: 4,
-            minHeight: '400px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}
-        >
+        <Box sx={{ mt: 4, minHeight: 400, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <SplashScreen portal={false} />
         </Box>
         <Typography variant="h6" color="text.secondary" align="center" sx={{ mt: 2 }}>
-          Carregando campos do formulário...
-        </Typography>
-        <Typography variant="body2" color="text.secondary" align="center">
-          Aguarde enquanto buscamos as configurações.
+          Carregando campos...
         </Typography>
       </Box>
     );
@@ -131,23 +104,24 @@ export default function BasicInfoPage() {
     <Box>
       <FormStepper />
       <Box sx={{ mt: 4 }}>
-        {/* @ts-ignore */}
         <Form
-          methods={{ control, handleSubmit, ...methods }}
+          methods={formMethods}
           onSubmit={handleSubmit((data) => {
+           
             if (typeof data.campaign_objective === 'string') {
               data.campaign_objective = data.campaign_objective
                 .split(/\r?\n/)
-                .map((s) => s.trim())
+                .map((s: string) => s.trim())
                 .filter(Boolean);
             }
             onSubmit(data);
           })}
         >
           <Grid container spacing={3}>
+           
             <Grid item xs={12}>
               <FieldWithLabel label="Nome da Campanha" required>
-                <RHFTextField
+                <Field.Text
                   name="campaign_name"
                   placeholder="Ex: Campanha Captação Q1 2025"
                   helperText="Nome da campanha para identificação e organização."
@@ -155,240 +129,168 @@ export default function BasicInfoPage() {
               </FieldWithLabel>
             </Grid>
 
-            <Grid item xs={12} md={6}>
-              {campaignTypeField && (
-                <FieldWithLabel label={campaignTypeField.label}>
-                  <RHFMultiSelect
-                    name={campaignTypeField.name}
-                    placeholder="Selecione o tipo da campanha"
-                    options={
-                      campaignTypeField.values?.map((item: any) => ({
-                        label: item.label || item.value || item,
-                        value: item.value || item.id || item,
-                      })) || []
-                    }
-                    chip
-                    helperText="Tipo principal da campanha."
-                    variant="outlined"
-                  />
-                </FieldWithLabel>
-              )}
-            </Grid>
+            {/* ---- CAMPOS DINÂMICOS  ---- */}
+            {/* Área e Subárea em coluna */}
+            {dynamicFields.filter(f => f.name === 'area' || f.name === 'subarea').map((field: any) => {
+              const Component = getFieldComponent(field);
+              if (!Component) return null;
+              const options = field.values?.map((it: any) => ({ label: it.label || it.value || it, value: it.value || it.id || it })) || [];
+              let children;
+              if (field.type === 'dropdown' && !field.multiple) {
+                children = options.map((opt: { label: string; value: string }) => (
+                  <MenuItem key={opt.value} value={opt.value}>{opt.label}</MenuItem>
+                ));
+              }
+              return (
+                <Grid item xs={12} key={field.name}>
+                  <FieldWithLabel label={field.label} required={field.required}>
+                    <Component name={field.name} options={options} placeholder={field.placeholder || `Digite ou selecione ${field.label.toLowerCase()}`} {...(children ? { children } : {})} />
+                  </FieldWithLabel>
+                </Grid>
+              );
+            })}
 
-            <Grid item xs={12} md={6}>
-              {campaignObjectiveField && (
-                <FieldWithLabel label={campaignObjectiveField.label}>
-                  <RHFTextField
-                    name={campaignObjectiveField.name}
-                    placeholder="Digite um ou mais objetivos, um por linha"
-                    helperText="Digite cada objetivo em uma linha separada."
-                    multiline
-                    rows={3}
-                    variant="outlined"
-                    type="text"
-                  />
-                </FieldWithLabel>
-              )}
-            </Grid>
-
-            {offerField && (
-              <Grid item xs={12} md={6}>
-                <FieldWithLabel label={offerField.label}>
-                  <RHFTextField
-                    name={offerField.name}
-                    placeholder="Ex: Desconto 15% na matrícula, Bolsa 30%"
-                    helperText="Descreva as ofertas desta campanha para histórico e referência futura."
-                    multiline
-                    rows={1}
-                  />
-                </FieldWithLabel>
-              </Grid>
-            )}
-
-            {campaignCodesField && (
-              <Grid item xs={12} md={6}>
-                <FieldWithLabel label={`${campaignCodesField.label} (Opcional)`}>
-                  <RHFTextField
-                    name={campaignCodesField.name}
-                    placeholder="Ex: PLANO_ACAO_SEMANAL_07.a.11_ABRIL2025_LEADS_EMKT"
-                    helperText="Código interno para identificação e rastreamento da campanha."
-                  />
-                </FieldWithLabel>
-              </Grid>
-            )}
-
-            <Grid item xs={12}>
-              {channelField && (
-                <FieldWithLabel label={channelField.label}>
-                  <RHFMultiSelect
-                    name={channelField.name}
-                    placeholder="Selecione os tipos de disparo"
-                    options={
-                      channelField.values?.map((item: any) => ({
-                        label: item.label || item.value || item,
-                        value: item.value || item.id || item,
-                      })) || []
-                    }
-                    chip
-                    helperText="Selecione os tipos de disparo para esta campanha."
-                    variant="outlined"
-                  />
-                </FieldWithLabel>
-              )}
-            </Grid>
-
-            {selectedChannels.length > 0 && (
-              <Grid item xs={12}>
-                <Box sx={{ p: 2, border: '1px solid #e0e0e0', borderRadius: 1 }}>
-                  <Typography variant="body2" sx={{ mb: 2, fontWeight: 500 }}>
-                    Quantidade de Disparos por Canal
-                  </Typography>
-                  <Grid container spacing={2}>
-                    {selectedChannels.map((channelValue: string) => {
-                      const channelOption = channelField?.values?.find(
-                        (item: any) => (item.value || item.id || item) === channelValue
-                      );
-                      const channelLabel =
-                        channelOption?.label || channelOption?.value || channelValue;
-
-                      return (
-                        <Grid item xs={12} md={6} key={channelValue}>
-                          <FieldWithLabel label={channelLabel}>
-                            <RHFTextField
-                              name={`quantity_${channelValue}`}
-                              placeholder="Quantidade"
-                              type="number"
-                              inputProps={{ min: 0 }}
-                              helperText={`Quantidade de disparos para ${channelLabel}`}
-                            />
-                          </FieldWithLabel>
-                        </Grid>
-                      );
-                    })}
+            
+            <Grid container item xs={12} spacing={2}>
+              {dynamicFields.filter(f => f.name === 'campaign_type' || f.name === 'journey_type').map((field: any) => {
+                const Component = getFieldComponent(field);
+                if (!Component) return null;
+                const options = field.values?.map((it: any) => ({ label: it.label || it.value || it, value: it.value || it.id || it })) || [];
+                const isMultiCheckbox = field.type === 'checkbox' && Array.isArray(field.values) && field.values.length > 1;
+                if (isMultiCheckbox) {
+                  return (
+                    <Grid item xs={12} md={6} key={field.name}>
+                      <FieldWithLabel label={field.label} required={field.required}>
+                        <Field.MultiCheckbox name={field.name} options={options} />
+                      </FieldWithLabel>
+                    </Grid>
+                  );
+                }
+                return (
+                  <Grid item xs={12} md={6} key={field.name}>
+                    <FieldWithLabel label={field.label} required={field.required}>
+                      <Component name={field.name} options={options} />
+                    </FieldWithLabel>
                   </Grid>
-                </Box>
-              </Grid>
-            )}
+                );
+              })}
+            </Grid>
 
+            
+            {dynamicFields.filter(f => f.name === 'channel').map((field: any) => {
+              const options = field.values?.map((it: any) => ({ label: it.label || it.value || it, value: it.value || it.id || it })) || [];
+              return (
+                <>
+                  <Grid item xs={12} key={field.name}>
+                    <FieldWithLabel label={field.label} required={field.required}>
+                      <Field.MultiSelect
+                        name={field.name}
+                        options={options}
+                        chip
+                        // @ts-ignore
+                        freeSolo
+                        placeholder={field.placeholder || 'Digite ou selecione o canal'}
+                        helperText="Selecione ou digite os canais de disparo."
+                      />
+                    </FieldWithLabel>
+                  </Grid>
+                  {selectedChannels.length > 0 && (
+                    <Grid item xs={12}>
+                      <Box sx={{ p: 2, border: '1px solid #e0e0e0', borderRadius: 1 }}>
+                        <Typography variant="body2" sx={{ mb: 2, fontWeight: 500 }}>
+                          Quantidade de Disparos por Canal
+                        </Typography>
+                        <Grid container spacing={2}>
+                          {selectedChannels.map((channelValue: string) => {
+                            const ch = field.values?.find(
+                              (it: any) => (it.value || it.id) === channelValue
+                            );
+                            const label = ch?.label || channelValue;
+                            return (
+                              <Grid item xs={12} md={6} key={channelValue}>
+                                <FieldWithLabel label={label}>
+                                  <Field.Text
+                                    name={`quantity_${channelValue}`}
+                                    type="number"
+                                    inputProps={{ min: 0 }}
+                                    placeholder="Quantidade"
+                                  />
+                                </FieldWithLabel>
+                              </Grid>
+                            );
+                          })}
+                        </Grid>
+                      </Box>
+                    </Grid>
+                  )}
+                </>
+              );
+            })}
+
+            {/* Demais campos dinâmicos */}
+            {dynamicFields.filter(f => !['area', 'subarea', 'campaign_type', 'journey_type', 'channel'].includes(f.name)).map((field: any) => {
+              const Component = getFieldComponent(field);
+              if (!Component) return null;
+              const options = field.values?.map((it: any) => ({ label: it.label || it.value || it, value: it.value || it.id || it })) || [];
+              let children;
+              if (field.type === 'dropdown' && !field.multiple) {
+                children = options.map((opt: { label: string; value: string }) => (
+                  <MenuItem key={opt.value} value={opt.value}>{opt.label}</MenuItem>
+                ));
+              }
+              const isMultiCheckbox = field.type === 'checkbox' && Array.isArray(field.values) && field.values.length > 1;
+              if (isMultiCheckbox) {
+                return (
+                  <Grid item xs={12} md={6} key={field.name}>
+                    <FieldWithLabel label={field.label} required={field.required}>
+                      <Field.MultiCheckbox name={field.name} options={options} />
+                    </FieldWithLabel>
+                  </Grid>
+                );
+              }
+              return (
+                <Grid item xs={12} md={6} key={field.name}>
+                  <FieldWithLabel label={field.label} required={field.required}>
+                    <Component name={field.name} options={options} {...(children ? { children } : {})} />
+                  </FieldWithLabel>
+                </Grid>
+              );
+            })}
+
+            
             <Grid item xs={12} md={6}>
               <FieldWithLabel label="Data de Início da Campanha">
-                <RHFDatePicker
-                  name="start_date"
-                  minDate={dayjs()}
-                  slotProps={{
-                    popper: {
-                      sx: {
-                        '& .MuiPaper-root': {
-                          '& .MuiPickersDay-root': {
-                            '&:hover': {
-                              backgroundColor: '#f0f8ff',
-                            },
-                            '&.Mui-selected': {
-                              backgroundColor: '#f0f8ff',
-                              color: '#093366',
-                              '&:hover': {
-                                backgroundColor: '#e6f3ff',
-                              },
-                            },
-                          },
-                        },
-                      },
-                    },
-                  }}
-                />
+                <Field.DatePicker name="start_date" minDate={dayjs()} />
               </FieldWithLabel>
             </Grid>
 
             <Grid item xs={12} md={6}>
               <FieldWithLabel label="Data de Fim da Campanha">
-                <RHFDatePicker
-                  name="end_date"
-                  minDate={dayjs()}
-                  slotProps={{
-                    popper: {
-                      sx: {
-                        '& .MuiPaper-root': {
-                          '& .MuiPickersDay-root': {
-                            '&:hover': {
-                              backgroundColor: '#f0f8ff',
-                            },
-                            '&.Mui-selected': {
-                              backgroundColor: '#f0f8ff',
-                              color: '#093366',
-                              '&:hover': {
-                                backgroundColor: '#e6f3ff',
-                              },
-                            },
-                          },
-                        },
-                      },
-                    },
-                  }}
-                />
+                <Field.DatePicker name="end_date" minDate={dayjs()} />
               </FieldWithLabel>
             </Grid>
 
-            {/* <Grid item xs={12}>
-              <RHFCheckbox
-                name="is_continuous"
-                label="Campanha Contínua"
-                helperText="Marque esta opção para campanhas de relacionamento ou transacionais sem data de fim prevista."
-                  sx={{
-                      '& .MuiCheckbox-root': {
-                        color: '#093366',
-                        '&.Mui-checked': {
-                          color: '#093366',
-                        },
-                      },
-                    }}
-              />
-            </Grid> */}
-
+            {/* ---- Call Center ---- */}
             <Grid item xs={12}>
               <FieldWithLabel label="Disponibilização para Call Center?">
                 <Box>
-                  <RHFCheckbox
+                  <Field.Checkbox
                     name="disponibilizacao_call_center_sim"
                     label="Sim"
-                    sx={{
-                      '& .MuiCheckbox-root': {
-                        color: '#093366',
-                        '&.Mui-checked': {
-                          color: '#093366',
-                        },
-                      },
-                    }}
+                    sx={{ '& .MuiCheckbox-root': { color: '#093366', '&.Mui-checked': { color: '#093366' } } }}
                   />
-                  <RHFCheckbox
+                  <Field.Checkbox
                     name="disponibilizacao_call_center_nao"
                     label="Não"
-                    sx={{
-                      '& .MuiCheckbox-root': {
-                        color: '#093366',
-                        '&.Mui-checked': {
-                          color: '#093366',
-                        },
-                      },
-                    }}
+                    sx={{ '& .MuiCheckbox-root': { color: '#093366', '&.Mui-checked': { color: '#093366' } } }}
                   />
                 </Box>
               </FieldWithLabel>
             </Grid>
 
-            {/* <Grid item xs={12}>
-              <FieldWithLabel label="Informações Extras">
-                <RHFTextField
-                  name="informacoes_extras"
-                  placeholder="Informações adicionais..."
-                  variant="outlined"
-                  multiline
-                  rows={4}
-                  error={!!methods.formState?.errors?.informacoes_extras}
-                  
-                />
-              </FieldWithLabel>
-            </Grid> */}
+            
 
+            {/* ---- Botão Próximo ---- */}
             <Grid item xs={12}>
               <Box display="flex" justifyContent="flex-end" mt={3}>
                 <Button

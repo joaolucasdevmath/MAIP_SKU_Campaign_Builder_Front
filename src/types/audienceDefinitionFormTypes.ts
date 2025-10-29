@@ -16,7 +16,7 @@ export interface AudienceBackendField {
 }
 
 export interface AudienceFieldValue {
-  ids: number;
+  id: number;
   value: string;
   label: string;
 }
