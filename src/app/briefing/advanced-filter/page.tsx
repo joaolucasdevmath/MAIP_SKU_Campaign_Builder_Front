@@ -11,7 +11,7 @@ import { FormStepper } from 'src/components/form-stepper';
 import { SplashScreen } from 'src/components/loading-screen';
 import { Form } from 'src/components/hook-form/form-provider';
 import { FieldWithLabel } from 'src/components/field-with-label';
-import { RHFSelect, RHFMultiSelect } from 'src/components/hook-form/rhf-select'; 
+import { RHFSelect, RHFMultiSelect } from 'src/components/hook-form/rhf-select';
 
 export default function AdvancedFilterPage() {
   const {
@@ -19,7 +19,6 @@ export default function AdvancedFilterPage() {
     loading,
     error,
     handleSubmit,
-    onSubmit,
     handlePrevious,
     handleSubmitWithValidation,
     formState,
@@ -33,15 +32,7 @@ export default function AdvancedFilterPage() {
     return (
       <Box>
         <FormStepper />
-        <Box
-          sx={{
-            mt: 4,
-            minHeight: 400,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}
-        >
+        <Box sx={{ mt: 4, minHeight: 400, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <SplashScreen portal={false} />
         </Box>
         <Typography variant="h6" color="text.secondary" align="center" sx={{ mt: 2 }}>
@@ -56,25 +47,9 @@ export default function AdvancedFilterPage() {
     return (
       <Box>
         <FormStepper />
-        <Box
-          sx={{
-            mt: 4,
-            minHeight: 400,
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: 3,
-          }}
-        >
-          <Typography variant="h6" color="error">
-            {error}
-          </Typography>
-          <Button
-            variant="contained"
-            onClick={handlePrevious}
-            sx={{ bgcolor: '#093366', '&:hover': { bgcolor: '#07264d' } }}
-          >
+        <Box sx={{ mt: 4, minHeight: 400, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 3 }}>
+          <Typography variant="h6" color="error">{error}</Typography>
+          <Button variant="contained" onClick={handlePrevious} sx={{ bgcolor: '#093366', '&:hover': { bgcolor: '#07264d' } }}>
             Voltar
           </Button>
         </Box>
@@ -93,54 +68,61 @@ export default function AdvancedFilterPage() {
     return (
       <Grid container spacing={2}>
         <Grid item xs={6}>
-          <Field.Text name={`${field.name}.min`} label="Mínimo" type="number" />
+          <Field.Text name={`${field.name}.min`} label="Mínimo" type="number" placeholder="Mín." />
         </Grid>
         <Grid item xs={6}>
-          <Field.Text name={`${field.name}.max`} label="Máximo" type="number" />
+          <Field.Text name={`${field.name}.max`} label="Máximo" type="number" placeholder="Máx." />
         </Grid>
       </Grid>
     );
   }
 
-  // Se for dropdown ou checkbox com múltiplas opções
-  if (field.values && (field.type === 'dropdown' || field.type === 'checkbox')) {
-    // Dropdown simples
-    if (field.type === 'dropdown' && !field.multiple) {
-      return (
-        <RHFSelect name={field.name} label={field.label}>
-          {options.map((opt: any) => (
-            <MenuItem key={opt.value} value={opt.value}>
-              {opt.label}
-            </MenuItem>
-          ))}
-        </RHFSelect>
-      );
-    }
 
-    // Checkbox ou Dropdown múltiplo
-    if (field.multiple) {
-      return (
-        <RHFMultiSelect
-          name={field.name}
-          label={field.label}
-          options={options}
-          chip
-          checkbox={field.type === 'checkbox'}
-          placeholder={`Selecione ${field.label.toLowerCase()}...`}
-        />
-      );
-    }
+if (field.type === 'dropdown' && !field.multiple) {
+  return (
+    <RHFSelect
+      name={field.name}
+      placeholder={`Selecione ${field.label.toLowerCase()}...`}
+      sx={{ width: '100%' }}
+    >
+      {options.map((opt: any) => (
+        <MenuItem key={opt.value} value={opt.value}>
+          {opt.label}
+        </MenuItem>
+      ))}
+    </RHFSelect>
+  );
+}
+
+  if (field.type === 'dropdown' && field.multiple || field.type === 'checkbox') {
+    return (
+      <RHFMultiSelect
+        name={field.name}
+        options={options}
+        chip
+        checkbox={field.type === 'checkbox'}
+        placeholder={`Selecione ${field.label.toLowerCase()}...`}
+        sx={{ width: '100%' }}
+      />
+    );
   }
 
-  // Usa o componente mapeado para outros tipos
+  // OUTROS: text, number, boolean
   const Component = getAdvancedFieldComponent(field);
-  if (!Component) return null;
+  if (!Component) return <Field.Text name={field.name} sx={{ width: '100%' }} />;
 
   return (
     <Component
       name={field.name}
-      label={field.label}
       type={field.type === 'number' ? 'number' : undefined}
+      placeholder={
+        field.type === 'text'
+          ? `Digite ${field.label.toLowerCase()}...`
+          : field.type === 'number'
+          ? '0'
+          : undefined
+      }
+      sx={{ width: '100%' }}
     />
   );
 };
@@ -174,8 +156,8 @@ export default function AdvancedFilterPage() {
       )}
 
       <Box sx={{ mt: 4 }}>
-        {/* @ts-ignore */}
-        <Form methods={methods} onSubmit={handleSubmit(onSubmit)}>
+        {/* @ts-ignoree */}
+        <Form methods={methods} onSubmit={handleSubmitWithValidation}>
           <Grid container spacing={3}>
             {fields.map((field) => (
               <Grid item xs={12} key={field.name}>
@@ -193,6 +175,7 @@ export default function AdvancedFilterPage() {
                   multiline
                   rows={4}
                   placeholder="Descreva critérios de saída..."
+                  sx={{ width: '100%' }}
                 />
               </FieldWithLabel>
             </Grid>

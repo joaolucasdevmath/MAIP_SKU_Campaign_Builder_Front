@@ -109,74 +109,80 @@ export function RHFMultiSelect({
   const labelId = `${name}-select-label`;
 
   return (
-    <Controller
-      name={name}
-      control={control}
-      render={({ field, fieldState: { error } }) => (
-        <FormControl error={!!error} {...other}>
-          {label && (
-            <InputLabel htmlFor={labelId} {...slotProps?.inputLabel}>
-              {label}
-            </InputLabel>
-          )}
+   <Controller
+  name={name}
+  control={control}
+  render={({ field, fieldState: { error } }) => {
+    // FORÇA ARRAY SEMPRE
+    const value = Array.isArray(field.value) ? field.value : [];
 
-          <Select
-            {...field}
-            multiple
-            displayEmpty
-            label={label}
-            renderValue={(selected) => {
-              const selectedArray = Array.isArray(selected) ? selected : [];
-              const selectedItems = options.filter((item) => selectedArray.includes(item.value));
+    return (
+      <FormControl error={!!error} {...other}>
+        {label && (
+          <InputLabel htmlFor={labelId} {...slotProps?.inputLabel}>
+            {label}
+          </InputLabel>
+        )}
 
-              if (!selectedItems.length) {
-                return <Box sx={{ color: 'text.disabled' }}>{placeholder || ''}</Box>;
-              }
+        <Select
+          {...field}
+          multiple
+          displayEmpty
+          label={label}
+          value={value} // ← FORÇA ARRAY
+          onChange={(e) => field.onChange(e.target.value)}
+          renderValue={(selected) => {
+            const selectedArray = Array.isArray(selected) ? selected : [];
+            const selectedItems = options.filter((item) => selectedArray.includes(item.value));
 
-              if (chip) {
-                return (
-                  <Box sx={{ gap: 0.5, display: 'flex', flexWrap: 'wrap' }}>
-                    {selectedItems.map((item) => (
-                      <Chip
-                        key={item.value}
-                        size="small"
-                        variant="soft"
-                        label={item.label}
-                        {...slotProps?.chip}
-                      />
-                    ))}
-                  </Box>
-                );
-              }
+            if (!selectedItems.length) {
+              return <Box sx={{ color: 'text.disabled' }}>{placeholder || ''}</Box>;
+            }
 
-              return selectedItems.map((item) => item.label).join(', ');
-            }}
-            {...slotProps?.select}
-            inputProps={{ id: labelId, ...slotProps?.select?.inputProps }}
-          >
-            {options.map((option) => (
-              <MenuItem key={option.value} value={option.value}>
-                {checkbox && (
-                  <Checkbox
-                    size="small"
-                    disableRipple
-                    checked={Array.isArray(field.value) && field.value.includes(option.value)}
-                    {...slotProps?.checkbox}
-                  />
-                )}
+            if (chip) {
+              return (
+                <Box sx={{ gap: 0.5, display: 'flex', flexWrap: 'wrap' }}>
+                  {selectedItems.map((item) => (
+                    <Chip
+                      key={item.value}
+                      size="small"
+                      variant="soft"
+                      label={item.label}
+                      {...slotProps?.chip}
+                    />
+                  ))}
+                </Box>
+              );
+            }
 
-                {option.label}
-              </MenuItem>
-            ))}
-          </Select>
+            return selectedItems.map((item) => item.label).join(', ');
+          }}
+          {...slotProps?.select}
+          inputProps={{ id: labelId, ...slotProps?.select?.inputProps }}
+        >
+          {options.map((option) => (
+            <MenuItem key={option.value} value={option.value}>
+              {checkbox && (
+                <Checkbox
+                  size="small"
+                  disableRipple
+                  checked={value.includes(option.value)} // ← usa o value forçado
+                  {...slotProps?.checkbox}
+                />
+              )}
+              {option.label}
+            </MenuItem>
+          ))}
+        </Select>
 
-          {(!!error || helperText) && (
-            <FormHelperText error={!!error} {...slotProps?.formHelperText}>
-              {error ? error?.message : helperText}
-            </FormHelperText>
-          )}
-        </FormControl>
-      )}
-    />
+        {(!!error || helperText) && (
+          <FormHelperText error={!!error} {...slotProps?.formHelperText}>
+            {error ? error?.message : helperText}
+          </FormHelperText>
+        )}
+      </FormControl>
+    );
+  }}
+/>
   );
 }
