@@ -35,34 +35,38 @@ export const useBriefingReview = (): BriefingHookReturn => {
       setIsGenerating(true);
       setError(null);
 
-      const campaign_channels: Record<string, number> = {};
+      const campaign_channels: Record<string, { quantity: number; cost: number }> = {};
       if (Array.isArray(campaignData.channel)) {
         campaignData.channel.forEach((channel: string) => {
           const channelKeyUpper = channel.toUpperCase();
-          const channelKeyOriginal = channel;
+          const channelInfo = campaignData.channelsWithCosts?.find(
+            (c: any) => c.value.toUpperCase() === channelKeyUpper
+          );
+          
           const quantityKeys = [
             `quantity_${channelKeyUpper}`,
-            `quantity_${channelKeyOriginal}`,
-            `quantity_${channelKeyOriginal.toLowerCase()}`,
+            `quantity_${channel}`,
+            `quantity_${channel.toLowerCase()}`,
           ];
-          let value: any;
+
+          let quantity: number | null = null;
           // eslint-disable-next-line no-restricted-syntax
           for (const quantityKey of quantityKeys) {
-            value = campaignData[quantityKey];
-
-            if (
-              value !== undefined &&
-              value !== null &&
-              !Number.isNaN(Number(value)) &&
-              Number(value) > 0
-            ) {
-              campaign_channels[channelKeyUpper] = Number(value);
+            const value = campaignData[quantityKey];
+            if (value !== undefined && value !== null && !Number.isNaN(Number(value)) && Number(value) > 0) {
+              quantity = Number(value);
               break;
             }
           }
-          if (!campaign_channels[channelKeyUpper]) {
+
+          if (quantity !== null && channelInfo) {
+            campaign_channels[channelKeyUpper] = {
+              quantity,
+              cost: Number(channelInfo.cost || 0)
+            };
+          } else {
             console.warn(
-              `[DEBUG useBriefingReview] Canal ${channel} ignorado: valor inválido (${value})`
+              `[DEBUG useBriefingReview] Canal ${channel} ignorado: quantidade=${quantity}, channelInfo=${JSON.stringify(channelInfo)}`
             );
           }
         });

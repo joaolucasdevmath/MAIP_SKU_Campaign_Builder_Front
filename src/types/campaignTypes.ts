@@ -1,5 +1,11 @@
 // Tipos e dados iniciais para o contexto do formulário de campanha
 
+export interface ChannelWithCost {
+  value: string;
+  label: string;
+  cost: number;
+}
+
 export interface RecommendationItem {
   title: string;
   description: string;
@@ -29,6 +35,7 @@ export interface QueryData {
 
 export interface CampaignData {
   // Etapa 1: Informações básicas
+  channelsWithCosts?: ChannelWithCost[];
   campaignName?: string;
   campaignCode?: string;
   journeyName?: string;

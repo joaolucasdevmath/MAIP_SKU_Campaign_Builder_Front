@@ -1,7 +1,7 @@
 // src/hooks/useBasicInfoForm.ts
 import { useForm } from 'react-hook-form';
 import { useRouter } from 'next/navigation';
-import { useMemo, useState, useEffect } from 'react';
+import { useMemo, useState, useEffect   } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 
 import axiosInstance, { endpoints } from 'src/utils/axios';
@@ -124,7 +124,24 @@ export function useBasicInfoForm(state: Partial<DynamicFormValues> = {}) {
   const onSubmit = (data: DynamicFormValues) => updateCampaignData(data);
 
   const handleNext = async (data: DynamicFormValues) => {
-    updateCampaignData(data);
+    // Processa os custos dos canais selecionados
+    const channelField = fields.find((f) => f.name === 'channel');
+    const selectedChannels = data.channel || [];
+    
+    const channelsWithCosts = channelField?.values
+      ?.filter((channel: any) => selectedChannels.includes(channel.value))
+      .map((channel: any) => ({
+        value: channel.value,
+        label: channel.label,
+        cost: parseFloat(channel.cost)
+      })) || [];
+
+    // Atualiza o contexto com os dados + custos dos canais
+    updateCampaignData({
+      ...data,
+      channelsWithCosts
+    });
+    
     router.push('/briefing/audience-definition');
   };
 

@@ -2,7 +2,7 @@ export interface GenerateQueryPayload {
   campaign_name: string;
   campaign_type: string;
   campaign_objective: string;
-  campaign_channels: Record<string, number>;
+  campaign_channels: string[];
   filters: Record<string, any>;
 }
 
@@ -14,6 +14,11 @@ export interface GenerateQueryResponse {
 }
 
 // Interfaces para Campaign Data API
+export interface ChannelInfo {
+  quantity: number;
+  cost: number;
+}
+
 export interface CampaignDataPayload {
   campaign_name: string;
   campaign_type: string;
@@ -32,7 +37,7 @@ export interface CampaignDataPayload {
     [key: string]: any;
   };
   query_text: string;
-  channels: Record<string, number>;
+  channels: Record<string, ChannelInfo>;
 }
 
 export interface CampaignDataResponse {

@@ -18,6 +18,7 @@ export interface UseAudienceQueryReturn {
   generateMarketingCloudFlow: (journey_name: string, query_text: string) => Promise<any>;
   getCurrentUser: () => Promise<any>;
   handleGenerateInsight: () => Promise<any>;
+  calculateCampaignCosts: (queryText: string) => Promise<void>;
 }
 
 export const useAudienceQuery = (): UseAudienceQueryReturn => {
@@ -291,6 +292,27 @@ export const useAudienceQuery = (): UseAudienceQueryReturn => {
       }
 
       // Construir payload simplificado
+      // Preparar os canais com custos usando os dados do contexto
+      const channelsWithCosts = campaignData.channelsWithCosts || [];
+      const formattedChannels: Record<string, { quantity: number; cost: number }> = {};
+      
+      Object.entries(campaign_channels).forEach(([channel, quantity]) => {
+        const channelInfo = channelsWithCosts.find(
+          (c: any) => c.value.toUpperCase() === channel
+        );
+        if (channelInfo) {
+          formattedChannels[channel] = {
+            quantity: Number(quantity),
+            cost: Number(channelInfo.cost)
+          };
+        }
+      });
+
+      // Preparar o payload para gerar a query
+      const campaignChannelsList = Object.entries(campaign_channels).map(([channel, quantity]) => 
+        `${channel}:${quantity}`
+      );
+
       const queryPayload: GenerateQueryPayload = {
         campaign_name: campaignData.campaign_name || 'teste',
         campaign_type: Array.isArray(campaignData.campaign_type)
@@ -299,7 +321,7 @@ export const useAudienceQuery = (): UseAudienceQueryReturn => {
         campaign_objective: Array.isArray(campaignData.campaign_objective)
           ? campaignData.campaign_objective[0] || 'INSCRIÇÃO'
           : campaignData.campaign_objective || campaignData.campaignObjective || 'INSCRIÇÃO',
-        campaign_channels,
+        campaign_channels: campaignChannelsList,
         filters,
       };
 
@@ -328,6 +350,9 @@ export const useAudienceQuery = (): UseAudienceQueryReturn => {
           typeof result.data === 'object' && 'journey_name' in result.data
             ? (result.data as any).journey_name
             : undefined;
+
+        // Após gerar a query com sucesso, calcula os custos
+        await calculateCampaignCosts(apiGeneratedQueryText);
 
         console.log('Query gerada:', apiGeneratedQueryText);
         console.log('Journey Name:', journeyName);
@@ -410,6 +435,127 @@ export const useAudienceQuery = (): UseAudienceQueryReturn => {
     toast.success('Todos os dados foram limpos!');
   };
 
+  // Função para calcular custos da campanha
+  const calculateCampaignCosts = async (queryText: string): Promise<void> => {
+    try {
+      // Preparar os canais com custos usando os dados do contexto
+        const channels: Record<string, { quantity: number; cost: number }> = {};
+      
+      // Pegar todos os canais selecionados e suas quantidades
+      const selectedChannels = campaignData.channel || [];
+      selectedChannels.forEach((channelName: string) => {
+        const channelKey = channelName.toUpperCase();
+        const channelInfo = campaignData.channelsWithCosts?.find(
+          (c: any) => c.value.toUpperCase() === channelKey
+        );
+        
+        // Procurar por variações do nome do canal para a quantidade
+        const possibleQuantityKeys = [
+          `quantity_${channelKey}`,
+          `quantity_${channelName}`,
+          `quantity_${channelName.toLowerCase()}`
+        ];
+
+        const foundQuantity = possibleQuantityKeys
+          .map(key => campaignData[key])
+          .find(value => value && !Number.isNaN(Number(value)));
+
+        if (foundQuantity && channelInfo) {
+          channels[channelKey] = {
+            quantity: Number(foundQuantity),
+            cost: Number(channelInfo.cost || 0)
+          };
+        }
+      });
+
+      console.log('Channels a serem enviados:', channels);
+
+      console.log('Canais formatados:', JSON.stringify(channels, null, 2));
+      console.log('Dados do campaignData:', {
+        channelsWithCosts: campaignData.channelsWithCosts,
+        channel: campaignData.channel,
+        channelQuantities: Object.keys(campaignData)
+          .filter(key => key.startsWith('quantity_'))
+          .reduce((acc, key) => ({ ...acc, [key]: campaignData[key] }), {})
+      });
+
+      // Validar estrutura dos canais antes de enviar
+      Object.entries(channels).forEach(([channel, data]) => {
+        if (typeof data !== 'object' || data === null) {
+          throw new Error(`Canal ${channel} não está no formato correto. Esperado objeto, recebido ${typeof data}`);
+        }
+        if (typeof data.quantity !== 'number' || Number.isNaN(data.quantity)) {
+          throw new Error(`Quantidade inválida para o canal ${channel}`);
+        }
+        if (typeof data.cost !== 'number' || Number.isNaN(data.cost)) {
+          throw new Error(`Custo inválido para o canal ${channel}`);
+        }
+      });
+
+      // Preparar o payload
+      const campaignDataPayload = {
+        campaign_name: campaignData.campaign_name || 'teste',
+        campaign_type: Array.isArray(campaignData.campaign_type)
+          ? campaignData.campaign_type[0] || 'OFC'
+          : campaignData.campaign_type || campaignData.campaignType || 'OFC',
+        query_text: queryText,
+        channels,
+        additional_info: {
+          base_origin: String(
+            campaignData.base_origin?.[0] || campaignData.source_base || ''
+          ).toUpperCase(),
+          nom_grupo_marca: campaignData.nom_grupo_marca || campaignData.brand || '',
+          segmentations: campaignData.segmentation || '',
+          nom_tipo_curso: Array.isArray(campaignData.nom_tipo_curso) ? campaignData.nom_tipo_curso : [],
+          tipo_captacao: Array.isArray(campaignData.tipo_captacao) ? campaignData.tipo_captacao : [],
+          modalidade: Array.isArray(campaignData.modalidade) ? campaignData.modalidade : [],
+          nom_curso: Array.isArray(campaignData.nom_curso) ? campaignData.nom_curso : [],
+          nom_curso_exclude: Array.isArray(campaignData.nom_curso_exclude) ? campaignData.nom_curso_exclude : [],
+          nom_periodo_academico: Array.isArray(campaignData.nom_periodo_academico) ? campaignData.nom_periodo_academico : [],
+          status_funil: Array.isArray(campaignData.status_funil) ? campaignData.status_funil : [],
+          atl_niveldeensino_c: Array.isArray(campaignData.atl_niveldeensino__c) ? campaignData.atl_niveldeensino__c : [],
+          forma_ingresso: Array.isArray(campaignData.forma_ingresso) ? campaignData.forma_ingresso : []
+        }
+      };
+
+      // Verificar se temos canais para enviar
+      if (Object.keys(channels).length === 0) {
+        console.warn('Nenhum canal com quantidade válida encontrado');
+        toast.warning('Nenhum canal com quantidade válida encontrado');
+        return;
+      }
+
+      console.log('Enviando payload para API:', JSON.stringify(campaignDataPayload, null, 2));
+
+      const campaignDataResponse = await axiosInstance.post(
+        endpoints.briefing.campaignData, 
+        campaignDataPayload
+      );
+
+      if (campaignDataResponse.data.success) {
+        console.log('Resposta do cálculo de custos:', campaignDataResponse.data);
+        
+        // Atualiza o contexto com as informações de custo
+        if (campaignDataResponse.data.data) {
+          updateCampaignData({
+            audienceInfo: {
+              ...campaignData.audienceInfo,
+              ...campaignDataResponse.data.data
+            }
+          });
+        }
+        
+        toast.success('Custos calculados com sucesso!');
+      } else {
+        throw new Error(campaignDataResponse.data.errorMessage || 'Erro ao calcular custos');
+      }
+    } catch (error) {
+      console.error('Erro ao calcular custos da audiência:', error);
+      toast.error('Erro ao calcular custos da audiência');
+      throw error;
+    }
+  };
+
   return {
     isGenerating,
     generatedQuery,
@@ -420,5 +566,6 @@ export const useAudienceQuery = (): UseAudienceQueryReturn => {
     generateMarketingCloudFlow,
     getCurrentUser,
     handleGenerateInsight,
+    calculateCampaignCosts,
   };
 };

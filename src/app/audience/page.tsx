@@ -347,9 +347,9 @@ export default function AudiencePage() {
                   Canais Utilizados
                 </Typography>
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-                  {Object.entries(payload.channels).map(([channel, quantity]) => (
+                  {Object.entries(payload.channels).map(([channel, info]) => (
                     <Typography key={channel} variant="body2">
-                      {channel}: {formatNumber(quantity)}
+                      {channel}: {formatNumber(info.quantity)} ({formatCurrency(info.cost)}/unidade)
                     </Typography>
                   ))}
                 </Box>
