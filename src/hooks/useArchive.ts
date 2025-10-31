@@ -73,7 +73,7 @@ export function useArchive() {
       source_base_id: string;
       source_base: string;
     };
-    briefingFields: Array<{ name: string; value: string }>;
+  briefingFields: Array<{ name: string; label: string; value: string }>;
   }) => ({
     campaign: {
       core: campaignCore,
@@ -85,16 +85,30 @@ export function useArchive() {
     },
   });
 
-  const saveArchive = async (payload: any) => {
-    try {
-      console.log('Payload enviado para /api/archive/:', payload);
-      const response = await axiosInstance.post(endpoints.briefing.archiveSave, payload);
-      return response.data;
-    } catch (err: any) {
-      setError(err.message || 'Erro ao salvar dados');
-      throw err;
-    }
-  };
+  
+const saveArchive = async (payload: any) => {
+  try {
+    
+    const normalizedPayload = {
+      ...payload,
+      briefing: {
+        ...payload.briefing,
+        fields: payload.briefing.fields.map((field: any) => ({
+          name: field.name,
+          label: field.label || field.name, 
+          value: field.value,
+        })),
+      },
+    };
+
+    console.log('Payload enviado para /api/archive/save:', normalizedPayload);
+    const response = await axiosInstance.post(endpoints.briefing.archiveSave, normalizedPayload);
+    return response.data;
+  } catch (err: any) {
+    setError(err.message || 'Erro ao salvar dados');
+    throw err;
+  }
+};
 
   const updateArchiveStatus = async (payload: any, status: string) => {
     const updatedPayload = {

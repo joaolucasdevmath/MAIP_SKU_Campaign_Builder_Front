@@ -72,8 +72,8 @@ export function useAudienceDefinitionForm(state: Partial<DynamicAudienceFormValu
             (item) => item.value === selectedSourceBase
           );
 
-          if (selectedOption?.ids) {
-            const endpoint = endpoints.briefing.step2Segment(selectedOption.ids.toString());
+          if (selectedOption?.id) {
+            const endpoint = endpoints.briefing.step2Segment(selectedOption.id.toString());
 
             const res = await axiosInstance.get(endpoint);
 
@@ -115,7 +115,7 @@ export function useAudienceDefinitionForm(state: Partial<DynamicAudienceFormValu
 
     const dataToSave = {
       ...data,
-      source_base_id: selectedOption?.ids?.toString() || '',
+      source_base_id: selectedOption?.id?.toString() || '',
       base_origin: data.source_base ? [data.source_base] : [],
     };
 
@@ -127,7 +127,7 @@ export function useAudienceDefinitionForm(state: Partial<DynamicAudienceFormValu
     router.push('/briefing/basic-info');
   };
 
-  // Buscar campos específicos do backend
+      
   const sourceBaseField = fields.find((f) => f.name === 'source_base');
 
   return {

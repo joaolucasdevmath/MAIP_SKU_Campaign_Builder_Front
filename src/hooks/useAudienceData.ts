@@ -2,10 +2,15 @@ import { useState } from 'react';
 
 import axiosInstance, { endpoints } from 'src/utils/axios';
 
+interface ChannelInfo {
+  quantity: number;
+  cost: number;
+}
+
 interface CampaignDataPayload {
   campaign_name: string;
   campaign_type: string;
-  channels: Record<string, number>;
+  channels: Record<string, ChannelInfo>;
   query_text: string;
   additional_info: Record<string, any>;
 }

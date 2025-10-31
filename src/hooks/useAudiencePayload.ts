@@ -5,7 +5,7 @@ export function useAudiencePayload() {
   console.log('[DEBUG useAudiencePayload] campaignData:', JSON.stringify(campaignData, null, 2));
 
   // Construir campaign_channels dinamicamente
-  const campaign_channels: Record<string, number> = {};
+  const campaign_channels: Record<string, { quantity: number; cost: number }> = {};
   if (campaignData && Array.isArray(campaignData.channel)) {
     campaignData.channel.forEach((channel: string) => {
       const channelKeyUpper = channel.toUpperCase();
@@ -15,26 +15,36 @@ export function useAudiencePayload() {
         `quantity_${channelKeyOriginal}`,
         `quantity_${channelKeyOriginal.toLowerCase()}`,
       ];
-      let value: any;
+      let quantity: any;
       // eslint-disable-next-line no-restricted-syntax
       for (const quantityKey of quantityKeys) {
-        value = campaignData[quantityKey];
+        quantity = campaignData[quantityKey];
         console.log(
-          `[DEBUG useAudiencePayload] Processando canal: ${channel}, quantityKey: ${quantityKey}, value: ${value}`
+          `[DEBUG useAudiencePayload] Processando canal: ${channel}, quantityKey: ${quantityKey}, quantity: ${quantity}`
         );
         if (
-          value !== undefined &&
-          value !== null &&
-          !Number.isNaN(Number(value)) &&
-          Number(value) > 0
+          quantity !== undefined &&
+          quantity !== null &&
+          !Number.isNaN(Number(quantity)) &&
+          Number(quantity) > 0
         ) {
-          campaign_channels[channelKeyUpper] = Number(value);
+          // Encontrar o custo do canal
+          const channelInfo = campaignData.channelsWithCosts?.find(
+            (c: any) => c.value.toUpperCase() === channelKeyUpper
+          );
+          
+          if (channelInfo) {
+            campaign_channels[channelKeyUpper] = {
+              quantity: Number(quantity),
+              cost: Number(channelInfo.cost || 0)
+            };
+          }
           break;
         }
       }
       if (!campaign_channels[channelKeyUpper]) {
         console.warn(
-          `[DEBUG useAudiencePayload] Canal ${channel} ignorado: valor inválido (${value})`
+          `[DEBUG useAudiencePayload] Canal ${channel} ignorado: valor inválido (${quantity})`
         );
       }
     });

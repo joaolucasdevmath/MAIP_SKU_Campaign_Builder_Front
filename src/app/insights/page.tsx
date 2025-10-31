@@ -41,7 +41,7 @@ export default function Insights() {
   const router = useRouter();
   const { state } = useFormWizard();
   const { handleBackToBasicInfo } = useBriefingReview();
-  const payload = useAudiencePayload() as AudiencePayload;
+  const payload = useAudiencePayload() as unknown as AudiencePayload;
   const { loading, error, data, runAudienceFlow } = useAudienceData();
   const {
     generatedQuery,
